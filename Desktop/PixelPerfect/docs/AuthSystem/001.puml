@@ -1,0 +1,74 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+title US001 - Administrator User Account Management
+
+autonumber
+
+actor "Administrator" as Admin
+participant ":System" as System
+database "Database" as DB
+
+== View Users with Access Levels ==
+
+Admin -> System: Requests to view user accounts
+activate System
+System -> DB: Queries for all user accounts
+activate DB
+DB --> System: Returns user account data
+deactivate DB
+System --> Admin: Displays list of users with access levels
+deactivate System
+
+== Create New User Account ==
+
+Admin -> System: Selects "Create New User"
+activate System
+System --> Admin: Displays user creation form
+deactivate System
+Admin -> System: Submits new user details with access level
+activate System
+System -> DB: Stores new user information
+activate DB
+DB --> System: Confirms successful storage
+deactivate DB
+System -> DB: Logs account creation in audit trail
+activate DB
+DB --> System: Confirms log entry created
+deactivate DB
+System --> Admin: Confirms user creation success
+deactivate System
+
+== Modify User Access Level ==
+
+Admin -> System: Selects user to modify
+activate System
+System --> Admin: Displays user details
+deactivate System
+Admin -> System: Updates user access level
+activate System
+System -> DB: Updates user access level
+activate DB
+DB --> System: Confirms successful update
+deactivate DB
+System -> DB: Logs access level change in audit trail
+activate DB
+DB --> System: Confirms log entry created
+deactivate DB
+System --> Admin: Confirms access level update success
+deactivate System
+
+== Search for Users ==
+
+Admin -> System: Enters search criteria (name/email/organization)
+activate System
+System -> DB: Queries matching user accounts
+activate DB
+DB --> System: Returns matching user data
+deactivate DB
+System --> Admin: Displays filtered user list
+deactivate System
+
+@enduml
