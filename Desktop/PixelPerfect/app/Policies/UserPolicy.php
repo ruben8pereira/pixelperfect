@@ -169,4 +169,21 @@ class UserPolicy
         // Same permissions as delete
         return $this->delete($user, $model);
     }
+
+    public function resetPassword(User $user, User $model)
+{
+    // Admins can reset any user's password
+    if ($user->role->name === 'Administrator') {
+        return true;
+    }
+
+    // Organization managers can reset passwords for users in their organization
+    if ($user->role->name === 'Organization') {
+        return $user->organization_id === $model->organization_id &&
+               $model->role->name !== 'Administrator' &&
+               $model->role->name !== 'Organization';
+    }
+
+    return false;
+}
 }

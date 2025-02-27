@@ -6,6 +6,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ReportCommentController;
 use App\Http\Controllers\ReportImageController;
 use App\Http\Controllers\InvitationController;
+use App\Http\Controllers\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -70,6 +71,14 @@ Route::middleware(['auth'])->group(function () {
         ->name('invitations.resend');
     Route::delete('/invitations/{invitation}', [InvitationController::class, 'cancel'])
         ->name('invitations.cancel');
+
+        // User Management Routes (Admin only)
+Route::middleware(['auth', 'can:access-admin'])->group(function () {
+    Route::resource('users', UserController::class);
+    Route::post('/users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
+    Route::post('/users/{user}/archive', [UserController::class, 'archive'])->name('users.archive');
+    Route::post('/users/{user}/restore', [UserController::class, 'restore'])->name('users.restore');
+});
 });
 
 require __DIR__.'/auth.php';
