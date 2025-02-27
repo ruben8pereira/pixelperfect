@@ -11,44 +11,36 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 
 class ReportController extends Controller
-
 {
+    use AuthorizesRequests;
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index()
     {
-        $query = Report::with(['organization', 'reportDefects', 'creator']);
+        // Ensure user can view reports
+        if (!Gate::allows('view-reports')) {
+            abort(403, 'You are not authorized to view reports');
+        }
 
-        // Filter by organization (for admins only)
-        if (Auth::user()->role->name === 'Administrator' && $request->filled('organization')) {
-            $query->where('organization_id', $request->organization);
-        } else if (Auth::user()->role->name === 'Organization') {
-            // Organizations can only see their own reports
-            $query->where('organization_id', Auth::user()->organization_id);
-        } else if (Auth::user()->role->name === 'RegisteredUser') {
-            // Registered users can see reports from their organization
-            $query->where('organization_id', Auth::user()->organization_id);
+        $user = Auth::user();
+
+        // Different query based on role
+        if ($user->role->name === 'Organization') {
+            $reports = Report::where('organization_id', $user->organization_id)->get();
+        } elseif ($user->role->name === 'User') {
+            $reports = Report::where('organization_id', $user->organization_id)->get();
         } else {
-            // Basic users can only see their own reports
-            $query->where('created_by', Auth::id());
+            $reports = collect([]); // Empty collection for other roles
         }
-
-        // Search by title or description
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
-            });
-        }
-
-        $reports = $query->latest()->paginate(10);
 
         return view('reports.index', compact('reports'));
     }
@@ -60,14 +52,12 @@ class ReportController extends Controller
      */
     public function create()
     {
-        // Only allow users with appropriate roles to create reports
-        if (Auth::user()->role->name === 'BasicUser') {
-            return redirect()->route('dashboard')->with('error', 'You do not have permission to create reports.');
+        // Ensure user can create reports
+        if (!Gate::allows('create-edit-reports')) {
+            abort(403, 'You are not authorized to create reports');
         }
 
-        $defectTypes = DefectType::all();
-
-        return view('reports.create', compact('defectTypes'));
+        return view('reports.create');
     }
 
     /**
@@ -78,6 +68,9 @@ class ReportController extends Controller
      */
     public function store(Request $request)
     {
+        if (!Gate::allows('create-edit-reports')) {
+            abort(403, 'You are not authorized to create reports');
+        }
         // Validate the request
         $request->validate([
             'title' => 'required|string|max:255',
@@ -108,8 +101,8 @@ class ReportController extends Controller
             // Create the report
             $report = Report::create([
                 'title' => $request->title,
-                'description' => $request->description,
-                'organization_id' => $organizationId,
+                'organization_id' => Auth::user()->organization_id,
+                'created_by' => Auth::id(),
                 'created_by' => Auth::id(),
                 'language' => $request->language,
             ]);
@@ -359,6 +352,9 @@ class ReportController extends Controller
      */
     public function exportPdf(Report $report, PdfExportService $pdfService)
     {
+        if (!Gate::allows('export-pdf', $report)) {
+            abort(403, 'You are not authorized to export this report');
+        }
         // Check permission to view report
         $this->authorize('view', $report);
 

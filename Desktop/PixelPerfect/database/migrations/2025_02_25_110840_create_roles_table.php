@@ -12,20 +12,38 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('roles', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('description')->nullable();
-            $table->timestamps();
-        });
+        // Update existing roles to match the specified requirements
+        DB::table('roles')->updateOrInsert(
+            ['name' => 'Administrator'],
+            [
+                'name' => 'Administrator',
+                'description' => 'Business owner with system-wide management capabilities'
+            ]
+        );
 
-        // Insert default roles
-        DB::table('roles')->insert([
-            ['name' => 'Administrator', 'description' => 'System administrator'],
-            ['name' => 'Organization', 'description' => 'Organization manager'],
-            ['name' => 'User', 'description' => 'Paying member of an organization'],
-            ['name' => 'Guest', 'description' => 'Unregistered user'],
-        ]);
+        DB::table('roles')->updateOrInsert(
+            ['name' => 'Organization'],
+            [
+                'name' => 'Organization',
+                'description' => 'Organizational manager with access to organization-specific reports and invitations'
+            ]
+        );
+
+        DB::table('roles')->updateOrInsert(
+            ['name' => 'RegisteredUser'],
+            [
+                'name' => 'RegisteredUser',
+                'description' => 'Paying user with ability to create, edit, and share reports'
+            ]
+        );
+
+        DB::table('roles')->updateOrInsert(
+            ['name' => 'Guest'],
+            [
+                'name' => 'Guest',
+                'description' => 'User with limited access to shared reports'
+            ]
+        );
     }
 
     /**
@@ -33,6 +51,13 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('roles');
+        // Optional: If you want to revert changes
+        DB::table('roles')->whereIn('name', [
+            'Administrator',
+            'Organization',
+            'RegisteredUser',
+            'Guest'
+        ])->delete();
     }
 };
+

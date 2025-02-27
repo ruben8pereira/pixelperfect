@@ -92,7 +92,7 @@
             @else
                 <div class="alert alert-secondary">
                     <p>No reports found.
-                        @if(auth()->user()->role && auth()->user()->role->name != 'BasicUser')
+                        @if(auth()->user()->role && auth()->user()->role->name != 'User')
                             <a href="{{ route('reports.create') }}" class="text-primary">Create your first report</a>.
                         @endif
                     </p>
@@ -100,7 +100,7 @@
             @endif
         </div>
 
-        @if(auth()->user()->role && auth()->user()->role->name != 'BasicUser')
+        @if(auth()->user()->role && auth()->user()->role->name != 'Guest')
             <div class="mt-4">
                 <a href="{{ route('reports.create') }}" class="btn btn-lg btn-primary">New Report</a>
             </div>
