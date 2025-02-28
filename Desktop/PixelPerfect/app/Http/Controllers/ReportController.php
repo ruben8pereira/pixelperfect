@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Redirect;
 
 
 class ReportController extends Controller
@@ -151,17 +152,16 @@ class ReportController extends Controller
 
             DB::commit();
 
-            return redirect()->route('reports.show', $report)
-                ->with('success', __('Report updated successfully.'));
+        return redirect()->route('reports.show', $report)
+            ->with('success', 'Report created successfully.');
 
-        } catch (\Exception $e) {
-            DB::rollBack();
-
-            return redirect()->back()
-                ->with('error', __('An error occurred while updating the report: ') . $e->getMessage())
-                ->withInput();
-        }
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return redirect()->back()
+            ->with('error', 'An error occurred: ' . $e->getMessage())
+            ->withInput();
     }
+}
 
     /**
      * Validate the report request.
@@ -206,9 +206,9 @@ class ReportController extends Controller
     public function index()
     {
         // Ensure user can view reports
-        if (!Gate::allows('view-reports')) {
+        /*if (!Gate::allows('view-reports')) {
             abort(403, 'You are not authorized to view reports');
-        }
+        }*/
 
         $user = Auth::user();
 
@@ -233,7 +233,7 @@ class ReportController extends Controller
     public function create()
     {
         // Ensure user can create reports
-       /* if (!Gate::allows('create-edit-reports')) {
+        /*if (!Gate::allows('create-edit-reports')) {
             abort(403, 'You are not authorized to create reports');
         }*/
 
