@@ -18,9 +18,18 @@ class ReportPolicy
      */
     public function viewAny(User $user)
     {
-        // All authenticated users can view reports list
-        // Filtering is handled in the controller
-        return true;
+        // Organization can view reports from their organization
+        if ($user->role->name === 'Organization') {
+            return true;
+        }
+
+        // Registered Users can view reports from their organization
+        if ($user->role->name === 'User') {
+            return true;
+        }
+
+        // Guests and Administrators cannot view reports list
+        return false;
     }
 
     /**
@@ -32,23 +41,24 @@ class ReportPolicy
      */
     public function view(User $user, Report $report)
     {
-        // Admins can view all reports
-        if ($user->role->name === 'Administrator') {
-            return true;
-        }
-
-        // Organization managers can view reports from their organization
+        // Organization can view reports from their organization
         if ($user->role->name === 'Organization') {
             return $user->organization_id === $report->organization_id;
         }
 
-        // Registered users can view reports from their organization
-        if ($user->role->name === 'RegisteredUser') {
+        // Registered Users can view reports from their organization
+        if ($user->role->name === 'User') {
             return $user->organization_id === $report->organization_id;
         }
 
-        // Basic users can only view their own reports
-        return $user->id === $report->created_by;
+        // Guests can only view shared reports (future implementation)
+        if ($user->role->name === 'Guest') {
+            // TODO: Implement shared report logic
+            return false;
+        }
+
+        // Administrators cannot view reports
+        return false;
     }
 
     /**
@@ -59,8 +69,7 @@ class ReportPolicy
      */
     public function create(User $user)
     {
-        // BasicUsers cannot create reports, all others can
-        return $user->role->name !== 'BasicUser';
+        return in_array($user->role->name, ['User', 'Organization']);
     }
 
     /**
@@ -72,24 +81,19 @@ class ReportPolicy
      */
     public function update(User $user, Report $report)
     {
-        // Admins can update all reports
-        if ($user->role->name === 'Administrator') {
-            return true;
-        }
-
-        // Organization managers can update reports from their organization
+        // Organization can update reports in their organization
         if ($user->role->name === 'Organization') {
             return $user->organization_id === $report->organization_id;
         }
 
-        // Registered users can update their own reports
-        if ($user->role->name === 'RegisteredUser') {
+        // Registered Users can update their own reports
+        if ($user->role->name === 'User') {
             return $user->id === $report->created_by &&
                    $user->organization_id === $report->organization_id;
         }
 
-        // Basic users can update their own reports
-        return $user->id === $report->created_by;
+        // Guests and Administrators cannot update reports
+        return false;
     }
 
     /**
@@ -101,24 +105,35 @@ class ReportPolicy
      */
     public function delete(User $user, Report $report)
     {
-        // Admins can delete all reports
-        if ($user->role->name === 'Administrator') {
-            return true;
-        }
-
-        // Organization managers can delete reports from their organization
+        // Organization can delete reports in their organization
         if ($user->role->name === 'Organization') {
             return $user->organization_id === $report->organization_id;
         }
 
-        // Registered users can delete their own reports
-        if ($user->role->name === 'RegisteredUser') {
+        // Registered Users can delete their own reports
+        if ($user->role->name === 'User') {
             return $user->id === $report->created_by &&
                    $user->organization_id === $report->organization_id;
         }
 
-        // Basic users can delete their own reports
-        return $user->id === $report->created_by;
+        // Guests and Administrators cannot delete reports
+        return false;
+    }
+
+    public function exportPdf(User $user, Report $report)
+    {
+        // Organization can export reports from their organization
+        if ($user->role->name === 'Organization') {
+            return $user->organization_id === $report->organization_id;
+        }
+
+        // Registered Users can export their own reports
+        if ($user->role->name === 'User') {
+            return $user->organization_id === $report->organization_id;
+        }
+
+        // Guests and Administrators cannot export reports
+        return false;
     }
 
     /**

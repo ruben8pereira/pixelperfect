@@ -42,16 +42,22 @@ class PdfExportService
         }
 
         // Generate PDF with fixed dimensions
-        $pdf = PDF::loadView('reports.pdf', [
+        $pdf = PDF::loadView('reports.pdf-export', [
             'report' => $report,
             'includeComments' => $includeComments,
         ]);
 
-        // Set paper size and other options
+        // Set paper size and other options for a professional result
         $pdf->setPaper('a4', 'portrait');
-        $pdf->setOption('defaultFont', 'sans-serif');
+        $pdf->setOption('defaultFont', 'Arial');
         $pdf->setOption('isHtml5ParserEnabled', true);
         $pdf->setOption('isRemoteEnabled', true);
+
+        // Set margins to match example
+        $pdf->setOption('margin-top', '10mm');
+        $pdf->setOption('margin-right', '10mm');
+        $pdf->setOption('margin-bottom', '10mm');
+        $pdf->setOption('margin-left', '10mm');
 
         return $pdf;
     }

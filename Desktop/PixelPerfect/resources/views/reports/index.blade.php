@@ -4,12 +4,14 @@
 <div class="container-fluid px-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h1 class="h3 mb-0 text-gray-800">Reports</h1>
-            <p class="text-muted">Manage your pipe inspection reports</p>
+            <h1 class="h3 mb-0 text-gray-800">{{ __('Reports') }}</h1>
+            <p class="text-muted">{{ __('Manage your pipe inspection reports') }}</p>
         </div>
+        @if(auth()->user()->role && auth()->user()->role->name != 'BasicUser')
         <a href="{{ route('reports.create') }}" class="btn btn-primary">
-            <i class="fas fa-plus me-1"></i> New Report
+            <i class="fas fa-plus me-1"></i> {{ __('New Report') }}
         </a>
+        @endif
     </div>
 
     <div class="card shadow-sm mb-4">
@@ -18,15 +20,15 @@
             <form action="{{ route('reports.index') }}" method="GET" class="mb-4">
                 <div class="row g-3 align-items-end">
                     <div class="col-md-4">
-                        <label for="search" class="form-label fw-bold">Search</label>
-                        <input id="search" type="text" class="form-control" name="search" value="{{ request('search') }}" placeholder="Search by title or description...">
+                        <label for="search" class="form-label fw-bold">{{ __('Search') }}</label>
+                        <input id="search" type="text" class="form-control" name="search" value="{{ request('search') }}" placeholder="{{ __('Search by title or description...') }}">
                     </div>
 
-                    @if(auth()->user()->role->name == 'Administrator')
+                    @if(auth()->user()->role && auth()->user()->role->name == 'Administrator')
                     <div class="col-md-3">
-                        <label for="organization" class="form-label fw-bold">Organization</label>
+                        <label for="organization" class="form-label fw-bold">{{ __('Organization') }}</label>
                         <select id="organization" name="organization" class="form-select">
-                            <option value="">All Organizations</option>
+                            <option value="">{{ __('All Organizations') }}</option>
                             @foreach(\App\Models\Organization::all() as $organization)
                                 <option value="{{ $organization->id }}" {{ request('organization') == $organization->id ? 'selected' : '' }}>
                                     {{ $organization->name }}
@@ -37,24 +39,24 @@
                     @endif
 
                     <div class="col-md-2">
-                        <label for="severity" class="form-label fw-bold">Severity</label>
+                        <label for="severity" class="form-label fw-bold">{{ __('Severity') }}</label>
                         <select id="severity" name="severity" class="form-select">
-                            <option value="">All Severities</option>
-                            <option value="low" {{ request('severity') == 'low' ? 'selected' : '' }}>Low</option>
-                            <option value="medium" {{ request('severity') == 'medium' ? 'selected' : '' }}>Medium</option>
-                            <option value="high" {{ request('severity') == 'high' ? 'selected' : '' }}>High</option>
-                            <option value="critical" {{ request('severity') == 'critical' ? 'selected' : '' }}>Critical</option>
+                            <option value="">{{ __('All Severities') }}</option>
+                            <option value="critical" {{ request('severity') == 'critical' ? 'selected' : '' }}>{{ __('Critical') }}</option>
+                            <option value="high" {{ request('severity') == 'high' ? 'selected' : '' }}>{{ __('High') }}</option>
+                            <option value="medium" {{ request('severity') == 'medium' ? 'selected' : '' }}>{{ __('Medium') }}</option>
+                            <option value="low" {{ request('severity') == 'low' ? 'selected' : '' }}>{{ __('Low') }}</option>
                         </select>
                     </div>
 
                     <div class="col-md-2">
-                        <label for="date_range" class="form-label fw-bold">Date Range</label>
+                        <label for="date_range" class="form-label fw-bold">{{ __('Date Range') }}</label>
                         <select id="date_range" name="date_range" class="form-select">
-                            <option value="">All Time</option>
-                            <option value="today" {{ request('date_range') == 'today' ? 'selected' : '' }}>Today</option>
-                            <option value="week" {{ request('date_range') == 'week' ? 'selected' : '' }}>This Week</option>
-                            <option value="month" {{ request('date_range') == 'month' ? 'selected' : '' }}>This Month</option>
-                            <option value="year" {{ request('date_range') == 'year' ? 'selected' : '' }}>This Year</option>
+                            <option value="">{{ __('All Time') }}</option>
+                            <option value="today" {{ request('date_range') == 'today' ? 'selected' : '' }}>{{ __('Today') }}</option>
+                            <option value="week" {{ request('date_range') == 'week' ? 'selected' : '' }}>{{ __('This Week') }}</option>
+                            <option value="month" {{ request('date_range') == 'month' ? 'selected' : '' }}>{{ __('This Month') }}</option>
+                            <option value="year" {{ request('date_range') == 'year' ? 'selected' : '' }}>{{ __('This Year') }}</option>
                         </select>
                     </div>
 
@@ -71,14 +73,14 @@
                 <table class="table table-hover align-middle">
                     <thead class="table-light">
                         <tr>
-                            <th scope="col">Report</th>
-                            <th scope="col">Created</th>
-                            @if(auth()->user()->role->name == 'Administrator')
-                                <th scope="col">Organization</th>
+                            <th scope="col">{{ __('Report') }}</th>
+                            <th scope="col">{{ __('Created') }}</th>
+                            @if(auth()->user()->role && auth()->user()->role->name == 'Administrator')
+                                <th scope="col">{{ __('Organization') }}</th>
                             @endif
-                            <th scope="col" class="text-center">Defects</th>
-                            <th scope="col" class="text-center">Exports</th>
-                            <th scope="col" class="text-center">Actions</th>
+                            <th scope="col" class="text-center">{{ __('Defects') }}</th>
+                            <th scope="col" class="text-center">{{ __('Exports') }}</th>
+                            <th scope="col" class="text-center">{{ __('Actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -101,7 +103,7 @@
                                         <div class="text-muted">{{ $report->created_at->format('H:i') }}</div>
                                     </div>
                                 </td>
-                                @if(auth()->user()->role->name == 'Administrator')
+                                @if(auth()->user()->role && auth()->user()->role->name == 'Administrator')
                                     <td>{{ $report->organization->name }}</td>
                                 @endif
                                 <td class="text-center">
@@ -116,18 +118,22 @@
                                 </td>
                                 <td>
                                     <div class="d-flex justify-content-center gap-2">
-                                        <a href="{{ route('reports.show', $report) }}" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="View Report">
+                                        <a href="{{ route('reports.show', $report) }}" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="{{ __('View Report') }}">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        <a href="{{ route('reports.edit', $report) }}" class="btn btn-sm btn-outline-warning" data-bs-toggle="tooltip" title="Edit Report">
+                                        @can('update', $report)
+                                        <a href="{{ route('reports.edit', $report) }}" class="btn btn-sm btn-outline-warning" data-bs-toggle="tooltip" title="{{ __('Edit Report') }}">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <a href="{{ route('reports.export-pdf', $report) }}" class="btn btn-sm btn-outline-success" data-bs-toggle="tooltip" title="Export PDF">
+                                        @endcan
+                                        <a href="{{ route('reports.export-pdf', $report) }}" class="btn btn-sm btn-outline-success" data-bs-toggle="tooltip" title="{{ __('Export PDF') }}">
                                             <i class="fas fa-file-pdf"></i>
                                         </a>
-                                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $report->id }}" title="Delete Report">
+                                        @can('delete', $report)
+                                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $report->id }}" title="{{ __('Delete Report') }}">
                                             <i class="fas fa-trash"></i>
                                         </button>
+                                        @endcan
                                     </div>
 
                                     <!-- Delete Modal -->
