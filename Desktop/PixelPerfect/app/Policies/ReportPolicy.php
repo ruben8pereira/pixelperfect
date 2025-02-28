@@ -51,6 +51,8 @@ class ReportPolicy
             return $user->organization_id === $report->organization_id;
         }
 
+        //ACHO QUE FALTA AQUI UMA VALIDACAO
+
         // Guests can only view shared reports (future implementation)
         if ($user->role->name === 'Guest') {
             // TODO: Implement shared report logic
