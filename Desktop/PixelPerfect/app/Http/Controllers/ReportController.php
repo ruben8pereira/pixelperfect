@@ -19,10 +19,189 @@ class ReportController extends Controller
 {
     use AuthorizesRequests;
 
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        // Validate the request
+        $this->validateReport($request);
+
+        try {
+            DB::beginTransaction();
+
+            // Create report
+            $report = new Report();
+            $report->title = $request->title;
+            $report->description = $request->description;
+            $report->language = $request->language ?? 'en';
+            $report->pdf_export_count = 0;
+            $report->created_by = Auth::id();
+
+            // If user is admin and can select organization
+            if (Auth::user()->role && Auth::user()->role->name === 'Administrator' && $request->has('organization_id')) {
+                $report->organization_id = $request->organization_id;
+            } else {
+                // Otherwise, use the user's organization
+                $report->organization_id = Auth::user()->organization_id;
+            }
+
+            $report->save();
+
+            // Process network map if provided
+            if ($request->hasFile('map_image')) {
+                $mapPath = $request->file('map_image')->store('report-images', 'public');
+
+                $mapImage = new ReportImage();
+                $mapImage->report_id = $report->id;
+                $mapImage->file_path = $mapPath;
+                $mapImage->caption = 'Map';
+                $mapImage->save();
+            } elseif (!$request->has('keep_map_image')) {
+                // Remove map image if the user unchecked "keep this image"
+                $oldMapImage = $report->reportImages->where('caption', 'Map')->first();
+                if ($oldMapImage) {
+                    Storage::disk('public')->delete($oldMapImage->file_path);
+                    $oldMapImage->delete();
+                }
+            }
+
+            // Process defects
+            $existingDefectIds = [];
+
+            if ($request->has('defects')) {
+                foreach ($request->defects as $index => $defectData) {
+                    // Check if this is an existing defect or a new one
+                    if (isset($defectData['id'])) {
+                        $defect = ReportDefect::findOrFail($defectData['id']);
+
+                        // Verify this defect belongs to this report
+                        if ($defect->report_id != $report->id) {
+                            continue; // Skip if defect doesn't belong to this report
+                        }
+
+                        $existingDefectIds[] = $defect->id;
+                    } else {
+                        $defect = new ReportDefect();
+                        $defect->report_id = $report->id;
+                    }
+
+                    // Update defect data
+                    $defect->defect_type_id = $defectData['defect_type_id'];
+                    $defect->description = $defectData['description'];
+                    $defect->severity = $defectData['severity'];
+
+                    // Handle coordinates
+                    $coordinates = [];
+                    if (isset($defectData['coordinates'])) {
+                        foreach ($defectData['coordinates'] as $key => $value) {
+                            if (!empty($value)) {
+                                $coordinates[$key] = $value;
+                            }
+                        }
+                    }
+                    $defect->coordinates = $coordinates;
+
+                    $defect->save();
+
+                    // Process defect image if provided
+                    if ($request->hasFile("defect_images.{$index}")) {
+                        // Remove old defect image if exists
+                        $oldDefectImage = $report->reportImages->where('defect_id', $defect->id)->first();
+                        if ($oldDefectImage) {
+                            Storage::disk('public')->delete($oldDefectImage->file_path);
+                            $oldDefectImage->delete();
+                        }
+
+                        // Store new defect image
+                        $imagePath = $request->file("defect_images.{$index}")->store('report-images', 'public');
+
+                        $defectImage = new ReportImage();
+                        $defectImage->report_id = $report->id;
+                        $defectImage->file_path = $imagePath;
+                        $defectImage->defect_id = $defect->id;
+                        $defectImage->caption = substr($defect->description, 0, 30);
+                        $defectImage->save();
+                    } elseif (!$request->has("keep_defect_images.{$index}")) {
+                        // Remove defect image if the user unchecked "keep this image"
+                        $oldDefectImage = $report->reportImages->where('defect_id', $defect->id)->first();
+                        if ($oldDefectImage) {
+                            Storage::disk('public')->delete($oldDefectImage->file_path);
+                            $oldDefectImage->delete();
+                        }
+                    }
+                }
+            }
+
+            // Delete defects that were removed
+            $report->reportDefects()->whereNotIn('id', $existingDefectIds)->get()->each(function ($defect) {
+                // Delete associated images first
+                $defect->images()->get()->each(function ($image) {
+                    Storage::disk('public')->delete($image->file_path);
+                    $image->delete();
+                });
+
+                // Delete the defect
+                $defect->delete();
+            });
+
+            DB::commit();
+
+            return redirect()->route('reports.show', $report)
+                ->with('success', __('Report updated successfully.'));
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return redirect()->back()
+                ->with('error', __('An error occurred while updating the report: ') . $e->getMessage())
+                ->withInput();
+        }
+    }
+
+    /**
+     * Validate the report request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Report|null  $report
+     * @return void
+     */
+    protected function validateReport(Request $request, Report $report = null)
+    {
+        $rules = [
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'language' => 'required|string|size:2|in:en,fr,de',
+            'map_image' => 'nullable|image|max:10240', // Max 10MB
+
+            // Defects validation
+            'defects' => 'required|array|min:1',
+            'defects.*.defect_type_id' => 'required|exists:defect_types,id',
+            'defects.*.description' => 'required|string|max:1000',
+            'defects.*.severity' => 'required|string|in:low,medium,high,critical',
+            'defects.*.coordinates' => 'nullable|array',
+
+            // Defect images
+            'defect_images.*' => 'nullable|image|max:10240', // Max 10MB
+        ];
+
+        // If user is admin, validate organization_id
+        if (Auth::user()->role && Auth::user()->role->name === 'Administrator') {
+            $rules['organization_id'] = 'required|exists:organizations,id';
+        }
+
+        $request->validate($rules);
+    }
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
+     *
      */
     public function index()
     {
@@ -36,7 +215,8 @@ class ReportController extends Controller
         // Different query based on role
         if ($user->role->name === 'Organization') {
             $reports = Report::where('organization_id', $user->organization_id)->get();
-        } elseif ($user->role->name === 'User') {
+        }
+        elseif ($user->role->name === 'User') {
             $reports = Report::where('organization_id', $user->organization_id)->get();
         } else {
             $reports = collect([]); // Empty collection for other roles
@@ -53,105 +233,19 @@ class ReportController extends Controller
     public function create()
     {
         // Ensure user can create reports
-        if (!Gate::allows('create-edit-reports')) {
+       /* if (!Gate::allows('create-edit-reports')) {
             abort(403, 'You are not authorized to create reports');
-        }
+        }*/
 
         return view('reports.create');
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        if (!Gate::allows('create-edit-reports')) {
-            abort(403, 'You are not authorized to create reports');
-        }
-        // Validate the request
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'organization_id' => Auth::user()->role->name === 'Administrator' ? 'required|exists:organizations,id' : '',
-            'language' => 'required|string|size:2',
-            'defects' => 'required|array|min:1',
-            'defects.*.defect_type_id' => 'required|exists:defect_types,id',
-            'defects.*.severity' => 'required|in:low,medium,high,critical',
-            'defects.*.description' => 'nullable|string',
-            'defects.*.coordinates.latitude' => 'nullable|numeric',
-            'defects.*.coordinates.longitude' => 'nullable|numeric',
-            'images.*' => 'nullable|image|max:10240', // Max 10MB
-        ]);
-
-        // Determine organization_id based on user role
-        $organizationId = Auth::user()->role->name === 'Administrator'
-            ? $request->organization_id
-            : Auth::user()->organization_id;
-
-        if (!$organizationId) {
-            return redirect()->back()->with('error', 'You need to be part of an organization to create reports.')->withInput();
-        }
-
-        try {
-            DB::beginTransaction();
-
-            // Create the report
-            $report = Report::create([
-                'title' => $request->title,
-                'organization_id' => Auth::user()->organization_id,
-                'created_by' => Auth::id(),
-                'created_by' => Auth::id(),
-                'language' => $request->language,
-            ]);
-
-            // Create the defects
-            foreach ($request->defects as $defectData) {
-                $coordinates = null;
-                if (isset($defectData['coordinates']) &&
-                    isset($defectData['coordinates']['latitude']) &&
-                    isset($defectData['coordinates']['longitude'])) {
-                    $coordinates = [
-                        'latitude' => $defectData['coordinates']['latitude'],
-                        'longitude' => $defectData['coordinates']['longitude'],
-                    ];
-                }
-
-                ReportDefect::create([
-                    'report_id' => $report->id,
-                    'defect_type_id' => $defectData['defect_type_id'],
-                    'description' => $defectData['description'] ?? null,
-                    'severity' => $defectData['severity'],
-                    'coordinates' => $coordinates,
-                ]);
-            }
-
-            // Upload and save images
-            if ($request->hasFile('images')) {
-                foreach ($request->file('images') as $imageFile) {
-                    $path = $imageFile->store('report-images', 'public');
-
-                    ReportImage::create([
-                        'report_id' => $report->id,
-                        'file_path' => $path,
-                    ]);
-                }
-            }
-
-            DB::commit();
-
-            return redirect()->route('reports.show', $report)
-                ->with('success', 'Report created successfully.');
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return redirect()->back()
-                ->with('error', 'An error occurred while creating the report: ' . $e->getMessage())
-                ->withInput();
-        }
-    }
+ * Store a newly created resource in storage.
+ *
+ * @param  \Illuminate\Http\Request  $request
+ * @return \Illuminate\Http\Response
+ */
 
     /**
      * Display the specified resource.
@@ -199,115 +293,7 @@ class ReportController extends Controller
      * @param  \App\Models\Report  $report
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Report $report)
-    {
-        // Check permission to update report
-        $this->authorize('update', $report);
 
-        // Validate the request
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'organization_id' => Auth::user()->role->name === 'Administrator' ? 'required|exists:organizations,id' : '',
-            'language' => 'required|string|size:2',
-            'defects' => 'required|array|min:1',
-            'defects.*.id' => 'nullable|exists:report_defects,id,report_id,' . $report->id,
-            'defects.*.defect_type_id' => 'required|exists:defect_types,id',
-            'defects.*.severity' => 'required|in:low,medium,high,critical',
-            'defects.*.description' => 'nullable|string',
-            'defects.*.coordinates.latitude' => 'nullable|numeric',
-            'defects.*.coordinates.longitude' => 'nullable|numeric',
-            'images.*' => 'nullable|image|max:10240', // Max 10MB
-        ]);
-
-        try {
-            DB::beginTransaction();
-
-            // Update report details
-            $report->title = $request->title;
-            $report->description = $request->description;
-            $report->language = $request->language;
-
-            // Only administrators can change organization
-            if (Auth::user()->role->name === 'Administrator') {
-                $report->organization_id = $request->organization_id;
-            }
-
-            $report->save();
-
-            // Process defects
-            $existingDefectIds = [];
-
-            foreach ($request->defects as $defectData) {
-                $coordinates = null;
-                if (isset($defectData['coordinates']) &&
-                    isset($defectData['coordinates']['latitude']) &&
-                    isset($defectData['coordinates']['longitude'])) {
-                    $coordinates = [
-                        'latitude' => $defectData['coordinates']['latitude'],
-                        'longitude' => $defectData['coordinates']['longitude'],
-                    ];
-                }
-
-                if (isset($defectData['id'])) {
-                    // Update existing defect
-                    $defect = ReportDefect::where('id', $defectData['id'])
-                        ->where('report_id', $report->id)
-                        ->first();
-
-                    if ($defect) {
-                        $defect->update([
-                            'defect_type_id' => $defectData['defect_type_id'],
-                            'description' => $defectData['description'] ?? null,
-                            'severity' => $defectData['severity'],
-                            'coordinates' => $coordinates,
-                        ]);
-
-                        $existingDefectIds[] = $defect->id;
-                    }
-                } else {
-                    // Create new defect
-                    $defect = ReportDefect::create([
-                        'report_id' => $report->id,
-                        'defect_type_id' => $defectData['defect_type_id'],
-                        'description' => $defectData['description'] ?? null,
-                        'severity' => $defectData['severity'],
-                        'coordinates' => $coordinates,
-                    ]);
-
-                    $existingDefectIds[] = $defect->id;
-                }
-            }
-
-            // Delete defects that weren't included in the request
-            ReportDefect::where('report_id', $report->id)
-                ->whereNotIn('id', $existingDefectIds)
-                ->delete();
-
-            // Upload and save new images
-            if ($request->hasFile('images')) {
-                foreach ($request->file('images') as $imageFile) {
-                    $path = $imageFile->store('report-images', 'public');
-
-                    ReportImage::create([
-                        'report_id' => $report->id,
-                        'file_path' => $path,
-                    ]);
-                }
-            }
-
-            DB::commit();
-
-            return redirect()->route('reports.show', $report)
-                ->with('success', 'Report updated successfully.');
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return redirect()->back()
-                ->with('error', 'An error occurred while updating the report: ' . $e->getMessage())
-                ->withInput();
-        }
-    }
 
     /**
      * Remove the specified resource from storage.
@@ -342,6 +328,28 @@ class ReportController extends Controller
                 ->with('error', 'An error occurred while deleting the report: ' . $e->getMessage());
         }
     }
+
+    public function previewPdf(Report $report, PdfExportService $pdfService)
+{
+    $this->authorize('view', $report);
+
+    try {
+        $includeComments = request('include_comments', true);
+        $language = request('language', $report->language);
+
+        $pdf = $pdfService->generateReportPdf(
+            $report,
+            $includeComments,
+            $language
+        );
+
+        return $pdf->stream('preview.pdf');
+
+    } catch (\Exception $e) {
+        return redirect()->back()
+            ->with('error', 'An error occurred while generating the PDF preview: ' . $e->getMessage());
+    }
+}
 
     /**
      * Export the report as PDF.

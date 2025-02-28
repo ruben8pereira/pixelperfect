@@ -1,3 +1,5 @@
+
+
 <?php
 
 use Illuminate\Support\Facades\Route;
@@ -7,6 +9,8 @@ use App\Http\Controllers\ReportCommentController;
 use App\Http\Controllers\ReportImageController;
 use App\Http\Controllers\InvitationController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ReportDefectController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -45,6 +49,12 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('reports', ReportController::class);
     Route::get('/reports/{report}/export-pdf', [ReportController::class, 'exportPdf'])
         ->name('reports.export-pdf');
+    Route::get('/reports/{report}/preview-pdf', [ReportController::class, 'previewPdf'])
+        ->name('reports.preview-pdf');
+    Route::get('reports/create', [ReportController::class, 'create'])
+    ->name('reports.create');
+
+
 
     // Report Comments
     Route::post('/reports/{report}/comments', [ReportCommentController::class, 'store'])
@@ -62,6 +72,16 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/reports/{report}/images/{image}', [ReportImageController::class, 'destroy'])
         ->name('reports.images.destroy');
 
+    // Report defects
+    /*
+    Route::post('/reports/{report}/defects', [ReportDefectController::class, 'store'])
+        ->name('reports.defects.store');
+    Route::put('/reports/{report}/defects/{defect}', [ReportDefectController::class, 'update'])
+        ->name('reports.defects.update');
+    Route::delete('/reports/{report}/defects/{defect}', [ReportDefectController::class, 'destroy'])
+        ->name('reports.defects.destroy');
+        */
+
     // Invitations
     Route::get('/invitations', [InvitationController::class, 'index'])
         ->name('invitations.index');
@@ -72,13 +92,13 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/invitations/{invitation}', [InvitationController::class, 'cancel'])
         ->name('invitations.cancel');
 
-        // User Management Routes (Admin only)
-Route::middleware(['auth', 'can:access-admin'])->group(function () {
-    Route::resource('users', UserController::class);
-    Route::post('/users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
-    Route::post('/users/{user}/archive', [UserController::class, 'archive'])->name('users.archive');
-    Route::post('/users/{user}/restore', [UserController::class, 'restore'])->name('users.restore');
-});
+    // User Management Routes (Admin only)
+    Route::middleware(['auth', 'can:access-admin'])->group(function () {
+        Route::resource('users', UserController::class);
+        Route::post('/users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
+        Route::post('/users/{user}/archive', [UserController::class, 'archive'])->name('users.archive');
+        Route::post('/users/{user}/restore', [UserController::class, 'restore'])->name('users.restore');
+    });
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

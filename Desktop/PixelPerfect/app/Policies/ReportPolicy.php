@@ -69,7 +69,6 @@ class ReportPolicy
      */
     public function create(User $user)
     {
-        // Only Registered Users and Organization members can create reports
         return in_array($user->role->name, ['User', 'Organization']);
     }
 

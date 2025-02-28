@@ -1,19 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Navigation</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</head>
-<body>
-
-<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm">
+<nav class="navbar navbar-expand-lg {{ Route::is('home') ? 'navbar-dark position-absolute w-100' : 'navbar-light bg-white shadow-sm' }}" id="mainNav"
+     style="{{ Route::is('home') ? 'z-index: 1030; top: 0;' : '' }}">
     <div class="container">
         <!-- Logo -->
-        <a class="navbar-brand" href="{{ route('dashboard') }}">
-            <img src="{{ asset('path/to/logo.png') }}" alt="Application Logo" class="h-10">
+        <a class="navbar-brand" href="{{ url('/') }}">
+            <img src="{{ asset('images/logo-' . (Route::is('home') ? 'white' : 'dark') . '.png') }}" alt="PipeDefect Solutions" class="h-10">
         </a>
 
         <!-- Navbar Toggler -->
@@ -24,11 +14,29 @@
         <!-- Navbar Links -->
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('dashboard') ? 'active fw-bold' : '' }}" href="{{ route('dashboard') }}">{{ __('Dashboard') }}</a>
-                </li>
+                @guest
+                    @if(Route::is('home'))
+                        <li class="nav-item">
+                            <a class="nav-link" href="#features">Features</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#how-it-works">How It Works</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#pricing">Pricing</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#testimonials">Testimonials</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#contact">Contact</a>
+                        </li>
+                    @endif
+                @else
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('dashboard') ? 'active fw-bold' : '' }}" href="{{ route('dashboard') }}">{{ __('Dashboard') }}</a>
+                    </li>
 
-                @auth
                     @if(optional(auth()->user()->role)->name != 'Guest')
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('reports.index') ? 'active fw-bold' : '' }}" href="{{ route('reports.index') }}">{{ __('Reports') }}</a>
@@ -47,33 +55,52 @@
 
                     @if($userRole == 'Administrator')
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('filament.admin.pages.dashboard') }}" target="_blank">{{ __('Admin Panel') }}</a>
+                        <a class="nav-link" href="{{ route('users.index') }}">{{ __('Users') }}</a>
                     </li>
                     @endif
                 @endauth
             </ul>
 
             <!-- User Dropdown -->
-            @auth
-            <div class="dropdown">
-                <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                    {{ Auth::user()->name }}
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                    <li class="dropdown-item text-muted">{{ Auth::user()->email }}</li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit" class="dropdown-item">{{ __('Log Out') }}</button>
-                        </form>
-                    </li>
-                </ul>
+            <div class="ms-auto">
+                @guest
+                    <a href="{{ route('login') }}" class="btn {{ Route::is('home') ? 'btn-outline-light' : 'btn-outline-primary' }} me-2">Log In</a>
+                    <a href="{{ route('register') }}" class="btn btn-primary">Sign Up</a>
+                @else
+                    <div class="dropdown">
+                        <button class="btn {{ Route::is('home') ? 'btn-outline-light' : 'btn-outline-secondary' }} dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            {{ Auth::user()->name }}
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li><span class="dropdown-item text-muted">{{ Auth::user()->email }}</span></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ route('dashboard') }}"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
+                            <li>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt me-2"></i>{{ __('Log Out') }}</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                @endguest
             </div>
-            @endauth
         </div>
     </div>
 </nav>
 
-</body>
-</html>
+@if(Route::is('home'))
+<script>
+    // Navbar scroll effect for homepage only
+    window.addEventListener('scroll', function() {
+        const navbar = document.getElementById('mainNav');
+        if (window.scrollY > 50) {
+            navbar.classList.add('navbar-solid', 'bg-primary', 'fixed-top');
+            navbar.classList.remove('position-absolute');
+        } else {
+            navbar.classList.remove('navbar-solid', 'bg-primary', 'fixed-top');
+            navbar.classList.add('position-absolute');
+        }
+    });
+</script>
+@endif

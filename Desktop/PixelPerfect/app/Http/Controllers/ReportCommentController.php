@@ -6,9 +6,11 @@ use App\Models\Report;
 use App\Models\ReportComment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class ReportCommentController extends Controller
 {
+    use AuthorizesRequests;
     /**
      * Store a newly created comment in storage.
      *
@@ -19,10 +21,10 @@ class ReportCommentController extends Controller
     public function store(Request $request, Report $report)
     {
         // Check permission to view report (needed to comment)
-        //$this->authorize('view', $report);
+        $this->authorize('view', $report);
 
         $request->validate([
-            'content' => 'required|string',
+            'content' => 'required|string|max:1000',
             'include_in_pdf' => 'sometimes|boolean',
         ]);
 
@@ -35,11 +37,11 @@ class ReportCommentController extends Controller
             ]);
 
             return redirect()->route('reports.show', $report)
-                ->with('success', 'Comment added successfully.');
+                ->with('success', __('Comment added successfully.'));
 
         } catch (\Exception $e) {
             return redirect()->back()
-                ->with('error', 'An error occurred while adding the comment: ' . $e->getMessage())
+                ->with('error', __('An error occurred while adding the comment: ') . $e->getMessage())
                 ->withInput();
         }
     }
@@ -58,11 +60,11 @@ class ReportCommentController extends Controller
         if (Auth::id() !== $comment->user_id &&
             !in_array(Auth::user()->role->name, ['Administrator', 'Organization'])) {
             return redirect()->back()
-                ->with('error', 'You do not have permission to update this comment.');
+                ->with('error', __('You do not have permission to update this comment.'));
         }
 
         $request->validate([
-            'content' => 'required|string',
+            'content' => 'required|string|max:1000',
             'include_in_pdf' => 'sometimes|boolean',
         ]);
 
@@ -73,11 +75,11 @@ class ReportCommentController extends Controller
             ]);
 
             return redirect()->route('reports.show', $report)
-                ->with('success', 'Comment updated successfully.');
+                ->with('success', __('Comment updated successfully.'));
 
         } catch (\Exception $e) {
             return redirect()->back()
-                ->with('error', 'An error occurred while updating the comment: ' . $e->getMessage())
+                ->with('error', __('An error occurred while updating the comment: ') . $e->getMessage())
                 ->withInput();
         }
     }
@@ -95,18 +97,18 @@ class ReportCommentController extends Controller
         if (Auth::id() !== $comment->user_id &&
             !in_array(Auth::user()->role->name, ['Administrator', 'Organization'])) {
             return redirect()->back()
-                ->with('error', 'You do not have permission to delete this comment.');
+                ->with('error', __('You do not have permission to delete this comment.'));
         }
 
         try {
             $comment->delete();
 
             return redirect()->route('reports.show', $report)
-                ->with('success', 'Comment deleted successfully.');
+                ->with('success', __('Comment deleted successfully.'));
 
         } catch (\Exception $e) {
             return redirect()->back()
-                ->with('error', 'An error occurred while deleting the comment: ' . $e->getMessage());
+                ->with('error', __('An error occurred while deleting the comment: ') . $e->getMessage());
         }
     }
 }
