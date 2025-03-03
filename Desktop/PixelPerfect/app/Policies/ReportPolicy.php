@@ -17,20 +17,19 @@ class ReportPolicy
      * @return bool
      */
     public function viewAny(User $user)
-    {
-        // Organization can view reports from their organization
-        if ($user->role->name === 'Organization') {
-            return true;
-        }
-
-        // Registered Users can view reports from their organization
-        if ($user->role->name === 'User') {
-            return true;
-        }
-
-        // Guests and Administrators cannot view reports list
+{
+    // Explicit about Administrator restriction
+    if ($user->role->name === 'Administrator') {
         return false;
     }
+
+    // Organization and User roles with organization can view reports
+    if (in_array($user->role->name, ['Organization', 'User'])) {
+        return $user->organization_id !== null;
+    }
+
+    return false;
+}
 
     /**
      * Determine if the user can view the report.
@@ -39,29 +38,29 @@ class ReportPolicy
      * @param  \App\Models\Report  $report
      * @return bool
      */
+    // In ReportPolicy.php
     public function view(User $user, Report $report)
-    {
-        // Organization can view reports from their organization
-        if ($user->role->name === 'Organization') {
-            return $user->organization_id === $report->organization_id;
-        }
-
-        // Registered Users can view reports from their organization
-        if ($user->role->name === 'User') {
-            return $user->organization_id === $report->organization_id;
-        }
-
-        //ACHO QUE FALTA AQUI UMA VALIDACAO
-
-        // Guests can only view shared reports (future implementation)
-        if ($user->role->name === 'Guest') {
-            // TODO: Implement shared report logic
-            return false;
-        }
-
-        // Administrators cannot view reports
-        return false;
+{
+    // Organization can view reports from their organization
+    if ($user->role->name === 'Organization') {
+        return $user->organization_id === $report->organization_id;
     }
+
+    // Registered Users can view reports from their organization
+    if ($user->role->name === 'User') {
+        return $user->organization_id === $report->organization_id;
+    }
+
+    // Guest can only view shared reports with valid access
+    if ($user->role->name === 'Guest') {
+        return $report->share_token &&
+               $report->share_expires_at > now() &&
+               session()->has('report_access_' . $report->id);
+    }
+
+    // Administrators cannot view reports (by design)
+    return false;
+}
 
     /**
      * Determine if the user can create reports.
@@ -91,7 +90,7 @@ class ReportPolicy
         // Registered Users can update their own reports
         if ($user->role->name === 'User') {
             return $user->id === $report->created_by &&
-                   $user->organization_id === $report->organization_id;
+                $user->organization_id === $report->organization_id;
         }
 
         // Guests and Administrators cannot update reports
@@ -115,7 +114,7 @@ class ReportPolicy
         // Registered Users can delete their own reports
         if ($user->role->name === 'User') {
             return $user->id === $report->created_by &&
-                   $user->organization_id === $report->organization_id;
+                $user->organization_id === $report->organization_id;
         }
 
         // Guests and Administrators cannot delete reports
