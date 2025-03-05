@@ -5,13 +5,18 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\OrganizationResource\Pages;
 use App\Filament\Resources\OrganizationResource\RelationManagers;
 use App\Models\Organization;
+use Dom\Text;
 use Filament\Forms;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+
+use function Laravel\Prompts\text;
 
 class OrganizationResource extends Resource
 {
@@ -23,6 +28,7 @@ class OrganizationResource extends Resource
     {
         return $form
             ->schema([
+
                 //
             ]);
     }
@@ -31,7 +37,8 @@ class OrganizationResource extends Resource
     {
         return $table
             ->columns([
-                //
+                TextColumn::make('Name')
+
             ])
             ->filters([
                 //

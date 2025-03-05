@@ -24,12 +24,14 @@ class ReportController extends Controller
      */
     public function index()
     {
+
         // Use policy-based authorization
         $this->authorize('viewAny', Report::class);
-
+        
         $user = Auth::user();
 
         // Different query based on role
+        file_put_contents('policy.txt', $user->role->name);
         if ($user->role->name === 'Organization') {
             $reports = Report::where('organization_id', $user->organization_id)
                 ->orderBy('created_at', 'desc')

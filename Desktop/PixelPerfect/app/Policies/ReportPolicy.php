@@ -18,6 +18,7 @@ class ReportPolicy
      */
     public function viewAny(User $user)
 {
+    file_put_contents('policy.txt', $user->role->name);
     // Explicit about Administrator restriction
     if ($user->role->name === 'Administrator') {
         return false;
@@ -25,7 +26,7 @@ class ReportPolicy
 
     // Organization and User roles with organization can view reports
     if (in_array($user->role->name, ['Organization', 'User'])) {
-        return $user->organization_id !== null;
+        return true;
     }
 
     return false;
