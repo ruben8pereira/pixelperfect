@@ -111,30 +111,57 @@ class ReportController extends Controller
 
                     // Process defect image if provided
                     if ($request->hasFile("defect_images.{$index}")) {
+
                         // Remove old defect image if exists
-                        $oldDefectImage = $report->reportImages->where('defect_id', $defect->id)->first();
+
+                        $oldDefectImage = $report->reportImages
+
+                            ->where('caption', 'like', '%' . substr($defect->description, 0, 30) . '%')
+
+                            ->first();
+
                         if ($oldDefectImage) {
+
                             Storage::disk('public')->delete($oldDefectImage->file_path);
+
                             $oldDefectImage->delete();
+
                         }
 
                         // Store new defect image
+
                         $imagePath = $request->file("defect_images.{$index}")->store('report-images', 'public');
 
                         $defectImage = new ReportImage();
+
                         $defectImage->report_id = $report->id;
+
                         $defectImage->file_path = $imagePath;
-                        $defectImage->defect_id = $defect->id;
+
                         $defectImage->caption = substr($defect->description, 0, 30);
+
                         $defectImage->save();
+
                     } elseif (!$request->has("keep_defect_images.{$index}")) {
+
                         // Remove defect image if the user unchecked "keep this image"
-                        $oldDefectImage = $report->reportImages->where('defect_id', $defect->id)->first();
+
+                        $oldDefectImage = $report->reportImages
+
+                            ->where('caption', 'like', '%' . substr($defect->description, 0, 30) . '%')
+
+                            ->first();
+
                         if ($oldDefectImage) {
+
                             Storage::disk('public')->delete($oldDefectImage->file_path);
+
                             $oldDefectImage->delete();
+
                         }
+
                     }
+
                 }
             }
 

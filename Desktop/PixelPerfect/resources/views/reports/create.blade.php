@@ -135,10 +135,10 @@
                                             <div class="col-md-6">
                                                 <label for="defects[0][severity]" class="form-label">{{ __('Severity') }}</label>
                                                 <select name="defects[0][severity]" class="form-select">
-                                                    <option value="low">Low</option>
-                                                    <option value="medium">Medium</option>
-                                                    <option value="high">High</option>
-                                                    <option value="critical">Critical</option>
+                                                    <option value="low">Low (4)</option>
+                                                    <option value="medium">Medium (3)</option>
+                                                    <option value="high">High (2)</option>
+                                                    <option value="critical">Critical (1)</option>
                                                 </select>
                                             </div>
 
