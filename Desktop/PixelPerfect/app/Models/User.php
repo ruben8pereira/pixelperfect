@@ -24,6 +24,7 @@ class User extends Authenticatable
         'role_id',
         'organization_id',
         'is_validated',
+        'is_archived'
     ];
 
     /**

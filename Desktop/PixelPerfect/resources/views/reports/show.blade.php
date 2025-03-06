@@ -40,8 +40,7 @@
                     <div class="mb-3">
                         <label for="shareLink" class="form-label">Share Link</label>
                         <div class="input-group">
-                            <input type="text" class="form-control" id="shareLink" value="{{ route('reports.shared', $report->share_token) }}" readonly>
-                            <button class="btn btn-outline-primary" type="button" onclick="copyShareLink()">Copy</button>
+                            <input type="text" class="form-control" id="shareLink" value="{{-- {{ route('reports.shared', $report->share_token) }} --}}" readonly>                            <button class="btn btn-outline-primary" type="button" onclick="copyShareLink()">Copy</button>
                         </div>
                         <small class="text-muted">Anyone with this link can view the report without logging in.</small>
                     </div>

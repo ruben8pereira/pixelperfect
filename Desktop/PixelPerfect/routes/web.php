@@ -72,6 +72,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/reports/{report}/images/{image}', [ReportImageController::class, 'destroy'])
         ->name('reports.images.destroy');
 
+
     // Report defects
     /*
     Route::post('/reports/{report}/defects', [ReportDefectController::class, 'store'])

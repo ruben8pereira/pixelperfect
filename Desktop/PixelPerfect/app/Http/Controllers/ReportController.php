@@ -15,11 +15,9 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Redirect;
 
-
 class ReportController extends Controller
 {
     use AuthorizesRequests;
-
 
     /**
      * Store a newly created resource in storage.
@@ -111,8 +109,11 @@ class ReportController extends Controller
 
                     // Process defect image if provided
                     if ($request->hasFile("defect_images.{$index}")) {
-                        // Remove old defect image if exists
-                        $oldDefectImage = $report->reportImages->where('defect_id', $defect->id)->first();
+                        // Remove old image if it exists for this report and matches the defect description
+                        $oldDefectImage = $report->reportImages
+                            ->where('caption', 'like', '%' . substr($defect->description, 0, 30) . '%')
+                            ->first();
+
                         if ($oldDefectImage) {
                             Storage::disk('public')->delete($oldDefectImage->file_path);
                             $oldDefectImage->delete();
@@ -124,12 +125,14 @@ class ReportController extends Controller
                         $defectImage = new ReportImage();
                         $defectImage->report_id = $report->id;
                         $defectImage->file_path = $imagePath;
-                        $defectImage->defect_id = $defect->id;
                         $defectImage->caption = substr($defect->description, 0, 30);
                         $defectImage->save();
                     } elseif (!$request->has("keep_defect_images.{$index}")) {
                         // Remove defect image if the user unchecked "keep this image"
-                        $oldDefectImage = $report->reportImages->where('defect_id', $defect->id)->first();
+                        $oldDefectImage = $report->reportImages
+                            ->where('caption', 'like', '%' . substr($defect->description, 0, 30) . '%')
+                            ->first();
+
                         if ($oldDefectImage) {
                             Storage::disk('public')->delete($oldDefectImage->file_path);
                             $oldDefectImage->delete();
@@ -139,12 +142,14 @@ class ReportController extends Controller
             }
 
             // Delete defects that were removed
-            $report->reportDefects()->whereNotIn('id', $existingDefectIds)->get()->each(function ($defect) {
+            $report->reportDefects()->whereNotIn('id', $existingDefectIds)->get()->each(function ($defect) use ($report) {
                 // Delete associated images first
-                $defect->images()->get()->each(function ($image) {
-                    Storage::disk('public')->delete($image->file_path);
-                    $image->delete();
-                });
+                $report->reportImages
+                    ->where('caption', 'like', '%' . substr($defect->description, 0, 30) . '%')
+                    ->each(function ($image) {
+                        Storage::disk('public')->delete($image->file_path);
+                        $image->delete();
+                    });
 
                 // Delete the defect
                 $defect->delete();
@@ -152,16 +157,16 @@ class ReportController extends Controller
 
             DB::commit();
 
-        return redirect()->route('reports.show', $report)
-            ->with('success', 'Report created successfully.');
+            return redirect()->route('reports.show', $report)
+                ->with('success', 'Report created successfully.');
 
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return redirect()->back()
-            ->with('error', 'An error occurred: ' . $e->getMessage())
-            ->withInput();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()
+                ->with('error', 'An error occurred: ' . $e->getMessage())
+                ->withInput();
+        }
     }
-}
 
     /**
      * Validate the report request.
