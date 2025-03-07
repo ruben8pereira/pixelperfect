@@ -51,6 +51,15 @@
             background-color: var(--primary);
             border-color: var(--primary);
         }
+        .required:after {
+            content: " *";
+            color: #dc3545;
+        }
+        .section-header {
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e3e3e3;
+        }
     </style>
 </head>
 <body>
@@ -80,108 +89,167 @@
                     <form method="POST" action="{{ route('register') }}">
                         @csrf
 
-                        <div class="row">
-                            <!-- Name -->
-                            <div class="col-md-12 mb-3">
-                                <label for="name" class="form-label">
-                                    <i class="fas fa-user text-secondary me-2"></i>{{ __('Full Name') }}
-                                </label>
-                                <input id="name" type="text" class="form-control" name="name" value="{{ old('name') }}" required autofocus placeholder="Enter your full name">
-                            </div>
+                        <!-- Hidden Role ID for Organization -->
+                        <input type="hidden" name="role_id" value="2">
+                        <input type="hidden" name="create_organization" value="1">
 
-                            <!-- Email Address -->
-                            <div class="col-md-12 mb-3">
-                                <label for="email" class="form-label">
-                                    <i class="fas fa-envelope text-secondary me-2"></i>{{ __('Email Address') }}
-                                </label>
-                                <input id="email" type="email" class="form-control" name="email" value="{{ old('email') }}" required placeholder="Enter your email address">
-                            </div>
+                        <!-- User Information Section -->
+                        <div class="mb-4">
+                            <h5 class="section-header">
+                                <i class="fas fa-user-circle text-primary me-2"></i>Personal Information
+                            </h5>
+                            <div class="row">
+                                <!-- Name -->
+                                <div class="col-md-12 mb-3">
+                                    <label for="name" class="form-label required">
+                                        {{ __('Full Name') }}
+                                    </label>
+                                    <input id="name" type="text" class="form-control @error('name') is-invalid @enderror"
+                                        name="name" value="{{ old('name') }}" required autofocus
+                                        placeholder="Enter your full name">
+                                    @error('name')
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
 
-                            <!-- Role -->
-                            <div class="col-md-6 mb-3">
-                                <label for="role_id" class="form-label">
-                                    <i class="fas fa-id-badge text-secondary me-2"></i>{{ __('Account Type') }}
-                                </label>
-                                <select id="role_id" name="role_id" class="form-select">
-                                    @foreach($roles as $role)
-                                        <option value="{{ $role->id }}">{{ $role->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <!-- Organization Selection -->
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">
-                                    <i class="fas fa-building text-secondary me-2"></i>{{ __('Organization') }}
-                                </label>
-                                <div class="form-check">
-                                    <input id="create_organization" type="checkbox" class="form-check-input" name="create_organization" value="1" onchange="toggleOrganizationFields()">
-                                    <label for="create_organization" class="form-check-label">{{ __('Create a new organization') }}</label>
+                                <!-- Email Address -->
+                                <div class="col-md-12 mb-3">
+                                    <label for="email" class="form-label required">
+                                        {{ __('Email Address') }}
+                                    </label>
+                                    <input id="email" type="email" class="form-control @error('email') is-invalid @enderror"
+                                        name="email" value="{{ old('email') }}" required
+                                        placeholder="Enter your email address">
+                                    @error('email')
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
                                 </div>
                             </div>
                         </div>
 
-                        <!-- New Organization Fields (Hidden by default) -->
-                        <div id="new_organization_fields" class="mb-3 d-none">
-                            <div class="card bg-light p-3 mb-3">
-                                <h5><i class="fas fa-plus-circle text-primary me-2"></i>New Organization Details</h5>
-                                <div class="row mt-2">
-                                    <div class="col-md-12 mb-2">
-                                        <label for="organization_name" class="form-label">{{ __('Organization Name') }}</label>
-                                        <input id="organization_name" type="text" class="form-control" name="organization_name" value="{{ old('organization_name') }}" placeholder="Enter organization name">
-                                    </div>
-                                    <div class="col-md-12">
-                                        <label for="organization_description" class="form-label">{{ __('Organization Description') }}</label>
-                                        <textarea id="organization_description" class="form-control" name="organization_description" rows="3" placeholder="Briefly describe your organization">{{ old('organization_description') }}</textarea>
-                                    </div>
-                                    <div class="col-md-12">
-                                        <label for="organization_vat" class="form-label">{{ __('Organization vat') }}</label>
-                                        <textarea id="organization_vat" class="form-control" name="organization_vat" rows="3" placeholder="Enter you organization vat">{{ old('organization_vat') }}</textarea>
-                                    </div>
-                                    <div class="col-md-12">
-                                        <label for="organization_phone" class="form-label">{{ __('Organization phone') }}</label>
-                                        <textarea id="organization_phone" class="form-control" name="organization_phone" rows="3" placeholder="Enter you organization phone number">{{ old('organization_phone') }}</textarea>
-                                    </div>
-                                    <div class="col-md-12">
-                                        <label for="organization_email" class="form-label">{{ __('Organization_email') }}</label>
-                                        <textarea id="organization_email" class="form-control" name="organization_email" rows="3" placeholder="Enter you organization email adress">{{ old('organization_phone') }}</textarea>
-                                    </div>
+                        <!-- Company Information Section -->
+                        <div class="mb-4">
+                            <h5 class="section-header">
+                                <i class="fas fa-building text-primary me-2"></i>Company Information
+                            </h5>
+                            <div class="row">
+                                <!-- Company Name -->
+                                <div class="col-md-12 mb-3">
+                                    <label for="organization_name" class="form-label required">
+                                        {{ __('Company Name') }}
+                                    </label>
+                                    <input id="organization_name" type="text"
+                                        class="form-control @error('organization_name') is-invalid @enderror"
+                                        name="organization_name" value="{{ old('organization_name') }}" required
+                                        placeholder="Enter your company name">
+                                    @error('organization_name')
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
 
+                                <!-- VAT Number -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="organization_vat" class="form-label required">
+                                        {{ __('VAT Number') }}
+                                    </label>
+                                    <input id="organization_vat" type="text"
+                                        class="form-control @error('organization_vat') is-invalid @enderror"
+                                        name="organization_vat" value="{{ old('organization_vat') }}" required
+                                        placeholder="Enter your VAT identification number">
+                                    <small class="text-muted">Value Added Tax identification number</small>
+                                    @error('organization_vat')
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
+
+                                <!-- Company Phone -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="organization_phone" class="form-label required">
+                                        {{ __('Company Phone') }}
+                                    </label>
+                                    <input id="organization_phone" type="tel"
+                                        class="form-control @error('organization_phone') is-invalid @enderror"
+                                        name="organization_phone" value="{{ old('organization_phone') }}" required
+                                        placeholder="Enter company phone number">
+                                    @error('organization_phone')
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
+
+                                <!-- Company Email -->
+                                <div class="col-md-12 mb-3">
+                                    <label for="organization_email" class="form-label required">
+                                        {{ __('Company Email') }}
+                                    </label>
+                                    <input id="organization_email" type="email"
+                                        class="form-control @error('organization_email') is-invalid @enderror"
+                                        name="organization_email" value="{{ old('organization_email') }}" required
+                                        placeholder="Enter company email address">
+                                    @error('organization_email')
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Existing Organization Selection (Shown by default) -->
-                        <div id="existing_organization_fields" class="mb-3">
-                            <label for="organization_id" class="form-label">
-                                <i class="fas fa-building text-secondary me-2"></i>{{ __('Select Organization') }}
-                            </label>
-                            <select id="organization_id" name="organization_id" class="form-select">
-                                <option value="">{{ __('No Organization') }}</option>
-                                @foreach(\App\Models\Organization::all() as $organization)
-                                    <option value="{{ $organization->id }}">{{ $organization->name }}</option>
-                                @endforeach
-                            </select>
+                        <!-- Password Section -->
+                        <div class="mb-4">
+                            <h5 class="section-header">
+                                <i class="fas fa-lock text-primary me-2"></i>Set Password
+                            </h5>
+                            <div class="row">
+                                <!-- Password -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="password" class="form-label required">
+                                        {{ __('Password') }}
+                                    </label>
+                                    <input id="password" type="password"
+                                        class="form-control @error('password') is-invalid @enderror"
+                                        name="password" required
+                                        placeholder="Minimum 8 characters">
+                                    @error('password')
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
+
+                                <!-- Confirm Password -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="password_confirmation" class="form-label required">
+                                        {{ __('Confirm Password') }}
+                                    </label>
+                                    <input id="password_confirmation" type="password" class="form-control"
+                                        name="password_confirmation" required
+                                        placeholder="Confirm your password">
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="row">
-                            <!-- Password -->
-                            <div class="col-md-6 mb-3">
-                                <label for="password" class="form-label">
-                                    <i class="fas fa-lock text-secondary me-2"></i>{{ __('Password') }}
+                        <!-- Terms and Privacy Policy -->
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="1" id="terms_accepted" name="terms_accepted" required>
+                                <label class="form-check-label" for="terms_accepted">
+                                    I agree to the <a href="#" target="_blank">Terms of Service</a> and
+                                    <a href="#" target="_blank">Privacy Policy</a>
                                 </label>
-                                <input id="password" type="password" class="form-control" name="password" required placeholder="Enter your password">
-                            </div>
-
-                            <!-- Confirm Password -->
-                            <div class="col-md-6 mb-3">
-                                <label for="password_confirmation" class="form-label">
-                                    <i class="fas fa-lock text-secondary me-2"></i>{{ __('Confirm Password') }}
-                                </label>
-                                <input id="password_confirmation" type="password" class="form-control" name="password_confirmation" required placeholder="Confirm your password">
                             </div>
                         </div>
 
+                        <!-- Form Actions -->
                         <div class="d-flex justify-content-between align-items-center mt-4">
                             <a class="text-decoration-none" href="{{ route('login') }}">
                                 <i class="fas fa-arrow-left me-1"></i> {{ __('Already registered?') }}
@@ -195,21 +263,5 @@
             </div>
         </div>
     </div>
-
-    <script>
-        function toggleOrganizationFields() {
-            const createOrgCheckbox = document.getElementById('create_organization');
-            const newOrgFields = document.getElementById('new_organization_fields');
-            const existingOrgFields = document.getElementById('existing_organization_fields');
-
-            if (createOrgCheckbox.checked) {
-                newOrgFields.classList.remove('d-none');
-                existingOrgFields.classList.add('d-none');
-            } else {
-                newOrgFields.classList.add('d-none');
-                existingOrgFields.classList.remove('d-none');
-            }
-        }
-    </script>
 </body>
 </html>

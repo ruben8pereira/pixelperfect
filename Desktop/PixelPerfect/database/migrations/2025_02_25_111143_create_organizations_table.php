@@ -16,7 +16,7 @@ return new class extends Migration
         $table->string('name');
         $table->text('description')->nullable();
         $table->string('address')->nullable();
-        $table->string('vat');
+        $table->string('vat')->unique();
         $table->string('phone');
         $table->string('email');
         $table->string('logo_path')->nullable();

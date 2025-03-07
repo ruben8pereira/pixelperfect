@@ -28,58 +28,74 @@ class OrganizationResource extends Resource
     protected static ?string $policy = \App\Policies\OrganizationPolicy::class;
 
     public static function form(Form $form): Form
-    {
-        return $form
-            ->schema([
-                Forms\Components\Card::make()
-                    ->schema([
-                        Forms\Components\Grid::make(2)
-                            ->schema([
-                                Forms\Components\TextInput::make('name')
-                                    ->required()
-                                    ->maxLength(255),
+{
+    return $form
+        ->schema([
+            Forms\Components\Card::make()
+                ->schema([
+                    Forms\Components\TextInput::make('name')
+                        ->required()
+                        ->maxLength(255)
+                        ->label('Organization Name'),
 
-                                Forms\Components\TextInput::make('email')
-                                    ->email()
-                                    ->required()
-                                    ->maxLength(255),
-                            ]),
+                    Forms\Components\Textarea::make('description')
+                        ->rows(3)
+                        ->label('Organization Description')
+                        ->placeholder('Briefly describe your organization'),
 
-                        Forms\Components\Grid::make(2)
-                            ->schema([
-                                Forms\Components\TextInput::make('phone')
-                                    ->tel()
-                                    ->maxLength(255),
+                    Forms\Components\TextInput::make('vat')
+                        ->label('VAT Number')
+                        ->maxLength(255)
+                        ->placeholder('Enter your organization VAT')
+                        ->unique(table: 'organizations', column: 'vat', ignoreRecord: true)
+                        ->required()
+                        ->validationMessages([
+                            'unique' => 'This VAT number is already in use by another organization.',
+                        ]),
 
-                                Forms\Components\TextInput::make('vat')
-                                    ->label('VAT Number')
-                                    ->maxLength(255),
-                            ]),
+                    Forms\Components\TextInput::make('phone')
+                        ->label('Phone Number')
+                        ->tel()
+                        ->maxLength(255)
+                        ->placeholder('Enter your organization phone number')
+                        ->unique(table: 'organizations', column: 'phone', ignoreRecord: true)
+                        ->required()
+                        ->validationMessages([
+                            'unique' => 'This phone number is already in use by another organization.',
+                        ]),
 
-                        Forms\Components\TextInput::make('address')
-                            ->maxLength(255),
+                    Forms\Components\TextInput::make('email')
+                        ->label('Email Address')
+                        ->email()
+                        ->required()
+                        ->maxLength(255)
+                        ->unique(table: 'organizations', column: 'email', ignoreRecord: true)
+                        ->placeholder('Enter your organization email address')
+                        ->validationMessages([
+                            'unique' => 'This email address is already in use by another organization.',
+                        ]),
 
-                        Forms\Components\Textarea::make('description')
-                            ->rows(3)
-                            ->columnSpan('full'),
+                    Forms\Components\TextInput::make('address')
+                        ->maxLength(255)
+                        ->placeholder('Organization address'),
 
-                        Forms\Components\FileUpload::make('logo_path')
-                            ->label('Organization Logo')
-                            ->image()
-                            ->disk('public')
-                            ->directory('organization-logos')
-                            ->visibility('public')
-                            ->imagePreviewHeight('100')
-                            ->loadingIndicatorPosition('left')
-                            ->panelAspectRatio('2:1')
-                            ->panelLayout('integrated')
-                            ->removeUploadedFileButtonPosition('right')
-                            ->uploadButtonPosition('left')
-                            ->uploadProgressIndicatorPosition('left')
-                    ])
-                    ->columns(1),
-            ]);
-    }
+                    Forms\Components\FileUpload::make('logo_path')
+                        ->label('Organization Logo')
+                        ->image()
+                        ->disk('public')
+                        ->directory('organization-logos')
+                        ->visibility('public')
+                        ->imagePreviewHeight('100')
+                        ->loadingIndicatorPosition('left')
+                        ->panelAspectRatio('2:1')
+                        ->panelLayout('integrated')
+                        ->removeUploadedFileButtonPosition('right')
+                        ->uploadButtonPosition('left')
+                        ->uploadProgressIndicatorPosition('left')
+                ])
+                ->columns(1),
+        ]);
+}
 
     public static function table(Table $table): Table
     {

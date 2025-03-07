@@ -21,6 +21,7 @@ return new class extends Migration
             $table->timestamps();
             $table->foreignId('role_id')->constrained();
             $table->foreignId('organization_id')->nullable()->constrained();
+            $table->string('phone')->nullable();
             $table->boolean('is_validated')->default(false);
             $table->timestamp('access_expires_at')->nullable();
             $table->boolean('is_archived')->default(false);
