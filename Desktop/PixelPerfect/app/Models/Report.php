@@ -13,11 +13,28 @@ class Report extends Model
      */
     protected $fillable = [
         'title',
+        'report_number',
         'description',
         'organization_id',
         'created_by',
         'pdf_export_count',
         'language',
+        'inspection_date',
+        'operator',
+        'client',
+        'location',
+        'intervention_reason',
+        'weather'
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'inspection_date' => 'date',
+        'pdf_export_count' => 'integer',
     ];
 
     /**
@@ -58,6 +75,14 @@ class Report extends Model
     public function reportComments()
     {
         return $this->hasMany(ReportComment::class);
+    }
+
+    /**
+     * Get the sections for the report.
+     */
+    public function reportSections()
+    {
+        return $this->hasMany(ReportSection::class);
     }
 
     /**
