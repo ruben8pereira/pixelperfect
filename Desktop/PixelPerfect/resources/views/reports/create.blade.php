@@ -227,49 +227,6 @@
                                             <option value="25%">{{ __('25%') }}</option>
                                             <option value="50%">{{ __('50%') }}</option>
                                             <option value="75%">{{ __('75%') }}</option>
-                    <option value="100%">{{ __('100%') }}</option>
-                </select>
-            </div>
-
-            <div class="col-md-6">
-                <label class="form-label">{{ __('Reference Code') }}</label>
-                <input name="defects[INDEX][coordinates][reference]" type="text" class="form-control" placeholder="e.g. GR3">
-            </div>
-
-            <div class="col-md-12">
-                <label class="form-label">{{ __('Additional Comments') }}</label>
-                <input name="defects[INDEX][coordinates][comment]" type="text" class="form-control">
-            </div>
-
-            <div class="col-md-6">
-                <label class="form-label">{{ __('Latitude') }}</label>
-                <input name="defects[INDEX][coordinates][latitude]" type="text" class="form-control" placeholder="e.g. 45.123456">
-            </div>
-
-            <div class="col-md-6">
-                <label class="form-label">{{ __('Longitude') }}</label>
-                <input name="defects[INDEX][coordinates][longitude]" type="text" class="form-control" placeholder="e.g. -73.123456">
-            </div>
-
-            <div class="col-12">
-                <label class="form-label">{{ __('Defect Image') }}</label>
-                <input type="file" class="form-control defect-image-input" name="defect_images[INDEX]" accept="image/*" data-preview="defect-preview-INDEX">
-                <div class="mt-2 d-none defect-image-preview" id="defect-preview-INDEX">
-                    <img src="" class="img-fluid rounded" style="max-height: 150px">
-                </div>
-            </div>
-
-            <div class="col-12">
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="defects[INDEX][mark_on_map]" id="mark_on_map_INDEX" value="1">
-                    <label class="form-check-label" for="mark_on_map_INDEX">
-                        {{ __('Mark this defect on the network map') }}
-                    </label>
-                </div>
-            </div>
-        </div>
-    </div>
-">{{ __('75%') }}</option>
                                             <option value="100%">{{ __('100%') }}</option>
                                         </select>
                                     </div>
@@ -323,7 +280,7 @@
 
             <!-- Right Column -->
             <div class="col-lg-4">
-                <!-- Image Upload Section -->
+                <!-- Report Images Section -->
                 <div class="card shadow-sm mb-4">
                     <div class="card-header bg-white py-3">
                         <h5 class="mb-0"><i class="fas fa-images me-2 text-primary"></i>{{ __('Report Images') }}</h5>
@@ -351,7 +308,7 @@
                     </div>
                 </div>
 
-                <!-- Tronçon/Section Information -->
+                <!-- Pipe Section Details -->
                 <div class="card shadow-sm mb-4">
                     <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
                         <h5 class="mb-0"><i class="fas fa-road me-2 text-primary"></i>{{ __('Pipe Section Details') }}</h5>
