@@ -4,15 +4,20 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\OrganizationResource\Pages;
 use App\Models\Organization;
+use Dom\Text;
 use Filament\Forms;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Storage;
 use App\Services\AuditService;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+
+use function Laravel\Prompts\text;
 
 class OrganizationResource extends Resource
 {
@@ -101,6 +106,7 @@ class OrganizationResource extends Resource
     {
         return $table
             ->columns([
+
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
@@ -130,6 +136,7 @@ class OrganizationResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
             ])
             ->filters([
                 //

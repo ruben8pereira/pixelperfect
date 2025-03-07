@@ -47,8 +47,9 @@ class AuthServiceProvider extends ServiceProvider
 
         // Note: Administrator CANNOT see reports by design
         Gate::define('view-reports', function (User $user) {
+            dd($user->role->name);
             // Organization can see reports from their own organization
-            if ($user->role->name === 'Organization') {
+            if ($user->role->name == 'Organization') {
                 return $user->organization_id !== null;
             }
 
