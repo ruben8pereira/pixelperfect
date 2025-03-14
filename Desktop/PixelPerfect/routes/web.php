@@ -100,6 +100,9 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/users/{user}/archive', [UserController::class, 'archive'])->name('users.archive');
         Route::post('/users/{user}/restore', [UserController::class, 'restore'])->name('users.restore');
     });
+
+    Route::get('/language/{locale}', [App\Http\Controllers\LanguageController::class, 'switch'])
+    ->name('language.switch');
 });
 
 require __DIR__ . '/auth.php';

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Log;
 
 class LanguageController extends Controller
 {
@@ -24,7 +26,13 @@ class LanguageController extends Controller
         }
 
         // Set session locale
-        session(['locale' => $locale]);
+        Session::put('locale', $locale);
+
+        // Set app locale for current request (useful for immediate feedback)
+        App::setLocale($locale);
+
+        // Log language switch
+        Log::info("Language switched to {$locale}");
 
         // Redirect back
         return redirect()->back();

@@ -1,9 +1,10 @@
+<!-- resources/views/reports/pdf-export.blade.php -->
 <!DOCTYPE html>
-<html lang="{{ $report->language }}">
+<html lang="{{ App::getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $report->title }} - Rapport TV n° {{ str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</title>
+    <title>{{ $report->title }} - {{ __('Rapport TV n°') }} {{ str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -93,6 +94,9 @@
         }
         .severity-2 {
             color: #FFA500; /* Orange */
+        }
+        .severity-3 {
+            color: #777777; /* Gray */
         }
         .severity-4 {
             color: #000000; /* Black */
@@ -247,7 +251,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($report->reportDefects as $index => $defect)
+            @forelse($report->reportDefects as $index => $defect)
                 <tr>
                     @if($index === 0)
                         <td rowspan="{{ count($report->reportDefects) }}">
@@ -270,7 +274,11 @@
                         {{ $defect->severity === 'critical' ? '1' : ($defect->severity === 'high' ? '2' : ($defect->severity === 'medium' ? '3' : '4')) }}
                     </td>
                 </tr>
-            @endforeach
+            @empty
+                <tr>
+                    <td colspan="5" style="text-align: center;">{{ __('No defects recorded') }}</td>
+                </tr>
+            @endforelse
         </tbody>
     </table>
 
@@ -278,7 +286,7 @@
     <div class="page-break"></div>
 
     <!-- Observations Section - One per page -->
-    @foreach($report->reportDefects as $index => $defect)
+    @forelse($report->reportDefects as $index => $defect)
         <div class="header">
             <h2 style="margin: 0;">{{ __('Tronçon') }} {{ $report->id }}</h2>
         </div>
@@ -340,7 +348,11 @@
         @if(!$loop->last)
             <div class="page-break"></div>
         @endif
-    @endforeach
+    @empty
+        <div style="text-align: center; padding: 50px 0;">
+            <h3>{{ __('No defects recorded for this report') }}</h3>
+        </div>
+    @endforelse
 
     <!-- Network Map if available -->
     @if($mapImage = $report->reportImages->where('caption', 'Map')->first())
