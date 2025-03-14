@@ -174,7 +174,7 @@ class ResponseFactory implements FactoryContract
     }
 
     /**
-     * Create a new streamed JSON response instance.
+     * Create a new streamed response instance.
      *
      * @param  array  $data
      * @param  int  $status

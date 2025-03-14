@@ -33,6 +33,7 @@ Route::get('/home', function () {
 });
 
 
+
 // Guest routes for invitations
 Route::get('/invitations/{token}', [InvitationController::class, 'accept'])
     ->name('invitations.accept');
