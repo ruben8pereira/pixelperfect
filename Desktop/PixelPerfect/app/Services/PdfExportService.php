@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Report;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\View;
 
 class PdfExportService
 {
@@ -22,7 +23,8 @@ class PdfExportService
         $report->increment('pdf_export_count');
 
         // Set language for PDF
-        $language = $language ?? $report->language;
+        $language = $language ?? $report->language ?? 'en';
+        $previousLocale = App::getLocale();
         App::setLocale($language);
 
         // Load necessary relationships
@@ -41,7 +43,7 @@ class PdfExportService
             }, 'reportComments.user']);
         }
 
-        // Generate PDF with fixed dimensions
+        // Generate PDF
         $pdf = PDF::loadView('reports.pdf-export', [
             'report' => $report,
             'includeComments' => $includeComments,
@@ -53,11 +55,20 @@ class PdfExportService
         $pdf->setOption('isHtml5ParserEnabled', true);
         $pdf->setOption('isRemoteEnabled', true);
 
-        // Set margins to match example
+        // Set margins
         $pdf->setOption('margin-top', '10mm');
         $pdf->setOption('margin-right', '10mm');
-        $pdf->setOption('margin-bottom', '10mm');
+        $pdf->setOption('margin-bottom', '15mm'); // Increased for footer
         $pdf->setOption('margin-left', '10mm');
+
+        // Enable footer
+        $pdf->setOption('footer-html', View::make('reports.pdf-footer', [
+            'report' => $report,
+            'pageNumber' => true,
+        ])->render());
+
+        // Reset to previous locale
+        App::setLocale($previousLocale);
 
         return $pdf;
     }
