@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Support\Facades\Redirect;
 
 
 class ReportController extends Controller
@@ -28,7 +27,7 @@ class ReportController extends Controller
 
         // Use policy-based authorization
         $this->authorize('viewAny', Report::class);
-        
+
         $user = Auth::user();
 
         // Different query based on role
@@ -215,48 +214,8 @@ class ReportController extends Controller
     }
 
     /**
-     * Validate the report request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Report|null  $report
-     * @return void
-     */
-    protected function validateReport(Request $request, Report $report = null)
-    {
-        $rules = [
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'language' => 'required|string|size:2|in:en,fr,de',
-            'map_image' => 'nullable|image|max:10240', // Max 10MB
 
-            // Defects validation
-            'defects' => 'required|array|min:1',
-            'defects.*.defect_type_id' => 'required|exists:defect_types,id',
-            'defects.*.description' => 'required|string|max:1000',
-            'defects.*.severity' => 'required|string|in:low,medium,high,critical',
-            'defects.*.coordinates' => 'nullable|array',
-
-            // Defect images
-            'defect_images.*' => 'nullable|image|max:10240', // Max 10MB
-        ];
-
-        // If user is admin, validate organization_id
-        if (Auth::user()->role && Auth::user()->role->name === 'Administrator') {
-            $rules['organization_id'] = 'required|exists:organizations,id';
-        }
-
-        $request->validate($rules);
-    }
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return redirect()->back()
-                ->with('error', 'An error occurred: ' . $e->getMessage())
-                ->withInput();
-        }
-    }
-
-    /**
+    
      * Display the specified resource.
      *
      * @param  \App\Models\Report  $report
