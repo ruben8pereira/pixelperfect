@@ -177,13 +177,6 @@
                     </tbody>
                 </table>
             </div>
-
-            <!-- Pagination -->
-            @if($reports->hasPages())
-                <div class="d-flex justify-content-end mt-4">
-                    {{ $reports->links() }}
-                </div>
-            @endif
         </div>
     </div>
 </div>
