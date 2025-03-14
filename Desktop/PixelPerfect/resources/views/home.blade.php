@@ -239,13 +239,7 @@
                                     {{ auth()->user()->name }}
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                    @if (Auth::user()->role->name === 'Organization')
-                                    <li><a class="dropdown-item" href="{{ route('dashboard') }}"><i
-                                                class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
-                                    <li>
-                                        <hr class="dropdown-divider">
-                                    </li>
-                                    @else
+                                    @if (Auth::user())
                                         <li><a class="dropdown-item" href="{{ route('filament.admin.pages.dashboard') }}"><i
                                             class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
                                     <hr class="dropdown-divider">
