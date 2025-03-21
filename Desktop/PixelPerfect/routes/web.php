@@ -74,14 +74,13 @@ Route::middleware(['auth'])->group(function () {
 
 
     // Report defects
-
     Route::post('/reports/{report}/defects', [ReportDefectController::class, 'store'])
         ->name('reports.defects.store');
     Route::put('/reports/{report}/defects/{defect}', [ReportDefectController::class, 'update'])
         ->name('reports.defects.update');
     Route::delete('/reports/{report}/defects/{defect}', [ReportDefectController::class, 'destroy'])
         ->name('reports.defects.destroy');
-        
+
 
     // Invitations
     Route::get('/invitations', [InvitationController::class, 'index'])
