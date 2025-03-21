@@ -36,30 +36,106 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="shareModalLabel">Share Report</h5>
+                    <h5 class="modal-title" id="shareModalLabel">{{ __('Share Report') }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p>Share this report with team members or clients:</p>
+                    <!-- Active Invitations Tab (if any) -->
+                    @php
+                        $activeInvitations = $report->invitations()
+                            ->where('expires_at', '>', now())
+                            ->where('is_used', false)
+                            ->latest()
+                            ->take(5)
+                            ->get();
+                    @endphp
 
-                    <div class="mb-3">
-                        <label for="shareLink" class="form-label">Share Link</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="shareLink" value="{{-- {{ route('reports.shared', $report->share_token) }} --}}" readonly>                            <button class="btn btn-outline-primary" type="button" onclick="copyShareLink()">Copy</button>
-                        </div>
-                        <small class="text-muted">Anyone with this link can view the report without logging in.</small>
-                    </div>
+                    <ul class="nav nav-tabs mb-3" id="shareTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="new-share-tab" data-bs-toggle="tab" data-bs-target="#new-share" type="button" role="tab" aria-controls="new-share" aria-selected="true">{{ __('New Invitation') }}</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="active-shares-tab" data-bs-toggle="tab" data-bs-target="#active-shares" type="button" role="tab" aria-controls="active-shares" aria-selected="false">
+                                {{ __('Active Links') }}
+                                <span class="badge bg-primary">{{ $activeInvitations->count() }}</span>
+                            </button>
+                        </li>
+                    </ul>
 
-                    <div class="mb-3">
-                        <label class="form-label">Email Report</label>
-                        <div class="input-group">
-                            <input type="email" class="form-control" id="shareEmail" placeholder="Enter email address">
-                            <button class="btn btn-primary" type="button">Send</button>
+                    <div class="tab-content" id="shareTabContent">
+                        <!-- New Share Tab -->
+                        <div class="tab-pane fade show active" id="new-share" role="tabpanel" aria-labelledby="new-share-tab">
+                            <form action="{{ route('reports.share', $report) }}" method="POST" id="shareForm">
+                                @csrf
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">{{ __('Email Address') }}</label>
+                                    <input type="email" class="form-control" id="email" name="email" required placeholder="{{ __('Enter recipient\'s email') }}">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="expires_days" class="form-label">{{ __('Access Expires After') }}</label>
+                                    <select class="form-select" id="expires_days" name="expires_days">
+                                        <option value="1">{{ __('1 day') }}</option>
+                                        <option value="3">{{ __('3 days') }}</option>
+                                        <option value="7" selected>{{ __('1 week') }}</option>
+                                        <option value="14">{{ __('2 weeks') }}</option>
+                                        <option value="30">{{ __('30 days') }}</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle me-1"></i> {{ __('An email with a secure link will be sent to this address.') }}
+                                </div>
+
+                                <div class="mt-3 d-flex justify-content-end">
+                                    <button type="button" class="btn btn-outline-secondary me-2" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+                                    <button type="submit" class="btn btn-primary" id="sendInvitationBtn">
+                                        <i class="fas fa-paper-plane me-1"></i> {{ __('Send Invitation') }}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Active Shares Tab -->
+                        <div class="tab-pane fade" id="active-shares" role="tabpanel" aria-labelledby="active-shares-tab">
+                            @if($activeInvitations->count() > 0)
+                                <div class="list-group">
+                                    @foreach($activeInvitations as $invitation)
+                                        <div class="list-group-item list-group-item-action">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h6 class="mb-1">{{ $invitation->email }}</h6>
+                                                <form action="{{ route('reports.shares.cancel', $invitation) }}" method="POST" class="d-inline">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('{{ __('Are you sure you want to cancel this invitation?') }}')">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                            <p class="mb-1 small text-muted">
+                                                <i class="fas fa-clock me-1"></i> {{ __('Expires') }}: {{ $invitation->expires_at->diffForHumans() }}
+                                                <br>
+                                                <i class="fas fa-eye me-1"></i> {{ __('Views') }}: {{ $invitation->view_count }}
+                                            </p>
+                                            <div class="mt-2">
+                                                <button type="button" class="btn btn-sm btn-outline-primary copy-link-btn" data-link="{{ route('reports.shared', $invitation->token) }}">
+                                                    <i class="fas fa-copy me-1"></i> {{ __('Copy Link') }}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                <div class="mt-3">
+                                    <a href="{{ route('reports.invitations', $report) }}" class="btn btn-link">{{ __('View All Invitations') }}</a>
+                                </div>
+                            @else
+                                <div class="text-center p-4">
+                                    <i class="fas fa-share-alt fa-2x text-muted mb-3"></i>
+                                    <p>{{ __('No active invitations for this report.') }}</p>
+                                </div>
+                            @endif
                         </div>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -490,5 +566,37 @@
         // Show tooltip or notification
         alert('Link copied to clipboard!');
     }
+
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle share form submission
+        const shareForm = document.getElementById('shareForm');
+        const sendInvitationBtn = document.getElementById('sendInvitationBtn');
+
+        if (shareForm) {
+            shareForm.addEventListener('submit', function() {
+                sendInvitationBtn.disabled = true;
+                sendInvitationBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> {{ __("Sending...") }}';
+            });
+        }
+
+        // Handle copy link buttons
+        const copyBtns = document.querySelectorAll('.copy-link-btn');
+        copyBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const link = this.getAttribute('data-link');
+                navigator.clipboard.writeText(link).then(() => {
+                    // Show copied feedback
+                    const originalText = this.innerHTML;
+                    this.innerHTML = '<i class="fas fa-check me-1"></i> {{ __("Copied!") }}';
+                    setTimeout(() => {
+                        this.innerHTML = originalText;
+                    }, 2000);
+                });
+            });
+        });
+    });
 </script>
 @endsection

@@ -47,12 +47,6 @@
                         $userRole = optional(auth()->user()->role)->name;
                     @endphp
 
-                    @if($userRole == 'Administrator' || $userRole == 'Organization')
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('invitations.index') ? 'active fw-bold' : '' }}" href="{{ route('invitations.index') }}">{{ __('Invitations') }}</a>
-                    </li>
-                    @endif
-
                     @if($userRole == 'Administrator')
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('users.index') }}">{{ __('Users') }}</a>
