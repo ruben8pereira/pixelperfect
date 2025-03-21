@@ -278,6 +278,7 @@
                 </div>
             </div>
 
+
             <!-- Right Column -->
             <div class="col-lg-4">
                 <!-- Report Images Section -->
