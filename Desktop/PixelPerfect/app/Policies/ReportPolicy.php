@@ -17,20 +17,20 @@ class ReportPolicy
      * @return bool
      */
     public function viewAny(User $user)
-{
-    file_put_contents('policy.txt', $user->role->name);
-    // Explicit about Administrator restriction
-    if ($user->role->name === 'Administrator') {
+    {
+        file_put_contents('policy.txt', $user->role->name);
+        // Explicit about Administrator restriction
+        if ($user->role->name === 'Administrator') {
+            return false;
+        }
+
+        // Organization and User roles with organization can view reports
+        if (in_array($user->role->name, ['Organization', 'User'])) {
+            return true;
+        }
+
         return false;
     }
-
-    // Organization and User roles with organization can view reports
-    if (in_array($user->role->name, ['Organization', 'User'])) {
-        return true;
-    }
-
-    return false;
-}
 
     /**
      * Determine if the user can view the report.
@@ -41,27 +41,32 @@ class ReportPolicy
      */
     // In ReportPolicy.php
     public function view(User $user, Report $report)
-{
-    // Organization can view reports from their organization
-    if ($user->role->name === 'Organization') {
-        return $user->organization_id === $report->organization_id;
-    }
 
-    // Registered Users can view reports from their organization
-    if ($user->role->name === 'User') {
-        return $user->organization_id === $report->organization_id;
-    }
+    {
+        // Allow access if the report is being viewed through a valid invitation
+        if (session()->has('report_access_' . $report->id)) {
+            return true;
+        }
+        // Organization can view reports from their organization
+        if ($user->role->name === 'Organization') {
+            return $user->organization_id === $report->organization_id;
+        }
 
-    // Guest can only view shared reports with valid access
-    if ($user->role->name === 'Guest') {
-        return $report->share_token &&
-               $report->share_expires_at > now() &&
-               session()->has('report_access_' . $report->id);
-    }
+        // Registered Users can view reports from their organization
+        if ($user->role->name === 'User') {
+            return $user->organization_id === $report->organization_id;
+        }
 
-    // Administrators cannot view reports (by design)
-    return false;
-}
+        // Guest can only view shared reports with valid access
+        if ($user->role->name === 'Guest') {
+            return $report->share_token &&
+                $report->share_expires_at > now() &&
+                session()->has('report_access_' . $report->id);
+        }
+
+        // Administrators cannot view reports (by design)
+        return false;
+    }
 
     /**
      * Determine if the user can create reports.
