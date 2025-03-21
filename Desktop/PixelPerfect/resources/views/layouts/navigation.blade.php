@@ -80,7 +80,6 @@
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                 <li><span class="dropdown-item text-muted">{{ Auth::user()->email }}</span></li>
                                 <li><hr class="dropdown-divider"></li>
-
                                 <li><a class="dropdown-item" href="{{ url('/admin') }}"><i class="fas fa-tachometer-alt me-2"></i>Management</a></li>
 
                                 <li>
