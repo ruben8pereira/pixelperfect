@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
-use App\Notifications\InvitationNotification;
+use App\Mail\InvitationMail;
 use Carbon\Carbon;
 
 class InvitationController extends Controller
@@ -97,7 +97,7 @@ class InvitationController extends Controller
 
         // Send invitation email
         try {
-            Mail::to($request->email)->send(new InvitationNotification($invitation));
+            Mail::to($request->email)->send(new InvitationMail($invitation));
 
             return redirect()->route('invitations.index')
                 ->with('success', 'Invitation sent successfully.');
@@ -192,7 +192,7 @@ class InvitationController extends Controller
 
         // Resend invitation email
         try {
-            Mail::to($invitation->email)->send(new InvitationNotification($invitation));
+            Mail::to($invitation->email)->send(new InvitationMail($invitation));
 
             return redirect()->route('invitations.index')
                 ->with('success', 'Invitation resent successfully.');
