@@ -1,35 +1,31 @@
-<div class="relative">
-    <x-dropdown align="right" width="48">
-        <x-slot name="trigger">
-            <button class="flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition duration-150 ease-in-out">
-                <div>
-                    @if (App::getLocale() == 'en')
-                        English
-                    @elseif (App::getLocale() == 'fr')
-                        Français
-                    @elseif (App::getLocale() == 'de')
-                        Deutsch
-                    @endif
-                </div>
-
-                <div class="ml-1">
-                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                    </svg>
-                </div>
-            </button>
-        </x-slot>
-
-        <x-slot name="content">
-            <x-dropdown-link :href="route('language.switch', 'en')">
-                English
-            </x-dropdown-link>
-            <x-dropdown-link :href="route('language.switch', 'fr')">
-                Français
-            </x-dropdown-link>
-            <x-dropdown-link :href="route('language.switch', 'de')">
-                Deutsch
-            </x-dropdown-link>
-        </x-slot>
-    </x-dropdown>
+<!-- resources/views/components/language-switcher.blade.php -->
+<div class="language-switcher">
+    <div class="dropdown">
+        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            @if(App::getLocale() == 'en')
+                <span class="flag-icon flag-icon-us me-1"></span> English
+            @elseif(App::getLocale() == 'fr')
+                <span class="flag-icon flag-icon-fr me-1"></span> Français
+            @elseif(App::getLocale() == 'de')
+                <span class="flag-icon flag-icon-de me-1"></span> Deutsch
+            @endif
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="languageDropdown">
+            <li>
+                <a class="dropdown-item {{ App::getLocale() == 'en' ? 'active' : '' }}" href="{{ route('language.switch', 'en') }}">
+                    <span class="flag-icon flag-icon-us me-1"></span> English
+                </a>
+            </li>
+            <li>
+                <a class="dropdown-item {{ App::getLocale() == 'fr' ? 'active' : '' }}" href="{{ route('language.switch', 'fr') }}">
+                    <span class="flag-icon flag-icon-fr me-1"></span> Français
+                </a>
+            </li>
+            <li>
+                <a class="dropdown-item {{ App::getLocale() == 'de' ? 'active' : '' }}" href="{{ route('language.switch', 'de') }}">
+                    <span class="flag-icon flag-icon-de me-1"></span> Deutsch
+                </a>
+            </li>
+        </ul>
+    </div>
 </div>

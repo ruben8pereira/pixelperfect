@@ -2,53 +2,83 @@
 
 namespace App\Notifications;
 
+use App\Models\UserInvitation;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\HtmlString;
 
-class InvitationNotification extends Notification
+class InvitationNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
     /**
-     * Create a new notification instance.
+     * The invitation instance.
+     *
+     * @var \App\Models\UserInvitation
      */
-    public function __construct()
+    protected $invitation;
+
+    /**
+     * Create a new notification instance.
+     *
+     * @param  \App\Models\UserInvitation  $invitation
+     * @return void
+     */
+    public function __construct(UserInvitation $invitation)
     {
-        //
+        $this->invitation = $invitation;
     }
 
     /**
      * Get the notification's delivery channels.
      *
-     * @return array<int, string>
+     * @param  mixed  $notifiable
+     * @return array
      */
-    public function via(object $notifiable): array
+    public function via($notifiable)
     {
         return ['mail'];
     }
 
     /**
      * Get the mail representation of the notification.
+     *
+     * @param  mixed  $notifiable
+     * @return \Illuminate\Notifications\Messages\MailMessage
      */
-    public function toMail(object $notifiable): MailMessage
+    public function toMail($notifiable)
     {
+        $url = url(route('invitations.accept', $this->invitation->token));
+        $expiresAt = $this->invitation->expires_at->format('M d, Y H:i');
+        $organization = $this->invitation->organization->name;
+        $inviter = $this->invitation->inviter->name;
+        $role = $this->invitation->role->name;
+
         return (new MailMessage)
-                    ->line('The introduction to the notification.')
-                    ->action('Notification Action', url('/'))
-                    ->line('Thank you for using our application!');
+            ->subject('Invitation to Join ' . $organization)
+            ->greeting('Hello!')
+            ->line('You have been invited by ' . $inviter . ' to join ' . $organization . ' as a ' . $role . '.')
+            ->line('This invitation will expire on ' . $expiresAt . '.')
+            ->action('Accept Invitation', $url)
+            ->line(new HtmlString('If you did not expect this invitation, you can safely ignore this email.'))
+            ->salutation('Regards, <br>The PixelPerfect Team');
     }
 
     /**
      * Get the array representation of the notification.
      *
-     * @return array<string, mixed>
+     * @param  mixed  $notifiable
+     * @return array
      */
-    public function toArray(object $notifiable): array
+    public function toArray($notifiable)
     {
         return [
-            //
+            'invitation_id' => $this->invitation->id,
+            'organization_name' => $this->invitation->organization->name,
+            'inviter_name' => $this->invitation->inviter->name,
+            'role_name' => $this->invitation->role->name,
         ];
     }
 }
