@@ -14,6 +14,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\App;
+use App\Models\ReportInvitation;
+use App\Notifications\ReportInvitationNotification;
+use Illuminate\Support\Facades\Notification;
 
 class ReportController extends Controller
 {
@@ -613,4 +616,136 @@ class ReportController extends Controller
 
         $request->validate($rules);
     }
+
+    /**
+ * Share the report via email invitation.
+ *
+ * @param  \Illuminate\Http\Request  $request
+ * @param  \App\Models\Report  $report
+ * @return \Illuminate\Http\Response
+ */
+public function share(Request $request, Report $report)
+{
+    // Check permission to view report (needed to share)
+    $this->authorize('view', $report);
+
+    $request->validate([
+        'email' => 'required|email',
+        'expires_days' => 'required|integer|min:1|max:30',
+    ]);
+
+    try {
+        // Check if invitation already exists and is not expired
+        $existingInvitation = ReportInvitation::where('email', $request->email)
+            ->where('report_id', $report->id)
+            ->where('expires_at', '>', now())
+            ->where('is_used', false)
+            ->first();
+
+        if ($existingInvitation) {
+            return redirect()->back()
+                ->with('info', 'This email already has an active invitation to this report.');
+        }
+
+        // Create a new invitation
+        $invitation = $report->shareWith($request->email, $request->expires_days);
+
+        // Send invitation email
+        Notification::route('mail', $request->email)
+            ->notify(new ReportInvitationNotification($invitation));
+
+        return redirect()->back()
+            ->with('success', 'Invitation sent successfully.');
+
+    } catch (\Exception $e) {
+        Log::error('Error sending report invitation: ' . $e->getMessage());
+
+        return redirect()->back()
+            ->with('error', 'An error occurred while sending the invitation: ' . $e->getMessage());
+    }
+}
+
+/**
+ * Display the shared report using token.
+ *
+ * @param  string  $token
+ * @return \Illuminate\Http\Response
+ */
+public function showShared($token)
+{
+    $invitation = ReportInvitation::where('token', $token)
+        ->where('expires_at', '>', now())
+        ->firstOrFail();
+
+    // If invitation was used and we don't want to allow multiple views, show error
+    // Uncomment this if you want to enforce single-use invitations
+    // if ($invitation->is_used) {
+    //     return redirect()->route('login')
+    //         ->with('error', 'This invitation has already been used.');
+    // }
+
+    $report = $invitation->report;
+
+    // Load relationships
+    $report->load([
+        'reportDefects.defectType',
+        'reportImages',
+        'reportComments.user',
+        'organization',
+        'creator'
+    ]);
+
+    // Record the view
+    $invitation->recordView();
+
+    // Store in session that this report was accessed with a valid token
+    session()->put('report_access_' . $report->id, true);
+
+    return view('reports.shared', compact('report', 'invitation'));
+}
+
+/**
+ * Show invitations for a report.
+ *
+ * @param  \App\Models\Report  $report
+ * @return \Illuminate\Http\Response
+ */
+public function showInvitations(Report $report)
+{
+    $this->authorize('view', $report);
+
+    $invitations = $report->invitations()->with('inviter')->latest()->get();
+
+    return view('reports.invitations', compact('report', 'invitations'));
+}
+
+/**
+ * Cancel a report invitation.
+ *
+ * @param  \App\Models\ReportInvitation  $invitation
+ * @return \Illuminate\Http\Response
+ */
+public function cancelInvitation(ReportInvitation $invitation)
+{
+    // Check if the user is the one who created the invitation or has admin rights
+    if (Auth::id() !== $invitation->invited_by &&
+        Auth::user()->role->name !== 'Administrator' &&
+        Auth::user()->organization_id !== $invitation->report->organization_id) {
+        return redirect()->back()
+            ->with('error', 'You do not have permission to cancel this invitation.');
+    }
+
+    try {
+        $invitation->delete();
+
+        return redirect()->back()
+            ->with('success', 'Invitation cancelled successfully.');
+
+    } catch (\Exception $e) {
+        Log::error('Error cancelling invitation: ' . $e->getMessage());
+
+        return redirect()->back()
+            ->with('error', 'An error occurred while cancelling the invitation: ' . $e->getMessage());
+    }
+}
 }

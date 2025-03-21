@@ -12,6 +12,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ReportDefectController;
 
 
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -32,12 +33,12 @@ Route::get('/home', function () {
     return view('home');
 });
 
-
-// Guest routes for invitations
-Route::get('/invitations/{token}', [InvitationController::class, 'accept'])
-    ->name('invitations.accept');
-Route::post('/invitations/{token}/process', [InvitationController::class, 'process'])
-    ->name('invitations.process');
+// Redirect Filament admin/reports to your custom reports page
+Route::redirect('/admin/reports/reports', '/reports', 301);
+Route::redirect('/admin/reports/create', '/reports/create', 301);
+Route::get('/admin/reports/{id}/edit', function ($id) {
+    return redirect("/reports/{$id}/edit", 301);
+});
 
 // Authenticated routes
 Route::middleware(['auth'])->group(function () {
@@ -52,9 +53,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/reports/{report}/preview-pdf', [ReportController::class, 'previewPdf'])
         ->name('reports.preview-pdf');
     Route::get('reports/create', [ReportController::class, 'create'])
-    ->name('reports.create');
-
-
+        ->name('reports.create');
 
     // Report Comments
     Route::post('/reports/{report}/comments', [ReportCommentController::class, 'store'])
@@ -81,16 +80,20 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/reports/{report}/defects/{defect}', [ReportDefectController::class, 'destroy'])
         ->name('reports.defects.destroy');
 
+    // Report sharing routes
+    Route::post('/reports/{report}/share', [App\Http\Controllers\ReportController::class, 'share'])
+        ->name('reports.share');
+    Route::get('/reports/{report}/shares', [App\Http\Controllers\ReportController::class, 'showInvitations'])
+        ->name('reports.shares');
+    Route::delete('/reports/shares/{reportInvitation}', [App\Http\Controllers\ReportController::class, 'cancelInvitation'])
+        ->name('reports.shares.cancel');
 
-    // Invitations
-    Route::get('/invitations', [InvitationController::class, 'index'])
-        ->name('invitations.index');
-    Route::post('/invitations', [InvitationController::class, 'store'])
-        ->name('invitations.store');
-    Route::post('/invitations/{invitation}/resend', [InvitationController::class, 'resend'])
-        ->name('invitations.resend');
-    Route::delete('/invitations/{invitation}', [InvitationController::class, 'cancel'])
-        ->name('invitations.cancel');
+    // Report sharing routes
+    Route::get('/reports/{report}/invitations', [ReportController::class, 'showInvitations'])
+        ->name('reports.invitations');
+    Route::get('/reports/shared/{token}', [ReportController::class, 'showShared'])
+        ->name('reports.shared')
+        ->withoutMiddleware('auth'); // This allows unauthenticated access to shared reports
 
     // User Management Routes (Admin only)
     Route::middleware(['auth', 'can:access-admin'])->group(function () {
@@ -101,7 +104,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::get('/language/{locale}', [App\Http\Controllers\LanguageController::class, 'switch'])
-    ->name('language.switch');
+        ->name('language.switch');
 });
 
 require __DIR__ . '/auth.php';

@@ -34,7 +34,7 @@
                     @endif
                 @else
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('dashboard') ? 'active fw-bold' : '' }}" href="{{ route('dashboard') }}">{{ __('Dashboard') }}</a>
+                        <a class="nav-link {{ request()->routeIs('Management') ? 'active fw-bold' : '' }}" href="{{ url('/admin') }}">{{ __('Management') }}</a>
                     </li>
 
                     @if(optional(auth()->user()->role)->name != 'Guest')
@@ -46,12 +46,6 @@
                     @php
                         $userRole = optional(auth()->user()->role)->name;
                     @endphp
-
-                    @if($userRole == 'Administrator' || $userRole == 'Organization')
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('invitations.index') ? 'active fw-bold' : '' }}" href="{{ route('invitations.index') }}">{{ __('Invitations') }}</a>
-                    </li>
-                    @endif
 
                     @if($userRole == 'Administrator')
                     <li class="nav-item">
@@ -80,7 +74,7 @@
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                 <li><span class="dropdown-item text-muted">{{ Auth::user()->email }}</span></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{{ route('dashboard') }}"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
+                                <li><a class="dropdown-item" href="{{ url('/admin') }}"><i class="fas fa-tachometer-alt me-2"></i>Management</a></li>
                                 <li>
                                     <form method="POST" action="{{ route('logout') }}">
                                         @csrf

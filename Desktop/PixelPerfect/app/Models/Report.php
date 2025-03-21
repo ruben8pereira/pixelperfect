@@ -73,4 +73,29 @@ class Report extends Model
 
         return $token;
     }
+
+    /**
+     * Get the invitations for the report.
+     */
+    public function invitations()
+    {
+        return $this->hasMany(ReportInvitation::class);
+    }
+
+    /**
+     * Generate a unique share token for the report.
+     *
+     * @param string $email
+     * @param int $expiresInDays
+     * @return \App\Models\ReportInvitation
+     */
+    public function shareWith(string $email, int $expiresInDays = 7)
+    {
+        return $this->invitations()->create([
+            'email' => $email,
+            'invited_by' => \Illuminate\Support\Facades\Auth::user()->id,
+            'token' => \Illuminate\Support\Str::random(64),
+            'expires_at' => now()->addDays($expiresInDays),
+        ]);
+    }
 }
