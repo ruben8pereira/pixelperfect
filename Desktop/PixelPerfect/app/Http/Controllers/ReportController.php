@@ -225,7 +225,7 @@ class ReportController extends Controller
 
             // Process pipe sections if provided
             if ($request->has('sections')) {
-                // Your implementation for pipe sections here
+                // Implementation for pipe sections here
             }
 
             DB::commit();

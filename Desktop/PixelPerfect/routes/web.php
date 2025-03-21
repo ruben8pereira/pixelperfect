@@ -73,14 +73,12 @@ Route::middleware(['auth'])->group(function () {
 
 
     // Report defects
-
     Route::post('/reports/{report}/defects', [ReportDefectController::class, 'store'])
         ->name('reports.defects.store');
     Route::put('/reports/{report}/defects/{defect}', [ReportDefectController::class, 'update'])
         ->name('reports.defects.update');
     Route::delete('/reports/{report}/defects/{defect}', [ReportDefectController::class, 'destroy'])
         ->name('reports.defects.destroy');
-
 
     // Report sharing routes
     Route::post('/reports/{report}/share', [App\Http\Controllers\ReportController::class, 'share'])
@@ -96,7 +94,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/reports/shared/{token}', [ReportController::class, 'showShared'])
         ->name('reports.shared')
         ->withoutMiddleware('auth'); // This allows unauthenticated access to shared reports
-
 
     // User Management Routes (Admin only)
     Route::middleware(['auth', 'can:access-admin'])->group(function () {
