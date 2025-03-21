@@ -227,26 +227,6 @@
                                 <a class="nav-link" href="#contact">Contact</a>
                             </li>
                         @endguest
-
-                        @auth
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('dashboard') }}">Dashboard</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('reports.index') }}">Reports</a>
-                            </li>
-                            @if (auth()->user()->role &&
-                                    (auth()->user()->role->name == 'Administrator' || auth()->user()->role->name == 'Organization'))
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#">Users</a>
-                                </li>
-                            @endif
-                            @if (auth()->user()->role && auth()->user()->role->name == 'Administrator')
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#">Organizations</a>
-                                </li>
-                            @endif
-                        @endauth
                     </ul>
                     <div class="ms-auto">
                         @guest
@@ -259,13 +239,11 @@
                                     {{ auth()->user()->name }}
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                    <li><a class="dropdown-item" href="{{ route('dashboard') }}"><i
-                                                class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
-                                    <li><a class="dropdown-item" href="#"><i
-                                                class="fas fa-user-circle me-2"></i>Profile</a></li>
-                                    <li>
-                                        <hr class="dropdown-divider">
-                                    </li>
+                                    @if (Auth::user())
+                                        <li><a class="dropdown-item" href="{{ route('filament.admin.pages.dashboard') }}"><i
+                                            class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
+                                    <hr class="dropdown-divider">
+                                    @endif
                                     <li>
                                         <form method="POST" action="{{ route('logout') }}" id="logout-form">
                                             @csrf

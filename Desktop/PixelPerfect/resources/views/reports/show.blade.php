@@ -11,9 +11,14 @@
             <a href="{{ route('reports.edit', $report) }}" class="btn btn-warning">
                 <i class="fas fa-edit me-1"></i> Edit Report
             </a>
-            <a href="{{ route('reports.export-pdf', $report) }}" class="btn btn-success">
+            <!-- Replace direct Export PDF link with modal trigger button -->
+            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#pdfExportModal">
                 <i class="fas fa-file-pdf me-1"></i> Export PDF
-            </a>
+            </button>
+            <!-- Add Preview PDF button -->
+            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#pdfPreviewModal">
+                <i class="fas fa-eye me-1"></i> Preview PDF
+            </button>
             <div class="dropdown">
                 <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="moreActions" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="fas fa-ellipsis-v"></i>
@@ -40,8 +45,7 @@
                     <div class="mb-3">
                         <label for="shareLink" class="form-label">Share Link</label>
                         <div class="input-group">
-                            <input type="text" class="form-control" id="shareLink" value="{{ route('reports.shared', $report->share_token) }}" readonly>
-                            <button class="btn btn-outline-primary" type="button" onclick="copyShareLink()">Copy</button>
+                            <input type="text" class="form-control" id="shareLink" value="{{-- {{ route('reports.shared', $report->share_token) }} --}}" readonly>                            <button class="btn btn-outline-primary" type="button" onclick="copyShareLink()">Copy</button>
                         </div>
                         <small class="text-muted">Anyone with this link can view the report without logging in.</small>
                     </div>
@@ -80,6 +84,74 @@
                         <button type="submit" class="btn btn-danger">Delete Report</button>
                     </form>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PDF Export Modal -->
+    <div class="modal fade" id="pdfExportModal" tabindex="-1" aria-labelledby="pdfExportModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="pdfExportModalLabel">{{ __('Export PDF Report') }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="{{ route('reports.export-pdf', $report) }}" method="GET">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="language" class="form-label">{{ __('Report Language') }}</label>
+                            <select id="language" name="language" class="form-select">
+                                <option value="en" {{ $report->language == 'en' ? 'selected' : '' }}>{{ __('English') }}</option>
+                                <option value="fr" {{ $report->language == 'fr' ? 'selected' : '' }}>{{ __('French') }}</option>
+                                <option value="de" {{ $report->language == 'de' ? 'selected' : '' }}>{{ __('German') }}</option>
+                            </select>
+                            <div class="form-text">{{ __('Select the language for the PDF report.') }}</div>
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="include_comments" name="include_comments" value="1" checked>
+                            <label class="form-check-label" for="include_comments">{{ __('Include Comments') }}</label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+                        <button type="submit" class="btn btn-primary">{{ __('Export PDF') }}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- PDF Preview Modal -->
+    <div class="modal fade" id="pdfPreviewModal" tabindex="-1" aria-labelledby="pdfPreviewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="pdfPreviewModalLabel">{{ __('Preview PDF Report') }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="{{ route('reports.preview-pdf', $report) }}" method="GET" target="_blank">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="preview_language" class="form-label">{{ __('Report Language') }}</label>
+                            <select id="preview_language" name="language" class="form-select">
+                                <option value="en" {{ $report->language == 'en' ? 'selected' : '' }}>{{ __('English') }}</option>
+                                <option value="fr" {{ $report->language == 'fr' ? 'selected' : '' }}>{{ __('French') }}</option>
+                                <option value="de" {{ $report->language == 'de' ? 'selected' : '' }}>{{ __('German') }}</option>
+                            </select>
+                            <div class="form-text">{{ __('Select the language for the PDF preview.') }}</div>
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="preview_include_comments" name="include_comments" value="1" checked>
+                            <label class="form-check-label" for="preview_include_comments">{{ __('Include Comments') }}</label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+                        <button type="submit" class="btn btn-primary">{{ __('Preview PDF') }}</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -176,9 +248,10 @@
                             </div>
 
                             <div class="text-center mt-3">
-                                <a href="{{ route('reports.export-pdf', $report) }}" class="btn btn-primary">
+                                <!-- Replace the direct PDF generation link with a modal trigger button -->
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#pdfExportModal">
                                     <i class="fas fa-file-pdf me-1"></i> Generate PDF Report
-                                </a>
+                                </button>
                             </div>
                         </div>
                     </div>

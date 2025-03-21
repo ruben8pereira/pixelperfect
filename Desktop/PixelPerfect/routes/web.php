@@ -32,6 +32,13 @@ Route::get('/home', function () {
     return view('home');
 });
 
+// Redirect Filament admin/reports to your custom reports page
+Route::redirect('/admin/reports/reports', '/reports', 301);
+Route::redirect('/admin/reports/create', '/reports/create', 301);
+Route::get('/admin/reports/{id}/edit', function ($id) {
+    return redirect("/reports/{$id}/edit", 301);
+});
+
 
 // Guest routes for invitations
 Route::get('/invitations/{token}', [InvitationController::class, 'accept'])
@@ -72,6 +79,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/reports/{report}/images/{image}', [ReportImageController::class, 'destroy'])
         ->name('reports.images.destroy');
 
+
     // Report defects
     /*
     Route::post('/reports/{report}/defects', [ReportDefectController::class, 'store'])
@@ -99,6 +107,9 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/users/{user}/archive', [UserController::class, 'archive'])->name('users.archive');
         Route::post('/users/{user}/restore', [UserController::class, 'restore'])->name('users.restore');
     });
+
+    Route::get('/language/{locale}', [App\Http\Controllers\LanguageController::class, 'switch'])
+    ->name('language.switch');
 });
 
 require __DIR__ . '/auth.php';

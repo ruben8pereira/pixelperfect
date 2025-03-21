@@ -66,24 +66,6 @@
                 @guest
                     <a href="{{ route('login') }}" class="btn {{ Route::is('home') ? 'btn-outline-light' : 'btn-outline-primary' }} me-2">Log In</a>
                     <a href="{{ route('register') }}" class="btn btn-primary">Sign Up</a>
-<<<<<<< Updated upstream
-                @else
-                    <div class="dropdown">
-                        <button class="btn {{ Route::is('home') ? 'btn-outline-light' : 'btn-outline-secondary' }} dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            {{ Auth::user()->name }}
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                            <li><span class="dropdown-item text-muted">{{ Auth::user()->email }}</span></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{{ route('dashboard') }}"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
-                            <li>
-                                <form method="POST" action="{{ route('logout') }}">
-                                    @csrf
-                                    <button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt me-2"></i>{{ __('Log Out') }}</button>
-                                </form>
-                            </li>
-                        </ul>
-=======
                     @else
                     <div class="d-flex align-items-center">
                         <!-- Language Switcher -->
@@ -98,7 +80,9 @@
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                 <li><span class="dropdown-item text-muted">{{ Auth::user()->email }}</span></li>
                                 <li><hr class="dropdown-divider"></li>
+
                                 <li><a class="dropdown-item" href="{{ url('/admin') }}"><i class="fas fa-tachometer-alt me-2"></i>Management</a></li>
+
                                 <li>
                                     <form method="POST" action="{{ route('logout') }}">
                                         @csrf
@@ -107,7 +91,7 @@
                                 </li>
                             </ul>
                         </div>
->>>>>>> Stashed changes
+
                     </div>
                 @endguest
             </div>

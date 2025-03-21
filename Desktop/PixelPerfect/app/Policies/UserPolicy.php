@@ -165,10 +165,26 @@ class UserPolicy
      * @return bool
      */
     public function archive(User $user, User $model)
-    {
-        // Same permissions as delete
-        return $this->delete($user, $model);
+{
+    // Prevent users from archiving themselves
+    if ($user->id === $model->id) {
+        return false;
     }
+
+    // Admins can archive any user (except themselves)
+    if ($user->role->name === 'Administrator') {
+        return true;
+    }
+
+    // Organization managers can archive users in their organization
+    if ($user->role->name === 'Organization') {
+        return $user->organization_id === $model->organization_id &&
+               $model->role->name !== 'Administrator' &&
+               $model->role->name !== 'Organization';
+    }
+
+    return false;
+}
 
     public function resetPassword(User $user, User $model)
 {
