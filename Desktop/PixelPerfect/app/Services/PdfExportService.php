@@ -40,16 +40,17 @@ class PdfExportService
 
             Log::info("Generating PDF with language: {$language}, App locale: " . App::getLocale());
 
-            // Load necessary relationships with eager loading
+            /// Load necessary relationships with eager loading
             $report->load([
                 'reportDefects.defectType',
                 'reportImages',
-                'reportComments.user' => function ($query) use ($includeComments) {
+                'reportComments' => function ($query) use ($includeComments) {
                     if ($includeComments) {
                         $query->where('include_in_pdf', true)
-                              ->orderBy('created_at', 'asc');
+                            ->orderBy('created_at', 'asc');
                     }
                 },
+                'reportComments.user',
                 'organization',
                 'creator'
             ]);
@@ -57,9 +58,19 @@ class PdfExportService
             // Debug check
             Log::info("Report loaded with " . $report->reportDefects->count() . " defects");
 
-            // Generate PDF
+            // Reset section number for PDF display
+            // Create a clone of the report to avoid modifying the original
+            $reportClone = clone $report;
+
+            // Force the report ID to 1 for display purposes only
+            $reportClone->id = 1;
+
+            // Reindex defects to start from 0 (will display as 1, 2, 3, etc)
+            $reportClone->reportDefects = $reportClone->reportDefects->values();
+
+            // Generate PDF with the modified clone
             $pdf = PDF::loadView('reports.pdf-export', [
-                'report' => $report,
+                'report' => $reportClone,
                 'includeComments' => $includeComments,
             ]);
 
@@ -77,20 +88,18 @@ class PdfExportService
 
             // Enable footer
             $footerHtml = View::make('reports.pdf-footer', [
-                'report' => $report,
+                'report' => $reportClone,
                 'pageNumber' => true,
             ])->render();
 
             $pdf->setOption('footer-html', $footerHtml);
 
             return $pdf;
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             // Log the error
             Log::error("PDF generation error: " . $e->getMessage());
             throw $e;
-        }
-        finally {
+        } finally {
             // Reset to previous locale
             App::setLocale($previousLocale);
         }
