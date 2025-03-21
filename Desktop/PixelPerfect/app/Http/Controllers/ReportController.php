@@ -208,6 +208,7 @@ class ReportController extends Controller
 
                     // Process defect image if provided
                     if ($request->hasFile("defect_images.{$index}")) {
+
                         $imagePath = $request->file("defect_images.{$index}")->store('report-images', 'public');
 
                         ReportImage::create([
@@ -217,6 +218,7 @@ class ReportController extends Controller
                             'caption' => substr($defect->description, 0, 30),
                         ]);
                     }
+
                 }
             }
 
