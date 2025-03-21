@@ -155,13 +155,13 @@
 <body>
     <!-- Cover Page -->
     <div class="logo">
-        <h1>PixelPerfect</h1>
+        <h1>Pixel Perfect</h1>
         <!-- Add your logo here -->
         <!-- <img src="{{ public_path('images/logo.png') }}" alt="Company Logo" style="max-width: 200px;"> -->
     </div>
 
     <div class="company-info">
-        <p>{{ __('Avenue de la gare 1, CH-1880 Bex') }}</p>
+        <p>{{ __('Avenue de La Gare 1, CH-1880 Bex') }}</p>
         <p>{{ __('Tél.: +41 (0)24 444 44 44 | E-mail: info@pixelperfect.com | Web: www.pixelperfect.com') }}</p>
         <p>{{ __('Bureau: Rue Caroline 4, 1003 Lausanne') }}</p>
     </div>
@@ -188,6 +188,19 @@
     </table>
 
     <div class="page-break"></div>
+
+    @if($mapImage = $report->reportImages->where('caption', 'Map')->first())
+        <div class="header">
+            <h2 style="margin: 0;">{{ __('Plan du réseau inspecté') }}</h2>
+        </div>
+        <div class="report-number">
+            <span>{{ __('Rapport TV n°') }} {{ str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</span>
+        </div>
+        <div class="image-container" style="margin-top: 10px;">
+            <img src="{{ public_path('storage/' . $mapImage->file_path) }}" alt="Network Map">
+        </div>
+        <div class="page-break"></div>
+    @endif
 
     <!-- Report Title -->
     <div class="header">
@@ -240,6 +253,13 @@
     </table>
 
     <!-- Defect List -->
+    <div class="header">
+        <h2 style="margin: 0;">{{ __('Liste des défauts') }}</h2>
+    </div>
+    <div class="report-number">
+        <span>{{ __('Rapport TV n°') }} {{ str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</span>
+    </div>
+
     <table class="defect-list">
         <thead>
             <tr>
@@ -354,20 +374,6 @@
         </div>
     @endforelse
 
-    <!-- Network Map if available -->
-    @if($mapImage = $report->reportImages->where('caption', 'Map')->first())
-        <div class="page-break"></div>
-        <div class="header">
-            <h2 style="margin: 0;">{{ __('Plan du réseau inspecté') }}</h2>
-        </div>
-        <div class="report-number">
-            <span>{{ __('Rapport TV n°') }} {{ str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</span>
-        </div>
-        <div class="image-container" style="margin-top: 10px;">
-            <img src="{{ public_path('storage/' . $mapImage->file_path) }}" alt="Network Map">
-        </div>
-    @endif
-
     <!-- Comments Section if included -->
     @if($includeComments && count($report->reportComments) > 0)
         <div class="page-break"></div>
@@ -451,7 +457,7 @@
     </ol>
 
     <div class="page-footer">
-        {{ __('PixelPerfect - Avenue de la gare 1, 1880 Bex - Tél.: +41 (0)24 444 44 44') }} | {{ __('Page') }}
+        {{ __('PixelPerfect - Avenue de La Gare 1, 1880 Bex - Tél.: +41 (0)24 444 44 44') }} | {{ __('Page') }}
     </div>
 </body>
 </html>
