@@ -702,7 +702,7 @@
     </div>
 
     <div class="page-footer">
-        {{ __('PixelPerfect - Avenue de la Gare 1, 1880 Bex - Tél.: +41 (0)24 444 44 44') }} |
+        {{ __('Pixel Perfect - Avenue de la Gare 1, 1880 Bex - Tél.: +41 (0)24 444 44 44') }} |
         {{ __('Page') }} <span class="page-number">
     </div>
 </body>
