@@ -18,12 +18,15 @@
         .page-number:after {
             content: counter(page);
         }
+        .page-count:after {
+            content: counter(pages);
+        }
     </style>
 </head>
 <body>
     <div class="footer">
         PixelPerfect - {{ __('Avenue de la gare 1, 1880 Bex - Tél.: +41 (0)24 444 44 44') }} |
-        {{ __('Page') }} <span class="page-number"></span> {{ __('de') }} {{ $report->reportDefects->count() + 5 }}
+        {{ __('Page') }} <span class="page-number"></span>
     </div>
 </body>
 </html>
