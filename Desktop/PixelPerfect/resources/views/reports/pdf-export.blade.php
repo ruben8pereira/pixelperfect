@@ -246,7 +246,6 @@
             margin-bottom: 20px;
         }
 
-        /* Custom styles for the legend based on image 2 */
         .gravity-legend {
             margin-top: 20px;
             width: 100%;
@@ -261,27 +260,22 @@
 
         .gravity-level-4 {
             color: #000000;
-            /* Black */
         }
 
         .gravity-level-3 {
             color: #008000;
-            /* Green */
         }
 
         .gravity-level-2 {
             color: #FF8C00;
-            /* Dark Orange */
         }
 
         .gravity-level-1 {
             color: #FF1493;
-            /* Deep Pink */
         }
 
         .gravity-level-0 {
             color: #FF0000;
-            /* Red */
         }
 
         .action-text {
@@ -300,7 +294,6 @@
             border-top: 1px solid #ccc;
         }
 
-        /* Pagination style */
         .page-footer::after {
             content: " " attr(data-page);
         }
@@ -316,16 +309,17 @@
 </head>
 
 <body>
-    <!-- Enhanced Cover Page -->
+    <!-- Cover Page -->
     <div class="cover-page">
         <div class="cover-header">
-            <h1 class="company-logo">PixelPerfect</h1>
+            <h1 class="company-logo">Pixel Perfect</h1>
             <p class="company-tagline">{{ __('Solutions d\'inspection professionnelles') }}</p>
         </div>
 
         <div class="report-title-box">
-            <h2 class="report-title">{{ __('Inspection télévisée de réseaux de canalisations') }}</h2>
-            <h3 class="report-subtitle">{{ __('Rapport TV n°') }} {{ str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</h3>
+            <h1 class="report-title">{{ __('Inspection télévisée de réseaux de canalisations') }}</h1>
+            <h2 class="report-title">{{ __($report->title) }}</h2>
+            <h3 class="report-subtitle">{{ __('Rapport TV n°') }} {{ $report->report_number ?? str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</h3>
             <p class="report-date">{{ __('Date') }}: {{ $report->created_at->format('d.m.Y') }}</p>
         </div>
 
@@ -335,7 +329,7 @@
             <table>
                 <tr>
                     <td class="client-label">{{ __('Client') }}:</td>
-                    <td>{{ $report->organization->name }}</td>
+                    <td>{{ $report->client ?? $report->organization->name }}</td>
                 </tr>
                 <tr>
                     <td class="client-label">{{ __('Chantier / lieu des travaux') }}:</td>
@@ -354,6 +348,83 @@
             <p>{{ __('Bureau: Rue Caroline 4, 1003 Lausanne') }}</p>
         </div>
     </div>
+
+    <!-- Gravity Legend -->
+    <div class="page-break"></div>
+    <div class="header">
+        <h2 style="margin: 0;">{{ __('Légende de classification des observations et défauts des tronçons') }}</h2>
+    </div>
+    <div class="report-number">
+        <span>{{ __('Rapport TV n°') }} {{ str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</span>
+    </div>
+
+    <table class="gravity-legend" style="background-color: #f5f5f5;">
+        <tr>
+            <td>
+                <div class="gravity-level-4">
+                    <strong>4 :</strong> {{ __('Constats sans dommage / La canalisation est en bon état.') }}
+
+                    <p>{{ __('Par exemple coude, raccordement (embranchement), changement de matériaux, regard de visite intermédiaire, etc., et toutes informations utiles.') }}
+                    </p>
+
+                    <span class="action-text">{{ __('Pas de dégât constaté.') }}</span>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div class="gravity-level-3">
+                    <strong>3 :</strong>
+                    {{ __('Défauts de construction ou structurels ayant une influence insignifiante sur l\'étanchéité, l\'hydraulique ou la statique de la canalisation.') }}
+
+                    <p>{{ __('Par exemple légères déformations des tuyaux en matières synthétiques, paroi du tuyau légèrement attaquée, manchons avec joints larges, embranchement mal rhabillé, petits dépôts de matériaux sur le radier, etc.') }}
+                    </p>
+
+                    <span
+                        class="action-text">{{ __('Les mesures de réfection ou d\'entretien peuvent être planifiées à long terme.') }}</span>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div class="gravity-level-2">
+                    <strong>2 :</strong>
+                    {{ __('Défauts de constructions ou structurels affectant l\'étanchéité, l\'hydraulique, ou la statique.') }}
+
+                    <p>{{ __('Par exemple déformations marquées des tuyaux en matières synthétiques, paroi du tuyau attaquée, décalages aux joints, embranchements saillants ou non rhabillés, fissures de faible ampleur, entartrage, dépôts de matériaux, etc. Ouvrages tels que regards cachés ou recouverts.') }}
+                    </p>
+
+                    <span
+                        class="action-text">{{ __('Les mesures de réfection / assainissement ou d\'entretien sont nécessaires à moyen terme (en règle générale dans les 3 à 5 ans).') }}</span>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div class="gravity-level-1">
+                    <strong>1 :</strong>
+                    {{ __('Dommages structurels ne garantissant plus l\'étanchéité, l\'hydraulique ou la sécurité statique.') }}
+
+                    <p>{{ __('Par exemple graves déformations et écrasements des tuyaux, paroi du tuyau perforée ou poreuse, déboîtements aux joints laissant entrevoir le terrain ainsi que des exfiltrations ou infiltrations d\'eau et / ou de racines, embranchements fortement saillants, ruptures et fissures importantes et ouvertes, entartrage, dépôts de matériaux, etc.') }}
+                    </p>
+
+                    <span
+                        class="action-text">{{ __('Des mesures de réfection / assainissement ou d\'entretien sont urgentes et à exécuter à court terme (en règle générale dans les 1 à 2 ans). Des investigations sont à envisager.') }}</span>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div class="gravity-level-0">
+                    <strong>0 :</strong>
+                    {{ __('La canalisation est déjà ou sera prochainement obstruée ; la canalisation est effondrée, totalement obstruée de racines ou autres obstacles empêchant l\'écoulement et l\'inspection et risque de conduire à un refoulement ou inondation dans les bâtiments. La canalisation fuit, avec risque de pollution des eaux souterraines pour les réseaux d\'eaux usées et industriels.') }}
+
+                    <span
+                        class="action-text">{{ __('Des mesures de réfection / assainissement ou d\'entretien doivent être réalisées d\'urgence. Des réparations provisoires sont à envisager afin d\'éviter des dégâts plus importants.') }}</span>
+                </div>
+            </td>
+        </tr>
+    </table>
 
     <div class="page-break"></div>
 
@@ -384,7 +455,11 @@
             <td width="50%">
                 <div class="info-section">
                     <span class="label">{{ __('Date inspection') }}:</span>
-                    {{ $report->created_at->format('d.m.Y') }}
+                    @if($report->inspection_date)
+        {{ \Carbon\Carbon::parse($report->inspection_date)->format('d.m.Y') }}
+    @else
+        {{ $report->created_at->format('d.m.Y') }}
+    @endif
                 </div>
                 <div class="info-section">
                     <span class="label">{{ __('N° de commande') }}:</span>
@@ -398,15 +473,15 @@
             <td width="50%">
                 <div class="info-section">
                     <span class="label">{{ __('Opérateur') }}:</span>
-                    {{ substr($report->creator->name, 0, 3) }}
+                    {{ $report->operator ?? $report->creator->name }}
                 </div>
                 <div class="info-section">
                     <span class="label">{{ __('Véhicule') }}:</span>
-                    {{ $report->organization->name }}
+                    Véhicule {{ $report->organization->name }}
                 </div>
                 <div class="info-section">
                     <span class="label">{{ __('Météo') }}:</span>
-                    {{ $report->weather ?? '-' }}
+                    {{ ucfirst($report->weather) ?? '-' }}
                 </div>
             </td>
         </tr>
@@ -447,7 +522,8 @@
                             @endif
                         </td>
                     @endif
-                    <td>{{ $defect->defectType ? substr($defect->defectType->name, 0, 2) : '-' }}</td>
+                    {{-- Future implementation: show a litlle icon that when clicked open a modal with a video of the defect --}}
+                    <td>{{ $defect->defectType ? '-' : '-' }}</td>
                     <td>{{ $defect->coordinates['distance'] ?? '0,00' }}</td>
                     <td
                         class="{{ 'severity-' . ($defect->severity === 'critical' ? '1' : ($defect->severity === 'high' ? '2' : ($defect->severity === 'medium' ? '3' : '4'))) }}">
@@ -563,83 +639,6 @@
         </div>
     @endif
 
-    <!-- Gravity Legend -->
-    <div class="page-break"></div>
-    <div class="header">
-        <h2 style="margin: 0;">{{ __('Légende de classification des observations et défauts des tronçons') }}</h2>
-    </div>
-    <div class="report-number">
-        <span>{{ __('Rapport TV n°') }} {{ str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</span>
-    </div>
-
-    <table class="gravity-legend" style="background-color: #f5f5f5;">
-        <tr>
-            <td>
-                <div class="gravity-level-4">
-                    <strong>4 :</strong> {{ __('Constats sans dommage / La canalisation est en bon état.') }}
-
-                    <p>{{ __('Par exemple coude, raccordement (embranchement), changement de matériaux, regard de visite intermédiaire, etc., et toutes informations utiles.') }}
-                    </p>
-
-                    <span class="action-text">{{ __('Pas de dégât constaté.') }}</span>
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <div class="gravity-level-3">
-                    <strong>3 :</strong>
-                    {{ __('Défauts de construction ou structurels ayant une influence insignifiante sur l\'étanchéité, l\'hydraulique ou la statique de la canalisation.') }}
-
-                    <p>{{ __('Par exemple légères déformations des tuyaux en matières synthétiques, paroi du tuyau légèrement attaquée, manchons avec joints larges, embranchement mal rhabillé, petits dépôts de matériaux sur le radier, etc.') }}
-                    </p>
-
-                    <span
-                        class="action-text">{{ __('Les mesures de réfection ou d\'entretien peuvent être planifiées à long terme.') }}</span>
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <div class="gravity-level-2">
-                    <strong>2 :</strong>
-                    {{ __('Défauts de constructions ou structurels affectant l\'étanchéité, l\'hydraulique, ou la statique.') }}
-
-                    <p>{{ __('Par exemple déformations marquées des tuyaux en matières synthétiques, paroi du tuyau attaquée, décalages aux joints, embranchements saillants ou non rhabillés, fissures de faible ampleur, entartrage, dépôts de matériaux, etc. Ouvrages tels que regards cachés ou recouverts.') }}
-                    </p>
-
-                    <span
-                        class="action-text">{{ __('Les mesures de réfection / assainissement ou d\'entretien sont nécessaires à moyen terme (en règle générale dans les 3 à 5 ans).') }}</span>
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <div class="gravity-level-1">
-                    <strong>1 :</strong>
-                    {{ __('Dommages structurels ne garantissant plus l\'étanchéité, l\'hydraulique ou la sécurité statique.') }}
-
-                    <p>{{ __('Par exemple graves déformations et écrasements des tuyaux, paroi du tuyau perforée ou poreuse, déboîtements aux joints laissant entrevoir le terrain ainsi que des exfiltrations ou infiltrations d\'eau et / ou de racines, embranchements fortement saillants, ruptures et fissures importantes et ouvertes, entartrage, dépôts de matériaux, etc.') }}
-                    </p>
-
-                    <span
-                        class="action-text">{{ __('Des mesures de réfection / assainissement ou d\'entretien sont urgentes et à exécuter à court terme (en règle générale dans les 1 à 2 ans). Des investigations sont à envisager.') }}</span>
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <div class="gravity-level-0">
-                    <strong>0 :</strong>
-                    {{ __('La canalisation est déjà ou sera prochainement obstruée ; la canalisation est effondrée, totalement obstruée de racines ou autres obstacles empêchant l\'écoulement et l\'inspection et risque de conduire à un refoulement ou inondation dans les bâtiments. La canalisation fuit, avec risque de pollution des eaux souterraines pour les réseaux d\'eaux usées et industriels.') }}
-
-                    <span
-                        class="action-text">{{ __('Des mesures de réfection / assainissement ou d\'entretien doivent être réalisées d\'urgence. Des réparations provisoires sont à envisager afin d\'éviter des dégâts plus importants.') }}</span>
-                </div>
-            </td>
-        </tr>
-    </table>
-
     <div class="page-break"></div>
 
     <!-- Avertissements -->
@@ -660,7 +659,47 @@
         <li>
             {{ __('Seul un nettoyage préalable des canalisations à inspecter par curage à eau sous pression permet de vérifier l\'état des canalisations de façon optimale. Notre responsabilité ne saurait être engagée pour tous défauts ou éléments qui n\'auraient été decelés faute d\'un tel nettoyage. Les éventuelles micro-fissures ne peuvent pas toujours être décelées.') }}
         </li>
+        <li>
+            {{ __('L\'inspection télévisée ne permet pas d\'identifier tous les types de défauts, notamment ceux situés hors du champ visuel de la caméra. Une inspection complémentaire peut s\'avérer nécessaire dans certains cas pour obtenir un diagnostic complet du réseau.') }}
+        </li>
+        <li>
+            {{ __('Les mesures et distances indiquées dans ce rapport sont données à titre indicatif et peuvent présenter une marge d\'erreur inhérente aux équipements utilisés. Une vérification sur site est recommandée avant d\'entreprendre des travaux.') }}
+        </li>
+        <li>
+            {{ __('L\'interprétation des défauts observés doit être effectuée par un professionnel qualifié, capable d\'évaluer l\'impact de chaque anomalie sur le fonctionnement global du réseau et sa durabilité à long terme.') }}
+        </li>
+        <li>
+            {{ __('Les conditions d\'accès et l\'état général du réseau au moment de l\'inspection peuvent limiter la qualité des observations. Les segments inaccessibles ou partiellement observables sont clairement identifiés dans le rapport.') }}
+        </li>
+        <li>
+            {{ __('Ce rapport est valable à la date de l\'inspection. L\'évolution naturelle des réseaux, les interventions ultérieures ou les conditions climatiques exceptionnelles peuvent modifier l\'état des canalisations après la réalisation de ce diagnostic.') }}
+        </li>
+        <li>
+            {{ __('Les recommandations formulées dans ce rapport sont basées sur l\'état constaté lors de l\'inspection et les normes en vigueur. Elles ne prennent pas en compte d\'éventuelles modifications réglementaires postérieures à la date d\'émission du rapport.') }}
+        </li>
+        <li>
+            {{ __('La classification des défauts suit une méthodologie standardisée, mais peut varier selon les pratiques locales et les exigences spécifiques du client. Une concertation avec le gestionnaire du réseau est recommandée pour définir les priorités d\'intervention.') }}
+        </li>
+        <li>
+            {{ __('Les images et vidéos fournies dans ce rapport sont destinées à illustrer les observations mentionnées. Leur qualité peut être affectée par les conditions d\'éclairage, de visibilité et les contraintes techniques rencontrées lors de l\'inspection.') }}
+        </li>
+        <li>
+            {{ __('Le présent rapport ne constitue pas une étude de dimensionnement ou de capacité hydraulique du réseau. Des études complémentaires peuvent être nécessaires pour évaluer ces aspects spécifiques.') }}
+        </li>
+        <li>
+            {{ __('La durée de vie résiduelle des canalisations ne peut être déterminée avec précision sur la seule base d\'une inspection visuelle. Des analyses complémentaires de matériaux peuvent être recommandées dans certains cas.') }}
+        </li>
+        <li>
+            {{ __('Certains défauts peuvent évoluer rapidement après l\'inspection, notamment en présence d\'infiltrations, de mouvements de terrain ou de charges importantes en surface. Une surveillance régulière est recommandée pour les défauts critiques identifiés.') }}
+        </li>
+        <li>
+            {{ __('Ce rapport doit être conservé par le propriétaire ou gestionnaire du réseau et transmis à tout intervenant futur pour assurer la traçabilité des inspections et interventions sur le réseau concerné.') }}
+        </li>
     </ol>
+
+    <div class="signature">
+        <p>{{ __('Signature du Technicien') }}: {{ $report->inspector_name }}</p>
+    </div>
 
     <div class="page-footer">
         {{ __('PixelPerfect - Avenue de la Gare 1, 1880 Bex - Tél.: +41 (0)24 444 44 44') }} |

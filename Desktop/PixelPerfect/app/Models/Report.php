@@ -12,13 +12,20 @@ class Report extends Model
      * @var array
      */
     protected $fillable = [
-        'title',
-        'description',
-        'organization_id',
-        'created_by',
-        'pdf_export_count',
-        'language',
-    ];
+    'title',
+    'report_number',
+    'description',
+    'organization_id',
+    'created_by',
+    'pdf_export_count',
+    'language',
+    'inspection_date',
+    'client',
+    'operator',
+    'intervention_reason',
+    'weather',
+    'location'
+];
 
     /**
      * Get the organization that owns the report.
