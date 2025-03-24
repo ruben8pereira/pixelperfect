@@ -14,7 +14,6 @@
             color: #000;
         }
 
-        /* Cover Page Styles - ENHANCED */
         .cover-page {
             position: relative;
             height: 100%;
@@ -102,7 +101,6 @@
             margin: 20px 30px;
         }
 
-        /* Original styles continued */
         .page-break {
             page-break-after: always;
         }
