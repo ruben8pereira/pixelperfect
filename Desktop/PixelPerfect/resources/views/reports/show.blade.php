@@ -8,26 +8,23 @@
             <p class="text-muted">Report details and defect analysis</p>
         </div>
         <div class="d-flex gap-2">
+            <div class="dropdown">
+                <button class="btn btn-success dropdown-toggle" type="button" id="moreActions" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-file-pdf me-2"></i> PDF Actions
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="moreActions">
+                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#pdfPreviewModal"><i class="fas fa-eye me-2"></i> Preview PDF</a></li>
+                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#pdfExportModal"><i class="fas fa-file-pdf me-2"></i> Export PDF</a></li>
+                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#shareModal"><i class="fas fa-share-alt me-2"></i> Share Report</a></li>
+                </ul>
+            </div>
             <a href="{{ route('reports.edit', $report) }}" class="btn btn-warning">
                 <i class="fas fa-edit me-1"></i> Edit Report
             </a>
-            <!-- Replace direct Export PDF link with modal trigger button -->
-            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#pdfExportModal">
-                <i class="fas fa-file-pdf me-1"></i> Export PDF
+
+            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                <i class="fas fa-eye me-1"></i> Delete
             </button>
-            <!-- Add Preview PDF button -->
-            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#pdfPreviewModal">
-                <i class="fas fa-eye me-1"></i> Preview PDF
-            </button>
-            <div class="dropdown">
-                <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="moreActions" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fas fa-ellipsis-v"></i>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="moreActions">
-                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#shareModal"><i class="fas fa-share-alt me-2"></i> Share Report</a></li>
-                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#deleteModal"><i class="fas fa-trash me-2"></i> Delete Report</a></li>
-                </ul>
-            </div>
         </div>
     </div>
 

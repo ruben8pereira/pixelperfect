@@ -69,11 +69,7 @@
                     <a href="{{ route('register') }}" class="btn btn-primary">Sign Up</a>
                     @else
                     <div class="d-flex align-items-center">
-                        <!-- Language Switcher -->
-                        <div class="me-3">
-                            <x-language-switcher />
-                        </div>
-
+                        
                         <div class="dropdown">
                             <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                 {{ Auth::user()->name }}
