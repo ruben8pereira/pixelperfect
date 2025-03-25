@@ -202,7 +202,7 @@
         <nav class="navbar navbar-expand-lg navbar-dark" id="mainNav">
             <div class="container">
                 <a class="navbar-brand" href="/">
-                    <img src="/images/logo-white.png" alt="PipeDefect Solutions">
+                    <img src="{{ asset('img/logo.jpg') }}" alt="PipeDefect Solutions">
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -392,7 +392,7 @@
                 </div>
 
                 <div class="col-lg-6">
-                    <img src="/images/report-example.jpg" alt="Report Example" class="img-fluid rounded shadow-lg">
+                    <img src="{{ asset('img/report.png') }}" alt="Report Example" class="img-fluid rounded shadow-lg">
                 </div>
             </div>
         </div>

@@ -37,9 +37,9 @@ class ReportController extends Controller
         // Apply search filters
         if ($request->has('search')) {
             $search = $request->input('search');
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
+                    ->orWhere('description', 'like', "%{$search}%");
             });
         }
 
@@ -52,7 +52,7 @@ class ReportController extends Controller
                 $query->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()]);
             } elseif ($range === 'month') {
                 $query->whereMonth('created_at', now()->month)
-                      ->whereYear('created_at', now()->year);
+                    ->whereYear('created_at', now()->year);
             } elseif ($range === 'year') {
                 $query->whereYear('created_at', now()->year);
             }
@@ -61,7 +61,7 @@ class ReportController extends Controller
         // Apply severity filter
         if ($request->has('severity') && !empty($request->input('severity'))) {
             $severity = $request->input('severity');
-            $query->whereHas('reportDefects', function($q) use ($severity) {
+            $query->whereHas('reportDefects', function ($q) use ($severity) {
                 $q->where('severity', $severity);
             });
         }
@@ -78,16 +78,16 @@ class ReportController extends Controller
         } elseif ($user->role->name === 'Organization') {
             // Organization users see reports for their organization
             $reports = $query->where('organization_id', $user->organization_id)
-                      ->orderBy('created_at', 'desc')
-                      ->paginate(10);
+                ->orderBy('created_at', 'desc')
+                ->paginate(10);
         } elseif ($user->role->name === 'User') {
             // Regular users see reports they created or from their organization
-            $reports = $query->where(function($q) use ($user) {
+            $reports = $query->where(function ($q) use ($user) {
                 $q->where('organization_id', $user->organization_id)
-                  ->orWhere('created_by', $user->id);
+                    ->orWhere('created_by', $user->id);
             })
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+                ->orderBy('created_at', 'desc')
+                ->paginate(10);
         } else {
             // Guest users don't see any reports by default
             $reports = collect([]);
@@ -134,10 +134,15 @@ class ReportController extends Controller
             // Create report
             $report = new Report();
             $report->title = $request->title;
+            $report->report_number = $request->report_number;
             $report->description = $request->description;
             $report->language = $request->language ?? 'en';
             $report->pdf_export_count = 0;
             $report->created_by = Auth::id();
+            $report->inspection_date = $request->inspection_date;
+            $report->client = $request->client;
+            $report->operator = $request->operator;
+            $report->intervention_reason = $request->intervention_reason;
 
             // Add custom fields if present
             if ($request->has('weather')) {
@@ -232,7 +237,6 @@ class ReportController extends Controller
 
             return redirect()->route('reports.show', $report)
                 ->with('success', 'Report created successfully.');
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error creating report: ' . $e->getMessage());
@@ -305,6 +309,7 @@ class ReportController extends Controller
 
             // Update report data
             $report->title = $request->title;
+            $report->report_number = $request->report_number;
             $report->description = $request->description;
             $report->language = $request->language ?? 'en';
 
@@ -424,7 +429,7 @@ class ReportController extends Controller
                             'file_path' => $imagePath,
                             'caption' => substr($defect->description, 0, 30),
                         ]);
-                    } elseif ($request->has("keep_defect_images.{$index}") && $request->{"keep_defect_images.".$index} == 0) {
+                    } elseif ($request->has("keep_defect_images.{$index}") && $request->{"keep_defect_images." . $index} == 0) {
                         // Remove defect image if the user unchecked "keep this image"
                         $oldDefectImage = $report->reportImages->where('defect_id', $defect->id)->first();
                         if ($oldDefectImage) {
@@ -456,7 +461,6 @@ class ReportController extends Controller
 
             return redirect()->route('reports.show', $report)
                 ->with('success', 'Report updated successfully.');
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error updating report: ' . $e->getMessage());
@@ -493,7 +497,6 @@ class ReportController extends Controller
 
             return redirect()->route('reports.index')
                 ->with('success', 'Report deleted successfully.');
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error deleting report: ' . $e->getMessage());
@@ -528,7 +531,6 @@ class ReportController extends Controller
             );
 
             return $pdf->stream("report-{$report->id}-preview.pdf");
-
         } catch (\Exception $e) {
             Log::error('Error generating PDF preview: ' . $e->getMessage());
 
@@ -568,7 +570,6 @@ class ReportController extends Controller
             $filename = "report-{$report->id}-{$language}.pdf";
 
             return $pdf->download($filename);
-
         } catch (\Exception $e) {
             Log::error('Error generating PDF: ' . $e->getMessage());
 
@@ -588,6 +589,7 @@ class ReportController extends Controller
     {
         $rules = [
             'title' => 'required|string|max:255',
+            'report_number' => 'nullable|string|max:50',
             'description' => 'nullable|string',
             'language' => 'required|string|size:2|in:en,fr,de',
             'map_image' => 'nullable|image|max:10240', // Max 10MB
@@ -618,134 +620,134 @@ class ReportController extends Controller
     }
 
     /**
- * Share the report via email invitation.
- *
- * @param  \Illuminate\Http\Request  $request
- * @param  \App\Models\Report  $report
- * @return \Illuminate\Http\Response
- */
-public function share(Request $request, Report $report)
-{
-    // Check permission to view report (needed to share)
-    $this->authorize('view', $report);
+     * Share the report via email invitation.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Report  $report
+     * @return \Illuminate\Http\Response
+     */
+    public function share(Request $request, Report $report)
+    {
+        // Check permission to view report (needed to share)
+        $this->authorize('view', $report);
 
-    $request->validate([
-        'email' => 'required|email',
-        'expires_days' => 'required|integer|min:1|max:30',
-    ]);
+        $request->validate([
+            'email' => 'required|email',
+            'expires_days' => 'required|integer|min:1|max:30',
+        ]);
 
-    try {
-        // Check if invitation already exists and is not expired
-        $existingInvitation = ReportInvitation::where('email', $request->email)
-            ->where('report_id', $report->id)
-            ->where('expires_at', '>', now())
-            ->where('is_used', false)
-            ->first();
+        try {
+            // Check if invitation already exists and is not expired
+            $existingInvitation = ReportInvitation::where('email', $request->email)
+                ->where('report_id', $report->id)
+                ->where('expires_at', '>', now())
+                ->where('is_used', false)
+                ->first();
 
-        if ($existingInvitation) {
+            if ($existingInvitation) {
+                return redirect()->back()
+                    ->with('info', 'This email already has an active invitation to this report.');
+            }
+
+            // Create a new invitation
+            $invitation = $report->shareWith($request->email, $request->expires_days);
+
+            // Send invitation email
+            Notification::route('mail', $request->email)
+                ->notify(new ReportInvitationNotification($invitation));
+
             return redirect()->back()
-                ->with('info', 'This email already has an active invitation to this report.');
+                ->with('success', 'Invitation sent successfully.');
+        } catch (\Exception $e) {
+            Log::error('Error sending report invitation: ' . $e->getMessage());
+
+            return redirect()->back()
+                ->with('error', 'An error occurred while sending the invitation: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Display the shared report using token.
+     *
+     * @param  string  $token
+     * @return \Illuminate\Http\Response
+     */
+    public function showShared($token)
+    {
+        $invitation = ReportInvitation::where('token', $token)
+            ->where('expires_at', '>', now())
+            ->firstOrFail();
+
+        // If invitation was used and we don't want to allow multiple views, show error
+        // Uncomment this if you want to enforce single-use invitations
+        // if ($invitation->is_used) {
+        //     return redirect()->route('login')
+        //         ->with('error', 'This invitation has already been used.');
+        // }
+
+        $report = $invitation->report;
+
+        // Load relationships
+        $report->load([
+            'reportDefects.defectType',
+            'reportImages',
+            'reportComments.user',
+            'organization',
+            'creator'
+        ]);
+
+        // Record the view
+        $invitation->recordView();
+
+        // Store in session that this report was accessed with a valid token
+        session()->put('report_access_' . $report->id, true);
+
+        return view('reports.shared', compact('report', 'invitation'));
+    }
+
+    /**
+     * Show invitations for a report.
+     *
+     * @param  \App\Models\Report  $report
+     * @return \Illuminate\Http\Response
+     */
+    public function showInvitations(Report $report)
+    {
+        $this->authorize('view', $report);
+
+        $invitations = $report->invitations()->with('inviter')->latest()->get();
+
+        return view('reports.invitations', compact('report', 'invitations'));
+    }
+
+    /**
+     * Cancel a report invitation.
+     *
+     * @param  \App\Models\ReportInvitation  $invitation
+     * @return \Illuminate\Http\Response
+     */
+    public function cancelInvitation(ReportInvitation $invitation)
+    {
+        // Check if the user is the one who created the invitation or has admin rights
+        if (
+            Auth::id() !== $invitation->invited_by &&
+            Auth::user()->role->name !== 'Administrator' &&
+            Auth::user()->organization_id !== $invitation->report->organization_id
+        ) {
+            return redirect()->back()
+                ->with('error', 'You do not have permission to cancel this invitation.');
         }
 
-        // Create a new invitation
-        $invitation = $report->shareWith($request->email, $request->expires_days);
+        try {
+            $invitation->delete();
 
-        // Send invitation email
-        Notification::route('mail', $request->email)
-            ->notify(new ReportInvitationNotification($invitation));
+            return redirect()->back()
+                ->with('success', 'Invitation cancelled successfully.');
+        } catch (\Exception $e) {
+            Log::error('Error cancelling invitation: ' . $e->getMessage());
 
-        return redirect()->back()
-            ->with('success', 'Invitation sent successfully.');
-
-    } catch (\Exception $e) {
-        Log::error('Error sending report invitation: ' . $e->getMessage());
-
-        return redirect()->back()
-            ->with('error', 'An error occurred while sending the invitation: ' . $e->getMessage());
+            return redirect()->back()
+                ->with('error', 'An error occurred while cancelling the invitation: ' . $e->getMessage());
+        }
     }
-}
-
-/**
- * Display the shared report using token.
- *
- * @param  string  $token
- * @return \Illuminate\Http\Response
- */
-public function showShared($token)
-{
-    $invitation = ReportInvitation::where('token', $token)
-        ->where('expires_at', '>', now())
-        ->firstOrFail();
-
-    // If invitation was used and we don't want to allow multiple views, show error
-    // Uncomment this if you want to enforce single-use invitations
-    // if ($invitation->is_used) {
-    //     return redirect()->route('login')
-    //         ->with('error', 'This invitation has already been used.');
-    // }
-
-    $report = $invitation->report;
-
-    // Load relationships
-    $report->load([
-        'reportDefects.defectType',
-        'reportImages',
-        'reportComments.user',
-        'organization',
-        'creator'
-    ]);
-
-    // Record the view
-    $invitation->recordView();
-
-    // Store in session that this report was accessed with a valid token
-    session()->put('report_access_' . $report->id, true);
-
-    return view('reports.shared', compact('report', 'invitation'));
-}
-
-/**
- * Show invitations for a report.
- *
- * @param  \App\Models\Report  $report
- * @return \Illuminate\Http\Response
- */
-public function showInvitations(Report $report)
-{
-    $this->authorize('view', $report);
-
-    $invitations = $report->invitations()->with('inviter')->latest()->get();
-
-    return view('reports.invitations', compact('report', 'invitations'));
-}
-
-/**
- * Cancel a report invitation.
- *
- * @param  \App\Models\ReportInvitation  $invitation
- * @return \Illuminate\Http\Response
- */
-public function cancelInvitation(ReportInvitation $invitation)
-{
-    // Check if the user is the one who created the invitation or has admin rights
-    if (Auth::id() !== $invitation->invited_by &&
-        Auth::user()->role->name !== 'Administrator' &&
-        Auth::user()->organization_id !== $invitation->report->organization_id) {
-        return redirect()->back()
-            ->with('error', 'You do not have permission to cancel this invitation.');
-    }
-
-    try {
-        $invitation->delete();
-
-        return redirect()->back()
-            ->with('success', 'Invitation cancelled successfully.');
-
-    } catch (\Exception $e) {
-        Log::error('Error cancelling invitation: ' . $e->getMessage());
-
-        return redirect()->back()
-            ->with('error', 'An error occurred while cancelling the invitation: ' . $e->getMessage());
-    }
-}
 }
