@@ -79,7 +79,7 @@
                     <div class="card">
                         <div class="brand-section text-center">
                             <a href="/">
-                                <img src="logo.png" alt="PipeDefect Solutions Logo" class="img-fluid" style="max-height: 70px;">
+                                <img src="{{ asset('img/logo.jpg') }}" alt="PipeDefect Solutions Logo" class="img-fluid" style="max-height: 70px;">
                             </a>
                             <h3 class="login-title mt-3">Sign In</h3>
                             <p class="text-muted">Access your pipe inspection reports</p>

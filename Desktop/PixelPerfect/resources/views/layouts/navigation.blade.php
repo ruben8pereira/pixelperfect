@@ -1,9 +1,16 @@
+<style>
+#logo {
+    height: 100px;
+    width: 100px
+}
+    </style>
+
 <nav class="navbar navbar-expand-lg {{ Route::is('home') ? 'navbar-dark position-absolute w-100' : 'navbar-light bg-white shadow-sm' }}" id="mainNav"
      style="{{ Route::is('home') ? 'z-index: 1030; top: 0;' : '' }}">
     <div class="container">
         <!-- Logo -->
         <a class="navbar-brand" href="{{ url('/') }}">
-            <img src="{{ asset('images/logo-' . (Route::is('home') ? 'white' : 'dark') . '.png') }}" alt="PipeDefect Solutions" class="h-10">
+            <img src="{{ asset('img/logo.jpg') }}" id="logo" alt="Pipe Defect Solutions" class="h-10">
         </a>
 
         <!-- Navbar Toggler -->
