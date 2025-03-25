@@ -195,7 +195,7 @@
             margin-top: 3rem;
         }
 
-        #logo{
+        #logo {
             width: 100px;
             height: 100px;
         }
@@ -203,7 +203,6 @@
         #cesae {
             text-decoration: none;
         }
-
     </style>
 </head>
 
@@ -252,8 +251,8 @@
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                     @if (Auth::user())
                                         <li><a class="dropdown-item" href="{{ route('filament.admin.pages.dashboard') }}"><i
-                                            class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
-                                    <hr class="dropdown-divider">
+                                                    class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
+                                        <hr class="dropdown-divider">
                                     @endif
                                     <li>
                                         <form method="POST" action="{{ route('logout') }}" id="logout-form">
@@ -279,7 +278,13 @@
                     <p class="lead mb-4">Our comprehensive platform streamlines the process of documenting, analyzing
                         and reporting pipe defects for organizations of all sizes.</p>
                     <div class="d-grid gap-2 d-md-flex justify-content-md-start">
-                        <a href="{{ route('register') }}" class="btn btn-primary btn-lg px-4 me-md-2">Get Started</a>
+                        @if (Auth::user())
+                            <a href="{{ route('filament.admin.pages.dashboard') }}"
+                                class="btn btn-primary btn-lg px-4 me-md-2">Get Started</a>
+                        @else
+                            <a href="{{ route('register') }}" class="btn btn-primary btn-lg px-4 me-md-2">Get
+                                Started</a>
+                        @endif
                         <a href="#demo" class="btn btn-outline-light btn-lg px-4">Request Demo</a>
                     </div>
                 </div>
@@ -403,7 +408,8 @@
                 </div>
 
                 <div class="col-lg-6">
-                    <img src="{{ asset('img/report.png') }}" alt="Report Example" class="img-fluid rounded shadow-lg">
+                    <img src="{{ asset('img/report.png') }}" alt="Report Example"
+                        class="img-fluid rounded shadow-lg">
                 </div>
             </div>
         </div>
@@ -436,12 +442,13 @@
 
                             <div class="d-grid mt-4">
                                 @if (Auth::user())
-                                    <a href="{{ route('filament.admin.pages.dashboard') }}" class="btn btn-outline-primary">Get
+                                    <a href="{{ route('filament.admin.pages.dashboard') }}"
+                                        class="btn btn-outline-primary">Get
                                         Started</a>
-                                        @else
-                                <a href="{{ route('register') }}" class="btn btn-outline-primary">Get
-                                    Started</a>
-                                    @endif
+                                @else
+                                    <a href="{{ route('register') }}" class="btn btn-outline-primary">Get
+                                        Started</a>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -451,7 +458,7 @@
                     <div class="card h-100 shadow border border-primary">
                         <div class="card-body p-5">
                             <div class="ribbon bg-primary text-white position-absolute px-3 py-1"
-                                style="top: 15px; right: -10px; transform: rotate(45deg);">Popular</div>
+                                style="top: 15px; right: -10px; transform: rotate(45deg); border-radius: 5px;">Popular</div>
                             <h5 class="card-title text-center mb-4">Professional</h5>
                             <h1 class="card-text text-center mb-4">$99<span class="text-muted fs-5">/month</span></h1>
 
@@ -467,12 +474,13 @@
 
                             <div class="d-grid mt-4">
                                 @if (Auth::user())
-                                    <a href="{{ route('filament.admin.pages.dashboard') }}" class="btn btn-outline-primary">Get
+                                    <a href="{{ route('filament.admin.pages.dashboard') }}"
+                                        class="btn btn-outline-primary">Get
                                         Started</a>
-                                        @else
-                                <a href="{{ route('register') }}" class="btn btn-outline-primary">Get
-                                    Started</a>
-                                    @endif
+                                @else
+                                    <a href="{{ route('register') }}" class="btn btn-outline-primary">Get
+                                        Started</a>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -497,12 +505,13 @@
 
                             <div class="d-grid mt-4">
                                 @if (Auth::user())
-                                    <a href="{{ route('filament.admin.pages.dashboard') }}" class="btn btn-outline-primary">Get
+                                    <a href="{{ route('filament.admin.pages.dashboard') }}"
+                                        class="btn btn-outline-primary">Get
                                         Started</a>
-                                        @else
-                                <a href="{{ route('register') }}" class="btn btn-outline-primary">Get
-                                    Started</a>
-                                    @endif
+                                @else
+                                    <a href="{{ route('register') }}" class="btn btn-outline-primary">Get
+                                        Started</a>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -523,13 +532,14 @@
                 <div class="col-md-4">
                     <div class="testimonial-card">
                         <div class="text-center">
-                            <img src="/images/testimonial-1.jpg" alt="Testimonial" class="testimonial-image">
+                            <img src="{{ asset('img/jeandupont.jpg') }}" alt="Testimonial"
+                                class="testimonial-image">
                             <h5>Jean Dupont</h5>
                             <p class="text-muted">Pipeline Manager, Suez</p>
                         </div>
                         <p class="mt-3">"This platform has transformed our inspection workflow. The report generation
                             saves us hours of work every week, and our clients love the professional PDFs."</p>
-                        <div class="text-warning">
+                        <div class="text-warning text-center">
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
@@ -542,18 +552,19 @@
                 <div class="col-md-4">
                     <div class="testimonial-card">
                         <div class="text-center">
-                            <img src="/images/testimonial-2.jpg" alt="Testimonial" class="testimonial-image">
+                            <img src="{{ asset('img/mariaschmidt.jpg') }}" alt="Testimonial"
+                                class="testimonial-image">
                             <h5>Maria Schmidt</h5>
                             <p class="text-muted">CEO, GermTech Inspections</p>
                         </div>
                         <p class="mt-3">"The ability to track defects over time has allowed us to provide better
                             recommendations to our clients and schedule maintenance more effectively."</p>
-                        <div class="text-warning">
+                        <div class="text-warning text-center">
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
                         </div>
                     </div>
                 </div>
@@ -561,19 +572,20 @@
                 <div class="col-md-4">
                     <div class="testimonial-card">
                         <div class="text-center">
-                            <img src="/images/testimonial-3.jpg" alt="Testimonial" class="testimonial-image">
+                            <img src="{{ asset('img/johnanderson.jpg') }}" alt="Testimonial"
+                                class="testimonial-image">
                             <h5>John Anderson</h5>
                             <p class="text-muted">Operations Manager, CityWorks</p>
                         </div>
                         <p class="mt-3">"Managing our team of 12 inspectors used to be a nightmare. Now everyone
                             follows the same process, and we have complete visibility into all inspection activities."
                         </p>
-                        <div class="text-warning">
+                        <div class="text-warning text-center">
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
-                            <i class="fas fa-star-half-alt"></i>
+                            <i class="fas fa-star"></i>
                         </div>
                     </div>
                 </div>
@@ -592,9 +604,10 @@
                 </div>
                 <div class="col-lg-4 text-lg-end">
                     @if (Auth::user())
-                                    <a href="{{ route('filament.admin.pages.dashboard') }}" class="btn btn-light btn-lg">Get Started Today</a>
-                                        @else
-                    <a href="{{ route('register') }}" class="btn btn-light btn-lg">Get Started Today</a>
+                        <a href="{{ route('filament.admin.pages.dashboard') }}" class="btn btn-light btn-lg">Get
+                            Started Today</a>
+                    @else
+                        <a href="{{ route('register') }}" class="btn btn-light btn-lg">Get Started Today</a>
                     @endif
                 </div>
             </div>
@@ -692,7 +705,7 @@
                 <div class="col-lg-4">
                     <p>Pipe Defect Solutions provides comprehensive pipe inspection and defect management software for
                         professionals in the water, sewage, and pipeline industries.</p>
-                        <hr>
+                    <hr>
                     <div class="social-icons mt-4">
                         <a href="#"><i class="fab fa-facebook-f"></i></a>
                         <a href="#"><i class="fab fa-twitter"></i></a>
@@ -745,7 +758,8 @@
             <div class="text-center copyright">
                 <p>&copy; {{ date('Y') }} Pipe Defect Solutions. All rights reserved. <br>
 
-                    Developed by Mauro Coelho, Rúben Pereira, Rui Cruz @ <a id="cesae" href="https://www.cesaedigital.pt/">CESAE Digital</a>
+                    Developed by Mauro Coelho, Rúben Pereira, Rui Cruz @ <a id="cesae"
+                        href="https://www.cesaedigital.pt/">CESAE Digital</a>
 
                 </p>
             </div>
