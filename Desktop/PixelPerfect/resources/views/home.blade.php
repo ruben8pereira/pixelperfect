@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PipeDefect Solutions - Professional Pipe Inspection & Defect Management</title>
+    <title>Pipe Defect Solutions - Professional Pipe Inspection & Defect Management</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -181,6 +181,7 @@
             justify-content: center;
             margin-right: 10px;
             transition: all 0.3s ease;
+            text-decoration: none;
         }
 
         .social-icons a:hover {
@@ -193,6 +194,16 @@
             padding-top: 1.5rem;
             margin-top: 3rem;
         }
+
+        #logo{
+            width: 100px;
+            height: 100px;
+        }
+
+        #cesae {
+            text-decoration: none;
+        }
+
     </style>
 </head>
 
@@ -202,7 +213,7 @@
         <nav class="navbar navbar-expand-lg navbar-dark" id="mainNav">
             <div class="container">
                 <a class="navbar-brand" href="/">
-                    <img src="{{ asset('img/logo.jpg') }}" alt="PipeDefect Solutions">
+                    <img src="{{ asset('img/logo.jpg') }}" id="logo" alt="Pipe Defect Solutions">
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -424,8 +435,13 @@
                             </ul>
 
                             <div class="d-grid mt-4">
-                                <a href="{{ route('register') }}?plan=basic" class="btn btn-outline-primary">Get
+                                @if (Auth::user())
+                                    <a href="{{ route('filament.admin.pages.dashboard') }}" class="btn btn-outline-primary">Get
+                                        Started</a>
+                                        @else
+                                <a href="{{ route('register') }}" class="btn btn-outline-primary">Get
                                     Started</a>
+                                    @endif
                             </div>
                         </div>
                     </div>
@@ -450,8 +466,13 @@
                             </ul>
 
                             <div class="d-grid mt-4">
-                                <a href="{{ route('register') }}?plan=professional" class="btn btn-primary">Get
+                                @if (Auth::user())
+                                    <a href="{{ route('filament.admin.pages.dashboard') }}" class="btn btn-outline-primary">Get
+                                        Started</a>
+                                        @else
+                                <a href="{{ route('register') }}" class="btn btn-outline-primary">Get
                                     Started</a>
+                                    @endif
                             </div>
                         </div>
                     </div>
@@ -475,8 +496,13 @@
                             </ul>
 
                             <div class="d-grid mt-4">
-                                <a href="{{ route('register') }}?plan=enterprise" class="btn btn-outline-primary">Get
+                                @if (Auth::user())
+                                    <a href="{{ route('filament.admin.pages.dashboard') }}" class="btn btn-outline-primary">Get
+                                        Started</a>
+                                        @else
+                                <a href="{{ route('register') }}" class="btn btn-outline-primary">Get
                                     Started</a>
+                                    @endif
                             </div>
                         </div>
                     </div>
@@ -565,7 +591,11 @@
                         inspection reports.</p>
                 </div>
                 <div class="col-lg-4 text-lg-end">
+                    @if (Auth::user())
+                                    <a href="{{ route('filament.admin.pages.dashboard') }}" class="btn btn-light btn-lg">Get Started Today</a>
+                                        @else
                     <a href="{{ route('register') }}" class="btn btn-light btn-lg">Get Started Today</a>
+                    @endif
                 </div>
             </div>
         </div>
@@ -619,7 +649,7 @@
                                     </div>
 
                                     <div class="col-md-6">
-                                        <label for="email" class="form-label">Email Address</label>
+                                        <label for="email" class="form-label">E-mail Address</label>
                                         <input type="email" class="form-control" id="email" required>
                                     </div>
 
@@ -660,11 +690,9 @@
         <div class="container">
             <div class="row g-4">
                 <div class="col-lg-4">
-                    <img src="/images/logo-white.png" alt="PipeDefect Solutions" class="mb-4"
-                        style="height: 40px;">
-                    <p>PipeDefect Solutions provides comprehensive pipe inspection and defect management software for
+                    <p>Pipe Defect Solutions provides comprehensive pipe inspection and defect management software for
                         professionals in the water, sewage, and pipeline industries.</p>
-
+                        <hr>
                     <div class="social-icons mt-4">
                         <a href="#"><i class="fab fa-facebook-f"></i></a>
                         <a href="#"><i class="fab fa-twitter"></i></a>
@@ -715,7 +743,11 @@
             </div>
 
             <div class="text-center copyright">
-                <p>&copy; {{ date('Y') }} PipeDefect Solutions. All rights reserved.</p>
+                <p>&copy; {{ date('Y') }} Pipe Defect Solutions. All rights reserved. <br>
+
+                    Developed by Mauro Coelho, Rúben Pereira, Rui Cruz @ <a id="cesae" href="https://www.cesaedigital.pt/">CESAE Digital</a>
+
+                </p>
             </div>
         </div>
     </footer>
