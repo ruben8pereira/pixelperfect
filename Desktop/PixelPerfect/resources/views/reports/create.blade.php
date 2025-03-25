@@ -319,38 +319,6 @@
 
                 <!-- Right Column -->
                 <div class="col-lg-4">
-                    <!-- Report Images Section -->
-                    <div class="card shadow-sm mb-4">
-                        <div class="card-header bg-white py-3">
-                            <h5 class="mb-0"><i class="fas fa-images me-2 text-primary"></i>{{ __('Report Images') }}
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="mb-3">
-                                <label for="images"
-                                    class="form-label fw-bold">{{ __('Upload Additional Images') }}</label>
-                                <div class="mt-1 d-flex justify-content-center p-4 border border-2 border-dashed rounded"
-                                    id="image-drop-area">
-                                    <div class="text-center">
-                                        <div class="mb-3">
-                                            <i class="fas fa-cloud-upload-alt fa-3x text-secondary"></i>
-                                        </div>
-                                        <div class="text-sm">
-                                            <label for="report_images" class="btn btn-sm btn-primary mb-2">
-                                                <i class="fas fa-upload me-1"></i> {{ __('Upload Images') }}
-                                                <input id="report_images" name="report_images[]" type="file"
-                                                    class="d-none" multiple accept="image/*">
-                                            </label>
-                                            <p class="mb-0 text-muted">{{ __('or drag and drop') }}</p>
-                                            <p class="small text-muted mt-1">PNG, JPG, GIF up to 10MB</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div id="image-preview" class="mt-3 row g-2"></div>
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Pipe Section Details -->
                     <div class="card shadow-sm mb-4">
                         <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">

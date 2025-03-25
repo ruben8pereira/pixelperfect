@@ -39,17 +39,6 @@
                     @endif
 
                     <div class="col-md-2">
-                        <label for="severity" class="form-label fw-bold">{{ __('Severity') }}</label>
-                        <select id="severity" name="severity" class="form-select">
-                            <option value="">{{ __('All Severities') }}</option>
-                            <option value="critical" {{ request('severity') == 'critical' ? 'selected' : '' }}>{{ __('Critical') }}</option>
-                            <option value="high" {{ request('severity') == 'high' ? 'selected' : '' }}>{{ __('High') }}</option>
-                            <option value="medium" {{ request('severity') == 'medium' ? 'selected' : '' }}>{{ __('Medium') }}</option>
-                            <option value="low" {{ request('severity') == 'low' ? 'selected' : '' }}>{{ __('Low') }}</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-2">
                         <label for="date_range" class="form-label fw-bold">{{ __('Date Range') }}</label>
                         <select id="date_range" name="date_range" class="form-select">
                             <option value="">{{ __('All Time') }}</option>

@@ -193,6 +193,12 @@
             padding-top: 1.5rem;
             margin-top: 3rem;
         }
+
+        #logo{
+            width: 100px;
+            height: 100px;
+
+        }
     </style>
 </head>
 
@@ -202,7 +208,7 @@
         <nav class="navbar navbar-expand-lg navbar-dark" id="mainNav">
             <div class="container">
                 <a class="navbar-brand" href="/">
-                    <img src="{{ asset('img/logo.jpg') }}" alt="PipeDefect Solutions">
+                    <img src="{{ asset('img/logo.jpg') }}" id="logo" alt="PipeDefect Solutions">
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -715,7 +721,11 @@
             </div>
 
             <div class="text-center copyright">
-                <p>&copy; {{ date('Y') }} PipeDefect Solutions. All rights reserved.</p>
+                <p>&copy; {{ date('Y') }} PipeDefect Solutions. All rights reserved. <br>
+
+                    Developed by Mauro Coelho, Rúben Pereira, Rui Cruz @ <a href="https://www.cesaedigital.pt/">CESAE Digital</a>
+
+                </p>
             </div>
         </div>
     </footer>
