@@ -22,7 +22,7 @@
                 </ul>
             </div>
             <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
-                <i class="fas fa-eye me-1"></i> Delete
+                <i class="fas fa-trash me-1"></i> Delete
             </button>
         </div>
     </div>

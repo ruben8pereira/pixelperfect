@@ -458,7 +458,8 @@
                     <div class="card h-100 shadow border border-primary">
                         <div class="card-body p-5">
                             <div class="ribbon bg-primary text-white position-absolute px-3 py-1"
-                                style="top: 15px; right: -10px; transform: rotate(45deg); border-radius: 5px;">Popular</div>
+                                style="top: 15px; right: -10px; transform: rotate(45deg); border-radius: 5px;">Popular
+                            </div>
                             <h5 class="card-title text-center mb-4">Professional</h5>
                             <h1 class="card-text text-center mb-4">$99<span class="text-muted fs-5">/month</span></h1>
 
@@ -529,7 +530,7 @@
             </div>
 
             <div class="row g-4">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="testimonial-card">
                         <div class="text-center">
                             <img src="{{ asset('img/jeandupont.jpg') }}" alt="Testimonial"
@@ -549,7 +550,7 @@
                     </div>
                 </div>
 
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="testimonial-card">
                         <div class="text-center">
                             <img src="{{ asset('img/mariaschmidt.jpg') }}" alt="Testimonial"
@@ -569,7 +570,7 @@
                     </div>
                 </div>
 
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="testimonial-card">
                         <div class="text-center">
                             <img src="{{ asset('img/johnanderson.jpg') }}" alt="Testimonial"
@@ -586,6 +587,26 @@
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="testimonial-card">
+                        <div class="text-center">
+                            <img src="{{ asset('img/albertobanderas.jpg') }}" alt="Testimonial"
+                                class="testimonial-image">
+                            <h5>Abel Banderas</h5>
+                            <p class="text-muted">Supervisor, BrightSolutions</p>
+                        </div>
+                        <p class="mt-3">"Implementing this software has completely transformed our workflow. Tasks
+                            are now streamlined, and collaboration between teams has never been easier!"</p>
+                        <div class="text-warning text-center">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
                         </div>
                     </div>
                 </div>
