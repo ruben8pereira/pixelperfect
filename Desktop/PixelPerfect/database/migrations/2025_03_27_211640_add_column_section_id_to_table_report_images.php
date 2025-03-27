@@ -11,7 +11,6 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Check if section_id column already exists
         if (!Schema::hasColumn('report_images', 'section_id')) {
             Schema::table('report_images', function (Blueprint $table) {
                 $table->foreignId('section_id')->nullable()->after('defect_id')

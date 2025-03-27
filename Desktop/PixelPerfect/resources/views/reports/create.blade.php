@@ -209,6 +209,15 @@
                                     </div>
 
                                     <div class="row g-3">
+                                        <div class="col-md-12">
+                                            <label class="form-label fw-bold required">{{ __('Pipe Section') }}</label>
+                                            <select name="defects[0][section_id]" class="form-select section-selector" required>
+                                                <option value="">{{ __('Select Section') }}</option>
+                                                <!-- Populated with JavaScript -->
+                                            </select>
+                                            <small class="text-muted">{{ __('Associate this defect with a pipe section') }}</small>
+                                        </div>
+
                                         <div class="col-md-6">
                                             <label class="form-label fw-bold required">{{ __('Defect Type') }}</label>
                                             <select name="defects[0][defect_type_id]" class="form-select" required>
@@ -307,11 +316,6 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-
-                            <div class="alert alert-info" id="no-defects-message" style="display: none;">
-                                <i class="fas fa-info-circle"></i>
-                                {{ __('No defects added yet. Click "Add Defect" to begin documenting pipe issues.') }}
                             </div>
                         </div>
                     </div>
@@ -505,6 +509,15 @@
             </div>
 
             <div class="row g-3">
+                <div class="col-md-12">
+                    <label class="form-label fw-bold required">{{ __('Pipe Section') }}</label>
+                    <select name="defects[INDEX][section_id]" class="form-select section-selector" required>
+                        <option value="">{{ __('Select Section') }}</option>
+                        <!-- Populated with JavaScript -->
+                    </select>
+                    <small class="text-muted">{{ __('Associate this defect with a pipe section') }}</small>
+                </div>
+
                 <div class="col-md-6">
                     <label class="form-label fw-bold required">{{ __('Defect Type') }}</label>
                     <select name="defects[INDEX][defect_type_id]" class="form-select" required>
@@ -682,536 +695,701 @@
     <!-- JavaScript for Form Operations -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize variables
-            let defectCount = 1;
-            let sectionCount = 1;
+    // Initialize variables
+    let defectCount = 1;
+    let sectionCount = 1;
 
-            // Setup defect management - Get elements only once
-            const defectsContainer = document.getElementById('defects-container');
-            const addDefectBtn = document.getElementById('addDefectBtn');
-            const defectTemplate = document.getElementById('defect-template');
-            const noDefectsMessage = document.getElementById('no-defects-message');
+    // Setup defect management - Get elements only once
+    const defectsContainer = document.getElementById('defects-container');
+    const addDefectBtn = document.getElementById('addDefectBtn');
+    const defectTemplate = document.getElementById('defect-template');
+    const noDefectsMessage = document.getElementById('no-defects-message');
 
-            // Setup section management
-            const sectionsContainer = document.getElementById('sections-container');
-            const addSectionBtn = document.getElementById('addSectionBtn');
-            const sectionTemplate = document.getElementById('section-template');
+    // Setup section management
+    const sectionsContainer = document.getElementById('sections-container');
+    const addSectionBtn = document.getElementById('addSectionBtn');
+    const sectionTemplate = document.getElementById('section-template');
 
-            // Setup image preview for map
-            const mapImageInput = document.getElementById('map_image');
-            const mapPreview = document.getElementById('map-preview');
-            const mapPreviewImg = document.getElementById('map-preview-img');
+    // Setup image preview for map
+    const mapImageInput = document.getElementById('map_image');
+    const mapPreview = document.getElementById('map-preview');
+    const mapPreviewImg = document.getElementById('map-preview-img');
 
-            // Setup image preview for report images
-            const reportImagesInput = document.getElementById('report_images');
-            const imagePreview = document.getElementById('image-preview');
+    // Setup image preview for report images
+    const reportImagesInput = document.getElementById('report_images');
+    const imagePreview = document.getElementById('image-preview');
 
-            // Image drag and drop area
-            const dropArea = document.getElementById('image-drop-area');
+    // Image drag and drop area
+    const dropArea = document.getElementById('image-drop-area');
 
-            // IMPORTANT: Remove any existing event listeners first
-            if (addDefectBtn) {
-                addDefectBtn.replaceWith(addDefectBtn.cloneNode(true));
-                // Get the new button after replacing
-                const newAddDefectBtn = document.getElementById('addDefectBtn');
-                if (newAddDefectBtn) {
-                    // Add the event listener to the new button
-                    newAddDefectBtn.addEventListener('click', addDefect);
-                }
+    // Function to update section options in defect selectors
+    function updateSectionSelectors() {
+        // Get all sections
+    const sectionItems = document.querySelectorAll('.section-item');
+    const sectionOptions = [];
+
+    // Build options array from sections
+    sectionItems.forEach((item, index) => {
+        const nameInput = item.querySelector('[name*="name"]');
+        const sectionIdInput = item.querySelector('[name*="sections"][name*="id"]');
+        const sectionId = sectionIdInput ? sectionIdInput.value : index;
+        const sectionName = nameInput ? nameInput.value : `Section ${index + 1}`;
+
+        sectionOptions.push({
+            id: sectionId,
+            name: sectionName
+        });
+    });
+
+        // Update all section selectors in defects
+        const sectionSelectors = document.querySelectorAll('.section-selector');
+        sectionSelectors.forEach(selector => {
+            // Save current selection if any
+            const currentValue = selector.value;
+
+            // Clear options except the first one
+            while (selector.options.length > 1) {
+                selector.remove(1);
             }
 
-            // Add a new defect
-            function addDefect() {
-                // Clone template
-                const template = defectTemplate.content.cloneNode(true);
+            // Add section options
+            sectionOptions.forEach(section => {
+                const option = document.createElement('option');
+                option.value = section.id;
+                option.textContent = section.name;
 
-                // Replace INDEX with actual count
-                const elements = template.querySelectorAll('[name*="INDEX"]');
-                elements.forEach(element => {
-                    element.name = element.name.replace(/INDEX/g, defectCount);
-                });
-
-                // Update other INDEX references
-                const badges = template.querySelectorAll('.badge');
-                badges.forEach(badge => {
-                    badge.textContent = defectCount + 1;
-                });
-
-                const headers = template.querySelectorAll('h6');
-                headers.forEach(header => {
-                    header.innerHTML = header.innerHTML.replace(/INDEX/g, defectCount + 1);
-                });
-
-                const previews = template.querySelectorAll('[data-preview]');
-                previews.forEach(preview => {
-                    preview.setAttribute('data-preview', preview.getAttribute('data-preview').replace(
-                        /INDEX/g, defectCount));
-                });
-
-                const previewDivs = template.querySelectorAll('[id*="defect-preview-INDEX"]');
-                previewDivs.forEach(div => {
-                    div.id = div.id.replace(/INDEX/g, defectCount);
-                });
-
-                const checkboxes = template.querySelectorAll('[id*="INDEX"]');
-                checkboxes.forEach(checkbox => {
-                    checkbox.id = checkbox.id.replace(/INDEX/g, defectCount);
-                });
-
-                const labels = template.querySelectorAll('[for*="INDEX"]');
-                labels.forEach(label => {
-                    label.setAttribute('for', label.getAttribute('for').replace(/INDEX/g, defectCount));
-                });
-
-                // Add event listener to the new remove button
-                const removeBtn = template.querySelector('.remove-defect-btn');
-                removeBtn.addEventListener('click', function() {
-                    this.closest('.defect-item').remove();
-                    updateDefectNumbers();
-                });
-
-                // Add event listener to the new image input
-                const imageInput = template.querySelector('.defect-image-input');
-                imageInput.addEventListener('change', handleDefectImagePreview);
-
-                // Add to container
-                defectsContainer.appendChild(template);
-
-                // Increment counter
-                defectCount++;
-
-                // Enable all remove buttons
-                document.querySelectorAll('.remove-defect-btn').forEach(btn => {
-                    btn.disabled = defectsContainer.querySelectorAll('.defect-item').length <= 1;
-                });
-
-                // Hide no defects message
-                if (noDefectsMessage) {
-                    noDefectsMessage.style.display = 'none';
-                }
-            }
-
-            // Update defect numbers after removal
-            function updateDefectNumbers() {
-                const defectItems = defectsContainer.querySelectorAll('.defect-item');
-
-                defectItems.forEach((item, index) => {
-                    const badge = item.querySelector('.badge');
-                    const header = item.querySelector('h6');
-
-                    badge.textContent = index + 1;
-                    header.innerHTML = header.innerHTML.replace(/#\d+/, '#' + (index + 1));
-
-                    // Also update the names to prevent gaps in indexes
-                    const inputs = item.querySelectorAll('[name*="defects["]');
-                    inputs.forEach(input => {
-                        input.name = input.name.replace(/defects\[\d+\]/, 'defects[' + index + ']');
-                    });
-
-                    const imageInputs = item.querySelectorAll('[name*="defect_images["]');
-                    imageInputs.forEach(input => {
-                        input.name = input.name.replace(/defect_images\[\d+\]/, 'defect_images[' +
-                            index + ']');
-                    });
-
-                    const checkboxes = item.querySelectorAll('[id*="mark_on_map_"]');
-                    checkboxes.forEach(checkbox => {
-                        checkbox.id = checkbox.id.replace(/mark_on_map_\d+/, 'mark_on_map_' +
-                            index);
-                    });
-
-                    const labels = item.querySelectorAll('[for*="mark_on_map_"]');
-                    labels.forEach(label => {
-                        label.setAttribute('for', label.getAttribute('for').replace(
-                            /mark_on_map_\d+/, 'mark_on_map_' + index));
-                    });
-
-                    // Update the preview ID
-                    const previewDivs = item.querySelectorAll('[id*="defect-preview-"]');
-                    previewDivs.forEach(div => {
-                        div.id = 'defect-preview-' + index;
-                    });
-
-                    const previewInputs = item.querySelectorAll('[data-preview*="defect-preview-"]');
-                    previewInputs.forEach(input => {
-                        input.setAttribute('data-preview', 'defect-preview-' + index);
-                    });
-                });
-
-                // Show no defects message if empty
-                if (defectItems.length === 0 && noDefectsMessage) {
-                    noDefectsMessage.style.display = 'block';
+                // Restore selection if it still exists
+                if (section.id.toString() === currentValue) {
+                    option.selected = true;
                 }
 
-                // Update counter
-                defectCount = defectItems.length;
-
-                // Disable remove button if only one defect left
-                if (defectItems.length <= 1) {
-                    document.querySelectorAll('.remove-defect-btn').forEach(btn => {
-                        btn.disabled = true;
-                    });
-                }
-            }
-
-            // Add a new section
-            function addSection() {
-                // Clone template
-                const template = sectionTemplate.content.cloneNode(true);
-
-                // Replace INDEX with actual count
-                const elements = template.querySelectorAll('[name*="INDEX"]');
-                elements.forEach(element => {
-                    element.name = element.name.replace(/INDEX/g, sectionCount);
-                });
-
-                // Update other INDEX references
-                const badges = template.querySelectorAll('.badge');
-                badges.forEach(badge => {
-                    badge.textContent = sectionCount + 1;
-                });
-
-                const headers = template.querySelectorAll('h6');
-                headers.forEach(header => {
-                    header.innerHTML = header.innerHTML.replace(/INDEX/g, sectionCount + 1);
-                });
-
-                // Update value of section name
-                const nameInput = template.querySelector('[name*="name"]');
-                if (nameInput) {
-                    nameInput.value = nameInput.value.replace(/INDEX/g, sectionCount + 1);
-                }
-
-                // Add event listener to the new remove button
-                const removeBtn = template.querySelector('.remove-section-btn');
-                removeBtn.addEventListener('click', function() {
-                    this.closest('.section-item').remove();
-                    updateSectionNumbers();
-                });
-
-                // Add event listener to the new section image input
-                const sectionImageInput = template.querySelector('.section-image-input');
-                if (sectionImageInput) {
-                    sectionImageInput.addEventListener('change', handleSectionImagePreview);
-                }
-
-                // Add to container
-                sectionsContainer.appendChild(template);
-
-                // Increment counter
-                sectionCount++;
-
-                // Enable all remove buttons
-                document.querySelectorAll('.remove-section-btn').forEach(btn => {
-                    btn.disabled = sectionsContainer.querySelectorAll('.section-item').length <= 1;
-                });
-            }
-
-            // Update section numbers after removal
-            function updateSectionNumbers() {
-                const sectionItems = sectionsContainer.querySelectorAll('.section-item');
-
-                sectionItems.forEach((item, index) => {
-                    const badge = item.querySelector('.badge');
-                    const header = item.querySelector('h6');
-
-                    badge.textContent = index + 1;
-                    header.innerHTML = header.innerHTML.replace(/#\d+/, '#' + (index + 1));
-
-                    // Also update the names to prevent gaps in indexes
-                    const inputs = item.querySelectorAll('[name*="sections["]');
-                    inputs.forEach(input => {
-                        input.name = input.name.replace(/sections\[\d+\]/, 'sections[' + index +
-                            ']');
-                    });
-
-                    // Update tronçon name if it follows the standard format
-                    const nameInput = item.querySelector('[name*="name"]');
-                    if (nameInput && nameInput.value.match(/^Tronçon \d+$/)) {
-                        nameInput.value = 'Tronçon ' + (index + 1);
-                    }
-                });
-
-                // Update counter
-                sectionCount = sectionItems.length;
-
-                // Disable remove button if only one section left
-                if (sectionItems.length <= 1) {
-                    document.querySelectorAll('.remove-section-btn').forEach(btn => {
-                        btn.disabled = true;
-                    });
-                }
-            }
-
-            // Handle section image preview
-            function handleSectionImagePreview(e) {
-                const previewId = this.getAttribute('data-preview');
-                const previewContainer = document.getElementById(previewId);
-
-                if (this.files && this.files[0]) {
-                    const reader = new FileReader();
-
-                    reader.onload = function(e) {
-                        const img = previewContainer.querySelector('img');
-                        img.src = e.target.result;
-                        previewContainer.classList.remove('d-none');
-                    }
-
-                    reader.readAsDataURL(this.files[0]);
-                } else {
-                    previewContainer.classList.add('d-none');
-                }
-            }
-
-            // Add event listeners to initial section image inputs
-            document.querySelectorAll('.section-image-input').forEach(input => {
-                input.addEventListener('change', handleSectionImagePreview);
+                selector.appendChild(option);
             });
+        });
+    }
 
-            // Handle defect image preview
-            function handleDefectImagePreview(e) {
-                const previewId = this.getAttribute('data-preview');
-                const previewContainer = document.getElementById(previewId);
+    // Update defect headers based on section selection
+    function updateDefectHeaders() {
+        const defectItems = document.querySelectorAll('.defect-item');
 
-                if (this.files && this.files[0]) {
-                    const reader = new FileReader();
+        defectItems.forEach((item, index) => {
+            const sectionSelect = item.querySelector('.section-selector');
+            const defectHeader = item.querySelector('h6');
 
-                    reader.onload = function(e) {
-                        const img = previewContainer.querySelector('img');
-                        img.src = e.target.result;
-                        previewContainer.classList.remove('d-none');
-                    }
+            if (sectionSelect && defectHeader) {
+                const selectedOption = sectionSelect.options[sectionSelect.selectedIndex];
+                const sectionName = selectedOption && selectedOption.value ? selectedOption.text : '';
 
-                    reader.readAsDataURL(this.files[0]);
-                } else {
-                    previewContainer.classList.add('d-none');
+                if (sectionName) {
+                    // Update the defect header to include section name
+                    const badgeSpan = defectHeader.querySelector('.badge');
+                    const indexText = `#${index + 1}`;
+
+                    // Keep the badge but update the rest of the text
+                    defectHeader.innerHTML = '';
+                    defectHeader.appendChild(badgeSpan);
+                    defectHeader.appendChild(document.createTextNode(` Defect ${indexText} - ${sectionName}`));
                 }
-            }
-
-            // Handle map image preview
-            if (mapImageInput) {
-                mapImageInput.addEventListener('change', function() {
-                    if (this.files && this.files[0]) {
-                        const reader = new FileReader();
-
-                        reader.onload = function(e) {
-                            mapPreviewImg.src = e.target.result;
-                            mapPreview.classList.remove('d-none');
-                        }
-
-                        reader.readAsDataURL(this.files[0]);
-                    } else {
-                        mapPreview.classList.add('d-none');
-                    }
-                });
-            }
-
-            // Handle report images preview
-            if (reportImagesInput) {
-                reportImagesInput.addEventListener('change', function() {
-                    handleReportImagesPreview(this.files);
-                });
-            }
-
-            function handleReportImagesPreview(files) {
-                if (!files || files.length === 0) return;
-
-                imagePreview.innerHTML = '';
-
-                Array.from(files).forEach((file, index) => {
-                    if (!file.type.match('image.*')) return;
-
-                    const reader = new FileReader();
-
-                    reader.onload = function(e) {
-                        const col = document.createElement('div');
-                        col.className = 'col-md-4 mb-3';
-
-                        const card = document.createElement('div');
-                        card.className = 'card h-100';
-
-                        const img = document.createElement('img');
-                        img.src = e.target.result;
-                        img.className = 'card-img-top';
-                        img.style.height = '160px';
-                        img.style.objectFit = 'cover';
-
-                        const cardBody = document.createElement('div');
-                        cardBody.className = 'card-body p-2';
-
-                        const caption = document.createElement('div');
-                        caption.className = 'mb-2';
-
-                        const captionInput = document.createElement('input');
-                        captionInput.type = 'text';
-                        captionInput.className = 'form-control form-control-sm';
-                        captionInput.name = `report_image_captions[${index}]`;
-                        captionInput.placeholder = 'Caption for this image';
-
-                        caption.appendChild(captionInput);
-
-                        const fileName = document.createElement('p');
-                        fileName.className = 'small text-muted mb-0 text-truncate';
-                        fileName.textContent = file.name;
-
-                        cardBody.appendChild(caption);
-                        cardBody.appendChild(fileName);
-                        card.appendChild(img);
-                        card.appendChild(cardBody);
-                        col.appendChild(card);
-                        imagePreview.appendChild(col);
-                    };
-
-                    reader.readAsDataURL(file);
-                });
-            }
-
-            // Setup drag and drop for images
-            if (dropArea) {
-                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                    dropArea.addEventListener(eventName, function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                    }, false);
-                });
-
-                ['dragenter', 'dragover'].forEach(eventName => {
-                    dropArea.addEventListener(eventName, function() {
-                        this.classList.add('border-primary');
-                    }, false);
-                });
-
-                ['dragleave', 'drop'].forEach(eventName => {
-                    dropArea.addEventListener(eventName, function() {
-                        this.classList.remove('border-primary');
-                    }, false);
-                });
-
-                dropArea.addEventListener('drop', function(e) {
-                    const dt = e.dataTransfer;
-                    const files = dt.files;
-
-                    if (reportImagesInput) {
-                        // Create a new DataTransfer object
-                        const dataTransfer = new DataTransfer();
-
-                        // Add dropped files
-                        Array.from(files).forEach(file => {
-                            dataTransfer.items.add(file);
-                        });
-
-                        // Set the files to the input
-                        reportImagesInput.files = dataTransfer.files;
-
-                        // Trigger change event
-                        const event = new Event('change', {
-                            bubbles: true
-                        });
-                        reportImagesInput.dispatchEvent(event);
-                    }
-
-                    handleReportImagesPreview(files);
-                }, false);
-            }
-
-            // Add event listeners to initial elements
-            document.querySelectorAll('.defect-image-input').forEach(input => {
-                input.addEventListener('change', handleDefectImagePreview);
-            });
-
-            document.querySelectorAll('.remove-defect-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    this.closest('.defect-item').remove();
-                    updateDefectNumbers();
-                });
-            });
-
-            document.querySelectorAll('.remove-section-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    this.closest('.section-item').remove();
-                    updateSectionNumbers();
-                });
-            });
-
-            // Add button events
-            if (addDefectBtn) {
-                addDefectBtn.addEventListener('click', addDefect);
-            }
-
-            if (addSectionBtn) {
-                addSectionBtn.addEventListener('click', addSection);
-            }
-
-            // Form validation
-            const reportForm = document.getElementById('reportForm');
-
-            if (reportForm) {
-                reportForm.addEventListener('submit', function(e) {
-                    // Check if title is provided
-                    const titleField = document.getElementById('title');
-                    if (!titleField.value.trim()) {
-                        e.preventDefault();
-                        titleField.classList.add('is-invalid');
-                        alert("{{ __('Please provide a title for the report.') }}");
-                        return false;
-                    }
-
-                    // Check if at least one defect is added with required fields
-                    const defectItems = defectsContainer.querySelectorAll('.defect-item');
-                    if (defectItems.length === 0) {
-                        e.preventDefault();
-                        alert("{{ __('Please add at least one defect to the report.') }}");
-                        return false;
-                    }
-
-                    // Check required fields for each defect
-                    let missingDefectFields = false;
-                    defectItems.forEach((item, index) => {
-                        const defectType = item.querySelector('[name*="defect_type_id"]');
-                        const description = item.querySelector('[name*="description"]');
-
-                        if (!defectType.value || !description.value.trim()) {
-                            defectType.classList.add('is-invalid');
-                            description.classList.add('is-invalid');
-                            missingDefectFields = true;
-                        } else {
-                            defectType.classList.remove('is-invalid');
-                            description.classList.remove('is-invalid');
-                        }
-                    });
-
-                    if (missingDefectFields) {
-                        e.preventDefault();
-                        alert("{{ __('Please fill in all required fields for each defect.') }}");
-                        return false;
-                    }
-
-                    // Check required fields
-                    const requiredFields = this.querySelectorAll('[required]');
-                    let missingFields = false;
-
-                    requiredFields.forEach(field => {
-                        if (!field.value.trim()) {
-                            field.classList.add('is-invalid');
-                            missingFields = true;
-                        } else {
-                            field.classList.remove('is-invalid');
-                        }
-                    });
-
-                    if (missingFields) {
-                        e.preventDefault();
-                        alert("{{ __('Please fill in all required fields.') }}");
-                        return false;
-                    }
-
-                    // Success - just before submitting, show a loading spinner
-                    document.getElementById('submit-report').innerHTML =
-                        '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> {{ __('Processing...') }}';
-                    document.getElementById('submit-report').disabled = true;
-                });
             }
         });
+    }
+
+    // Add a new defect
+    function addDefect() {
+        // Clone template
+        const template = defectTemplate.content.cloneNode(true);
+
+        // Replace INDEX with actual count
+        const elements = template.querySelectorAll('[name*="INDEX"]');
+        elements.forEach(element => {
+            element.name = element.name.replace(/INDEX/g, defectCount);
+        });
+
+        // Update other INDEX references
+        const badges = template.querySelectorAll('.badge');
+        badges.forEach(badge => {
+            badge.textContent = defectCount + 1;
+        });
+
+        const headers = template.querySelectorAll('h6');
+        headers.forEach(header => {
+            header.innerHTML = header.innerHTML.replace(/INDEX/g, defectCount + 1);
+        });
+
+        const previews = template.querySelectorAll('[data-preview]');
+        previews.forEach(preview => {
+            preview.setAttribute('data-preview', preview.getAttribute('data-preview').replace(
+                /INDEX/g, defectCount));
+        });
+
+        const previewDivs = template.querySelectorAll('[id*="defect-preview-INDEX"]');
+        previewDivs.forEach(div => {
+            div.id = div.id.replace(/INDEX/g, defectCount);
+        });
+
+        const checkboxes = template.querySelectorAll('[id*="INDEX"]');
+        checkboxes.forEach(checkbox => {
+            checkbox.id = checkbox.id.replace(/INDEX/g, defectCount);
+        });
+
+        const labels = template.querySelectorAll('[for*="INDEX"]');
+        labels.forEach(label => {
+            label.setAttribute('for', label.getAttribute('for').replace(/INDEX/g, defectCount));
+        });
+
+        // Add event listener to the new remove button
+        const removeBtn = template.querySelector('.remove-defect-btn');
+        removeBtn.addEventListener('click', function() {
+            this.closest('.defect-item').remove();
+            updateDefectNumbers();
+        });
+
+        // Add event listener to the new image input
+        const imageInput = template.querySelector('.defect-image-input');
+        imageInput.addEventListener('change', handleDefectImagePreview);
+
+        // Add to container
+        defectsContainer.appendChild(template);
+
+        // Increment counter
+        defectCount++;
+
+        // Enable all remove buttons
+        document.querySelectorAll('.remove-defect-btn').forEach(btn => {
+            btn.disabled = defectsContainer.querySelectorAll('.defect-item').length <= 1;
+        });
+
+        // Hide no defects message
+        if (noDefectsMessage) {
+            noDefectsMessage.style.display = 'none';
+        }
+
+        // Update section selectors
+        updateSectionSelectors();
+
+        // Add change event listener to the new section selector
+        const sectionSelector = defectsContainer.lastElementChild.querySelector('.section-selector');
+        if (sectionSelector) {
+            sectionSelector.addEventListener('change', updateDefectHeaders);
+        }
+    }
+
+    // Update defect numbers after removal
+    function updateDefectNumbers() {
+        const defectItems = defectsContainer.querySelectorAll('.defect-item');
+
+        defectItems.forEach((item, index) => {
+            const badge = item.querySelector('.badge');
+            const header = item.querySelector('h6');
+
+            badge.textContent = index + 1;
+            header.innerHTML = header.innerHTML.replace(/#\d+/, '#' + (index + 1));
+
+            // Also update the names to prevent gaps in indexes
+            const inputs = item.querySelectorAll('[name*="defects["]');
+            inputs.forEach(input => {
+                input.name = input.name.replace(/defects\[\d+\]/, 'defects[' + index + ']');
+            });
+
+            const imageInputs = item.querySelectorAll('[name*="defect_images["]');
+            imageInputs.forEach(input => {
+                input.name = input.name.replace(/defect_images\[\d+\]/, 'defect_images[' +
+                    index + ']');
+            });
+
+            const checkboxes = item.querySelectorAll('[id*="mark_on_map_"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.id = checkbox.id.replace(/mark_on_map_\d+/, 'mark_on_map_' +
+                    index);
+            });
+
+            const labels = item.querySelectorAll('[for*="mark_on_map_"]');
+            labels.forEach(label => {
+                label.setAttribute('for', label.getAttribute('for').replace(
+                    /mark_on_map_\d+/, 'mark_on_map_' + index));
+            });
+
+            // Update the preview ID
+            const previewDivs = item.querySelectorAll('[id*="defect-preview-"]');
+            previewDivs.forEach(div => {
+                div.id = 'defect-preview-' + index;
+            });
+
+            const previewInputs = item.querySelectorAll('[data-preview*="defect-preview-"]');
+            previewInputs.forEach(input => {
+                input.setAttribute('data-preview', 'defect-preview-' + index);
+            });
+        });
+
+        // Show no defects message if empty
+        if (defectItems.length === 0 && noDefectsMessage) {
+            noDefectsMessage.style.display = 'block';
+        }
+
+        // Update counter
+        defectCount = defectItems.length;
+
+        // Disable remove button if only one defect left
+        if (defectItems.length <= 1) {
+            document.querySelectorAll('.remove-defect-btn').forEach(btn => {
+                btn.disabled = true;
+            });
+        }
+    }
+
+    // Add a new section
+    function addSection() {
+        // Clone template
+        const template = sectionTemplate.content.cloneNode(true);
+
+        // Replace INDEX with actual count
+        const elements = template.querySelectorAll('[name*="INDEX"]');
+        elements.forEach(element => {
+            element.name = element.name.replace(/INDEX/g, sectionCount);
+        });
+
+        // Update other INDEX references
+        const badges = template.querySelectorAll('.badge');
+        badges.forEach(badge => {
+            badge.textContent = sectionCount + 1;
+        });
+
+        const headers = template.querySelectorAll('h6');
+        headers.forEach(header => {
+            header.innerHTML = header.innerHTML.replace(/INDEX/g, sectionCount + 1);
+        });
+
+        // Update value of section name
+        const nameInput = template.querySelector('[name*="name"]');
+        if (nameInput) {
+            nameInput.value = nameInput.value.replace(/INDEX/g, sectionCount + 1);
+        }
+
+        // Add event listener to the new remove button
+        const removeBtn = template.querySelector('.remove-section-btn');
+        removeBtn.addEventListener('click', function() {
+            this.closest('.section-item').remove();
+            updateSectionNumbers();
+            // Update section selectors after removing a section
+            updateSectionSelectors();
+        });
+
+        // Add event listener to the new section image input
+        const sectionImageInput = template.querySelector('.section-image-input');
+        if (sectionImageInput) {
+            sectionImageInput.addEventListener('change', handleSectionImagePreview);
+        }
+
+        // Add input event listener to the section name field
+        const sectionNameInput = template.querySelector('[name*="name"]');
+        if (sectionNameInput) {
+            sectionNameInput.addEventListener('input', function() {
+                updateSectionSelectors();
+            });
+        }
+
+        // Add to container
+        sectionsContainer.appendChild(template);
+
+        // Increment counter
+        sectionCount++;
+
+        // Enable all remove buttons
+        document.querySelectorAll('.remove-section-btn').forEach(btn => {
+            btn.disabled = sectionsContainer.querySelectorAll('.section-item').length <= 1;
+        });
+
+        // Update section selectors after adding a new section
+        updateSectionSelectors();
+    }
+
+    // Update section numbers after removal
+    function updateSectionNumbers() {
+        const sectionItems = sectionsContainer.querySelectorAll('.section-item');
+
+        sectionItems.forEach((item, index) => {
+            const badge = item.querySelector('.badge');
+            const header = item.querySelector('h6');
+
+            badge.textContent = index + 1;
+            header.innerHTML = header.innerHTML.replace(/#\d+/, '#' + (index + 1));
+
+            // Also update the names to prevent gaps in indexes
+            const inputs = item.querySelectorAll('[name*="sections["]');
+            inputs.forEach(input => {
+                input.name = input.name.replace(/sections\[\d+\]/, 'sections[' + index +
+                    ']');
+            });
+
+            // Update section name if it follows the standard format
+            const nameInput = item.querySelector('[name*="name"]');
+            if (nameInput && (nameInput.value === '' || nameInput.value.match(/^(Section|Tronçon) \d+$/))) {
+                nameInput.value = 'Section ' + (index + 1);
+            }
+        });
+
+        // Update counter
+        sectionCount = sectionItems.length;
+
+        // Disable remove button if only one section left
+        if (sectionItems.length <= 1) {
+            document.querySelectorAll('.remove-section-btn').forEach(btn => {
+                btn.disabled = true;
+            });
+        }
+    }
+
+    // Handle section image preview
+    function handleSectionImagePreview(e) {
+        const previewId = this.getAttribute('data-preview');
+        const previewContainer = document.getElementById(previewId);
+
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                const img = previewContainer.querySelector('img');
+                img.src = e.target.result;
+                previewContainer.classList.remove('d-none');
+            }
+
+            reader.readAsDataURL(this.files[0]);
+        } else {
+            previewContainer.classList.add('d-none');
+        }
+    }
+
+    // Handle defect image preview
+    function handleDefectImagePreview(e) {
+        const previewId = this.getAttribute('data-preview');
+        const previewContainer = document.getElementById(previewId);
+
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                const img = previewContainer.querySelector('img');
+                img.src = e.target.result;
+                previewContainer.classList.remove('d-none');
+            }
+
+            reader.readAsDataURL(this.files[0]);
+        } else {
+            previewContainer.classList.add('d-none');
+        }
+    }
+
+    // Handle map image preview
+    if (mapImageInput) {
+        mapImageInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    mapPreviewImg.src = e.target.result;
+                    mapPreview.classList.remove('d-none');
+                }
+
+                reader.readAsDataURL(this.files[0]);
+            } else {
+                mapPreview.classList.add('d-none');
+            }
+        });
+    }
+
+    // Handle report images preview
+    if (reportImagesInput) {
+        reportImagesInput.addEventListener('change', function() {
+            handleReportImagesPreview(this.files);
+        });
+    }
+
+    function handleReportImagesPreview(files) {
+        if (!files || files.length === 0) return;
+
+        imagePreview.innerHTML = '';
+
+        Array.from(files).forEach((file, index) => {
+            if (!file.type.match('image.*')) return;
+
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                const col = document.createElement('div');
+                col.className = 'col-md-4 mb-3';
+
+                const card = document.createElement('div');
+                card.className = 'card h-100';
+
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.className = 'card-img-top';
+                img.style.height = '160px';
+                img.style.objectFit = 'cover';
+
+                const cardBody = document.createElement('div');
+                cardBody.className = 'card-body p-2';
+
+                const caption = document.createElement('div');
+                caption.className = 'mb-2';
+
+                const captionInput = document.createElement('input');
+                captionInput.type = 'text';
+                captionInput.className = 'form-control form-control-sm';
+                captionInput.name = `report_image_captions[${index}]`;
+                captionInput.placeholder = 'Caption for this image';
+
+                caption.appendChild(captionInput);
+
+                const fileName = document.createElement('p');
+                fileName.className = 'small text-muted mb-0 text-truncate';
+                fileName.textContent = file.name;
+
+                cardBody.appendChild(caption);
+                cardBody.appendChild(fileName);
+                card.appendChild(img);
+                card.appendChild(cardBody);
+                col.appendChild(card);
+                imagePreview.appendChild(col);
+            };
+
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // Setup drag and drop for images
+    if (dropArea) {
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }, false);
+        });
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, function() {
+                this.classList.add('border-primary');
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, function() {
+                this.classList.remove('border-primary');
+            }, false);
+        });
+
+        dropArea.addEventListener('drop', function(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+
+            if (reportImagesInput) {
+                // Create a new DataTransfer object
+                const dataTransfer = new DataTransfer();
+
+                // Add dropped files
+                Array.from(files).forEach(file => {
+                    dataTransfer.items.add(file);
+                });
+
+                // Set the files to the input
+                reportImagesInput.files = dataTransfer.files;
+
+                // Trigger change event
+                const event = new Event('change', {
+                    bubbles: true
+                });
+                reportImagesInput.dispatchEvent(event);
+            }
+
+            handleReportImagesPreview(files);
+        }, false);
+    }
+
+    // Add event listeners to initial elements
+    document.querySelectorAll('.defect-image-input').forEach(input => {
+        input.addEventListener('change', handleDefectImagePreview);
+    });
+
+    document.querySelectorAll('.remove-defect-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            this.closest('.defect-item').remove();
+            updateDefectNumbers();
+        });
+    });
+
+    document.querySelectorAll('.remove-section-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            this.closest('.section-item').remove();
+            updateSectionNumbers();
+            // Update section selectors after removing
+            updateSectionSelectors();
+        });
+    });
+
+    // Add input event listeners to all section name fields
+    document.querySelectorAll('[name*="sections"][name*="name"]').forEach(input => {
+        input.addEventListener('input', updateSectionSelectors);
+    });
+
+    // Add change event listeners to all section selectors
+    document.querySelectorAll('.section-selector').forEach(select => {
+        select.addEventListener('change', updateDefectHeaders);
+    });
+
+    // Add button events
+    if (addDefectBtn) {
+        addDefectBtn.addEventListener('click', addDefect);
+    }
+
+    if (addSectionBtn) {
+        addSectionBtn.addEventListener('click', addSection);
+    }
+
+    // Form validation
+    const reportForm = document.getElementById('reportForm');
+
+    if (reportForm) {
+        reportForm.addEventListener('submit', function(e) {
+            // Check if title is provided
+            const titleField = document.getElementById('title');
+            if (!titleField.value.trim()) {
+                e.preventDefault();
+                titleField.classList.add('is-invalid');
+                alert("{{ __('Please provide a title for the report.') }}");
+                return false;
+            }
+
+            // Check if at least one defect is added with required fields
+            const defectItems = defectsContainer.querySelectorAll('.defect-item');
+            if (defectItems.length === 0) {
+                e.preventDefault();
+                alert("{{ __('Please add at least one defect to the report.') }}");
+                return false;
+            }
+
+            // Check required fields for each defect
+            let missingDefectFields = false;
+            defectItems.forEach((item, index) => {
+                const defectType = item.querySelector('[name*="defect_type_id"]');
+                const description = item.querySelector('[name*="description"]');
+
+                if (!defectType.value || !description.value.trim()) {
+                    defectType.classList.add('is-invalid');
+                    description.classList.add('is-invalid');
+                    missingDefectFields = true;
+                } else {
+                    defectType.classList.remove('is-invalid');
+                    description.classList.remove('is-invalid');
+                }
+            });
+
+            if (missingDefectFields) {
+                e.preventDefault();
+                alert("{{ __('Please fill in all required fields for each defect.') }}");
+                return false;
+            }
+
+            // Check required fields
+            const requiredFields = this.querySelectorAll('[required]');
+            let missingFields = false;
+
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    field.classList.add('is-invalid');
+                    missingFields = true;
+                } else {
+                    field.classList.remove('is-invalid');
+                }
+            });
+
+            if (missingFields) {
+                e.preventDefault();
+                alert("{{ __('Please fill in all required fields.') }}");
+                return false;
+            }
+
+            // Success - just before submitting, show a loading spinner
+            document.getElementById('submit-report').innerHTML =
+                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> {{ __('Processing...') }}';
+            document.getElementById('submit-report').disabled = true;
+        });
+    }
+
+    // Add this to your existing JavaScript, in appropriate locations
+
+    const originalAddSection = addSection;
+    addSection = function() {
+        originalAddSection();
+        updateSectionSelectors();
+    };
+
+    function patchRemoveSectionButtons() {
+        document.querySelectorAll('.remove-section-btn').forEach(btn => {
+            // Remove existing click handlers to avoid duplication
+            const newBtn = btn.cloneNode(true);
+            btn.parentNode.replaceChild(newBtn, btn);
+
+            // Add new click handler
+            newBtn.addEventListener('click', function() {
+                // Use the original behavior first
+                this.closest('.section-item').remove();
+                updateSectionNumbers();
+                // Then update the section selectors
+                updateSectionSelectors();
+            });
+        });
+    }
+
+    patchRemoveSectionButtons();
+
+    const originalAddDefect = addDefect;
+    addDefect = function() {
+        originalAddDefect();
+        updateSectionSelectors();
+    };
+
+    updateSectionSelectors();
+
+    // Also listen for changes to section names
+    document.addEventListener('input', function(e) {
+        if (e.target.name && e.target.name.includes('sections') && e.target.name.includes('name')) {
+            updateSectionSelectors();
+        }
+    });
+
+    function updateDefectHeaders() {
+        const defectItems = document.querySelectorAll('.defect-item');
+
+        defectItems.forEach((item, index) => {
+            const sectionSelect = item.querySelector('.section-selector');
+            const defectHeader = item.querySelector('h6');
+
+            if (sectionSelect && defectHeader) {
+                const selectedOption = sectionSelect.options[sectionSelect.selectedIndex];
+                const sectionName = selectedOption && selectedOption.value ? selectedOption.text : '';
+
+                if (sectionName) {
+                    // Update the defect header to include section name
+                    const badgeSpan = defectHeader.querySelector('.badge');
+                    const indexText = `#${index + 1}`;
+
+                    // Keep the badge but update the rest of the text
+                    defectHeader.innerHTML = '';
+                    defectHeader.appendChild(badgeSpan);
+                    defectHeader.appendChild(document.createTextNode(` Defect ${indexText} - ${sectionName}`));
+                }
+            }
+        });
+    }
+
+    document.addEventListener('change', function(e) {
+        if (e.target.classList.contains('section-selector')) {
+            updateDefectHeaders();
+        }
+    });
+
+    updateDefectHeaders();
+});
     </script>
 
     <style>
