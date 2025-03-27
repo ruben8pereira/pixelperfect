@@ -42,6 +42,7 @@ class PdfExportService
 
             /// Load necessary relationships with eager loading
             $report->load([
+                'reportSections',
                 'reportDefects.defectType',
                 'reportImages',
                 'reportComments' => function ($query) use ($includeComments) {

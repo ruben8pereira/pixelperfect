@@ -12,20 +12,20 @@ class Report extends Model
      * @var array
      */
     protected $fillable = [
-    'title',
-    'report_number',
-    'description',
-    'organization_id',
-    'created_by',
-    'pdf_export_count',
-    'language',
-    'inspection_date',
-    'client',
-    'operator',
-    'intervention_reason',
-    'weather',
-    'location'
-];
+        'title',
+        'report_number',
+        'description',
+        'organization_id',
+        'created_by',
+        'pdf_export_count',
+        'language',
+        'inspection_date',
+        'client',
+        'operator',
+        'intervention_reason',
+        'weather',
+        'location'
+    ];
 
     /**
      * Get the organization that owns the report.
@@ -41,6 +41,14 @@ class Report extends Model
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /**
+     * Get the pipe sections for the report.
+     */
+    public function reportSections()
+    {
+        return $this->hasMany(\App\Models\ReportSection::class, 'report_id');
     }
 
     /**

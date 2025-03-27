@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $report->title }} - {{ __('Rapport TV n°') }} {{ $report->report_number ?? str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</title>
+    <title>{{ $report->title }} - {{ __('Rapport TV n°') }}
+        {{ $report->report_number ?? str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -317,7 +318,8 @@
         <div class="report-title-box">
             <h1 class="report-title">{{ __('Inspection télévisée de réseaux de canalisations') }}</h1>
             <h2 class="report-title">{{ __($report->title) }}</h2>
-            <h3 class="report-subtitle">{{ __('Rapport TV n°') }} {{ $report->report_number ?? str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</h3>
+            <h3 class="report-subtitle">{{ __('Rapport TV n°') }}
+                {{ $report->report_number ?? str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</h3>
             <p class="report-date">{{ __('Date') }}: {{ $report->created_at->format('d.m.Y') }}</p>
         </div>
 
@@ -439,6 +441,100 @@
         <div class="page-break"></div>
     @endif
 
+    <!-- Pipe Sections Information -->
+    @if (isset($report->reportSections) && $report->reportSections->count() > 0)
+        @foreach ($report->reportSections as $section)
+            <div class="header">
+                <h2 style="margin: 0;">{{ __('Tronçon') }} {{ $section->name }}</h2>
+            </div>
+            <div class="report-number">
+                <span>{{ __('Rapport TV n°') }}
+                    {{ $report->report_number ?? str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</span>
+            </div>
+
+            <!-- Section Information -->
+            <table>
+                <tr>
+                    <td width="50%">
+                        <div class="info-section">
+                            <span class="label">{{ __('Diamètre') }}:</span>
+                            {{ $section->diameter }} mm
+                        </div>
+                        <div class="info-section">
+                            <span class="label">{{ __('Matériel') }}:</span>
+                            {{ ucfirst($section->material) }}
+                        </div>
+                        <div class="info-section">
+                            <span class="label">{{ __('Longueur') }}:</span>
+                            {{ $section->length }} m
+                        </div>
+                    </td>
+                    <td width="50%">
+                        <div class="info-section">
+                            <span class="label">{{ __('Chambre de départ') }}:</span>
+                            {{ $section->start_manhole }}
+                        </div>
+                        <div class="info-section">
+                            <span class="label">{{ __('Chambre d\'arrivée') }}:</span>
+                            {{ $section->end_manhole }}
+                        </div>
+                        <div class="info-section">
+                            <span class="label">{{ __('Localisation') }}:</span>
+                            {{ $section->location }}
+                        </div>
+                    </td>
+                </tr>
+                @if ($section->comments)
+                    <tr>
+                        <td colspan="2">
+                            <div class="info-section">
+                                <span class="label">{{ __('Commentaires') }}:</span>
+                                {{ $section->comments }}
+                            </div>
+                        </td>
+                    </tr>
+                @endif
+            </table>
+
+            <!-- Section Image -->
+            @php
+                // First approach: Check for image_path in section model
+                $sectionImagePath = $section->image_path ?? null;
+
+                // Alternative approach: Look for a ReportImage with section_id
+                if (!$sectionImagePath) {
+                    $sectionImage = $report->reportImages->where('section_id', $section->id)->first();
+                    $sectionImagePath = $sectionImage ? $sectionImage->file_path : null;
+                }
+            @endphp
+
+            @if ($sectionImagePath)
+                <div style="margin-top: 15px;">
+                    <table class="image-table">
+                        <tr>
+                            <td class="image-container"
+                                style="padding: 10px; text-align: center; background-color: #f5f5f5;">
+                                <h5 style="margin-top: 0; margin-bottom: 10px; font-weight: bold; text-align: center;">
+                                    {{ __('Section Image') }}
+                                </h5>
+                                <img src="{{ public_path('storage/' . $sectionImagePath) }}" alt="Section Image"
+                                    style="max-width: 100%; max-height: 350px; object-fit: contain;">
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            @endif
+
+            <!-- Section-specific Defects -->
+            @php
+                $sectionDefects = $report->reportDefects->where('section_id', $section->id);
+            @endphp
+
+            <div class="page-break"></div>
+        @endforeach
+    @endif
+
+
     <!-- Report Title -->
     <div class="header">
         <h2 style="margin: 0;">{{ __('Tronçon') }} {{ $report->id }}</h2>
@@ -453,11 +549,11 @@
             <td width="50%">
                 <div class="info-section">
                     <span class="label">{{ __('Date inspection') }}:</span>
-                    @if($report->inspection_date)
-        {{ \Carbon\Carbon::parse($report->inspection_date)->format('d.m.Y') }}
-    @else
-        {{ $report->created_at->format('d.m.Y') }}
-    @endif
+                    @if ($report->inspection_date)
+                        {{ \Carbon\Carbon::parse($report->inspection_date)->format('d.m.Y') }}
+                    @else
+                        {{ $report->created_at->format('d.m.Y') }}
+                    @endif
                 </div>
                 <div class="info-section">
                     <span class="label">{{ __('N° de commande') }}:</span>

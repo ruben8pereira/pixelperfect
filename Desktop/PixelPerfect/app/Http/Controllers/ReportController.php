@@ -230,7 +230,19 @@ class ReportController extends Controller
 
             // Process pipe sections if provided
             if ($request->has('sections')) {
-                // Implementation for pipe sections here
+                foreach ($request->sections as $sectionData) {
+                    $section = new \App\Models\ReportSection();
+                    $section->report_id = $report->id;
+                    $section->name = $sectionData['name'] ?? null;
+                    $section->diameter = $sectionData['diameter'] ?? null;
+                    $section->material = $sectionData['material'] ?? null;
+                    $section->length = $sectionData['length'] ?? null;
+                    $section->start_manhole = $sectionData['start_manhole'] ?? null;
+                    $section->end_manhole = $sectionData['end_manhole'] ?? null;
+                    $section->location = $sectionData['location'] ?? null;
+                    $section->comments = $sectionData['comments'] ?? null;
+                    $section->save();
+                }
             }
 
             DB::commit();
@@ -454,7 +466,22 @@ class ReportController extends Controller
 
             // Process pipe sections if provided
             if ($request->has('sections')) {
-                // Your implementation for pipe sections here
+                // Delete existing pipe sections
+                $report->reportSections()->delete();
+
+                foreach ($request->sections as $sectionData) {
+                    $section = new \App\Models\ReportSection();
+                    $section->report_id = $report->id;
+                    $section->name = $sectionData['name'] ?? null;
+                    $section->diameter = $sectionData['diameter'] ?? null;
+                    $section->material = $sectionData['material'] ?? null;
+                    $section->length = $sectionData['length'] ?? null;
+                    $section->start_manhole = $sectionData['start_manhole'] ?? null;
+                    $section->end_manhole = $sectionData['end_manhole'] ?? null;
+                    $section->location = $sectionData['location'] ?? null;
+                    $section->comments = $sectionData['comments'] ?? null;
+                    $section->save();
+                }
             }
 
             DB::commit();
