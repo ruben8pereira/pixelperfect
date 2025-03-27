@@ -27,4 +27,20 @@ class ReportSection extends Model
     {
         return $this->belongsTo(Report::class, 'report_id');
     }
+
+    /**
+     * Get the images associated with this section.
+     */
+    public function images()
+    {
+        return $this->hasMany(ReportImage::class, 'section_id');
+    }
+
+    /**
+     * Get the primary image for this section.
+     */
+    public function image()
+    {
+        return $this->hasOne(ReportImage::class, 'section_id');
+    }
 }

@@ -230,7 +230,7 @@ class ReportController extends Controller
 
             // Process pipe sections if provided
             if ($request->has('sections')) {
-                foreach ($request->sections as $sectionData) {
+                foreach ($request->sections as $index => $sectionData) {
                     $section = new \App\Models\ReportSection();
                     $section->report_id = $report->id;
                     $section->name = $sectionData['name'] ?? null;
@@ -242,6 +242,18 @@ class ReportController extends Controller
                     $section->location = $sectionData['location'] ?? null;
                     $section->comments = $sectionData['comments'] ?? null;
                     $section->save();
+
+                    // Process section image if provided
+                    if ($request->hasFile("section_images.{$index}")) {
+                        $imagePath = $request->file("section_images.{$index}")->store('report-images', 'public');
+
+                        ReportImage::create([
+                            'report_id' => $report->id,
+                            'section_id' => $section->id,
+                            'file_path' => $imagePath,
+                            'caption' => "Section {$section->name} Image",
+                        ]);
+                    }
                 }
             }
 
@@ -466,9 +478,20 @@ class ReportController extends Controller
 
             // Process pipe sections if provided
             if ($request->has('sections')) {
+                // Get existing section IDs before deleting
+                $existingSectionIds = $report->reportSections()->pluck('id')->toArray();
+
                 // Delete existing pipe sections
                 $report->reportSections()->delete();
 
+                // Delete associated section images
+                ReportImage::where('report_id', $report->id)
+                    ->whereIn('section_id', $existingSectionIds)
+                    ->get()
+                    ->each(function ($image) {
+                        Storage::disk('public')->delete($image->file_path);
+                        $image->delete();
+                    });
                 foreach ($request->sections as $sectionData) {
                     $section = new \App\Models\ReportSection();
                     $section->report_id = $report->id;
@@ -481,6 +504,18 @@ class ReportController extends Controller
                     $section->location = $sectionData['location'] ?? null;
                     $section->comments = $sectionData['comments'] ?? null;
                     $section->save();
+
+                    // Process section image if provided
+                    if ($request->hasFile("section_images.{$index}")) {
+                        $imagePath = $request->file("section_images.{$index}")->store('report-images', 'public');
+
+                        ReportImage::create([
+                            'report_id' => $report->id,
+                            'section_id' => $section->id,
+                            'file_path' => $imagePath,
+                            'caption' => "Section {$section->name} Image",
+                        ]);
+                    }
                 }
             }
 

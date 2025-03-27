@@ -394,6 +394,19 @@
                                             <label class="form-label">{{ __('Comments') }}</label>
                                             <textarea name="sections[0][comments]" rows="2" class="form-control"></textarea>
                                         </div>
+
+                                        <div class="col-md-12">
+                                            <label class="form-label">{{ __('Section Image') }}</label>
+                                            <input type="file" class="form-control section-image-input"
+                                                name="section_images[0]" accept="image/*"
+                                                data-preview="section-preview-0">
+                                            <small
+                                                class="text-muted">{{ __('Upload an image of this pipe section for the PDF report') }}</small>
+
+                                            <div class="mt-2 d-none section-image-preview" id="section-preview-0">
+                                                <img src="" class="img-fluid rounded" style="max-height: 150px">
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -651,6 +664,17 @@
                     <label class="form-label">{{ __('Comments') }}</label>
                     <textarea name="sections[INDEX][comments]" rows="2" class="form-control"></textarea>
                 </div>
+
+                <div class="col-md-12">
+                    <label class="form-label">{{ __('Section Image') }}</label>
+                    <input type="file" class="form-control section-image-input" name="section_images[INDEX]"
+                        accept="image/*" data-preview="section-preview-INDEX">
+                    <small class="text-muted">{{ __('Upload an image of this pipe section for the PDF report') }}</small>
+
+                    <div class="mt-2 d-none section-image-preview" id="section-preview-INDEX">
+                        <img src="" class="img-fluid rounded" style="max-height: 150px">
+                    </div>
+                </div>
             </div>
         </div>
     </template>
@@ -658,43 +682,43 @@
     <!-- JavaScript for Form Operations -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-        // Initialize variables
-        let defectCount = 1;
-        let sectionCount = 1;
+            // Initialize variables
+            let defectCount = 1;
+            let sectionCount = 1;
 
-        // Setup defect management - Get elements only once
-        const defectsContainer = document.getElementById('defects-container');
-        const addDefectBtn = document.getElementById('addDefectBtn');
-        const defectTemplate = document.getElementById('defect-template');
-        const noDefectsMessage = document.getElementById('no-defects-message');
+            // Setup defect management - Get elements only once
+            const defectsContainer = document.getElementById('defects-container');
+            const addDefectBtn = document.getElementById('addDefectBtn');
+            const defectTemplate = document.getElementById('defect-template');
+            const noDefectsMessage = document.getElementById('no-defects-message');
 
-        // Setup section management
-        const sectionsContainer = document.getElementById('sections-container');
-        const addSectionBtn = document.getElementById('addSectionBtn');
-        const sectionTemplate = document.getElementById('section-template');
+            // Setup section management
+            const sectionsContainer = document.getElementById('sections-container');
+            const addSectionBtn = document.getElementById('addSectionBtn');
+            const sectionTemplate = document.getElementById('section-template');
 
-        // Setup image preview for map
-        const mapImageInput = document.getElementById('map_image');
-        const mapPreview = document.getElementById('map-preview');
-        const mapPreviewImg = document.getElementById('map-preview-img');
+            // Setup image preview for map
+            const mapImageInput = document.getElementById('map_image');
+            const mapPreview = document.getElementById('map-preview');
+            const mapPreviewImg = document.getElementById('map-preview-img');
 
-        // Setup image preview for report images
-        const reportImagesInput = document.getElementById('report_images');
-        const imagePreview = document.getElementById('image-preview');
+            // Setup image preview for report images
+            const reportImagesInput = document.getElementById('report_images');
+            const imagePreview = document.getElementById('image-preview');
 
-        // Image drag and drop area
-        const dropArea = document.getElementById('image-drop-area');
+            // Image drag and drop area
+            const dropArea = document.getElementById('image-drop-area');
 
-        // IMPORTANT: Remove any existing event listeners first
-        if (addDefectBtn) {
-            addDefectBtn.replaceWith(addDefectBtn.cloneNode(true));
-            // Get the new button after replacing
-            const newAddDefectBtn = document.getElementById('addDefectBtn');
-            if (newAddDefectBtn) {
-                // Add the event listener to the new button
-                newAddDefectBtn.addEventListener('click', addDefect);
+            // IMPORTANT: Remove any existing event listeners first
+            if (addDefectBtn) {
+                addDefectBtn.replaceWith(addDefectBtn.cloneNode(true));
+                // Get the new button after replacing
+                const newAddDefectBtn = document.getElementById('addDefectBtn');
+                if (newAddDefectBtn) {
+                    // Add the event listener to the new button
+                    newAddDefectBtn.addEventListener('click', addDefect);
+                }
             }
-        }
 
             // Add a new defect
             function addDefect() {
@@ -793,7 +817,7 @@
                     const checkboxes = item.querySelectorAll('[id*="mark_on_map_"]');
                     checkboxes.forEach(checkbox => {
                         checkbox.id = checkbox.id.replace(/mark_on_map_\d+/, 'mark_on_map_' +
-                        index);
+                            index);
                     });
 
                     const labels = item.querySelectorAll('[for*="mark_on_map_"]');
@@ -865,6 +889,12 @@
                     updateSectionNumbers();
                 });
 
+                // Add event listener to the new section image input
+                const sectionImageInput = template.querySelector('.section-image-input');
+                if (sectionImageInput) {
+                    sectionImageInput.addEventListener('change', handleSectionImagePreview);
+                }
+
                 // Add to container
                 sectionsContainer.appendChild(template);
 
@@ -912,6 +942,31 @@
                     });
                 }
             }
+
+            // Handle section image preview
+            function handleSectionImagePreview(e) {
+                const previewId = this.getAttribute('data-preview');
+                const previewContainer = document.getElementById(previewId);
+
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+
+                    reader.onload = function(e) {
+                        const img = previewContainer.querySelector('img');
+                        img.src = e.target.result;
+                        previewContainer.classList.remove('d-none');
+                    }
+
+                    reader.readAsDataURL(this.files[0]);
+                } else {
+                    previewContainer.classList.add('d-none');
+                }
+            }
+
+            // Add event listeners to initial section image inputs
+            document.querySelectorAll('.section-image-input').forEach(input => {
+                input.addEventListener('change', handleSectionImagePreview);
+            });
 
             // Handle defect image preview
             function handleDefectImagePreview(e) {

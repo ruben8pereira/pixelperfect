@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -15,6 +14,7 @@ class ReportImage extends Model
     protected $fillable = [
         'report_id',
         'defect_id',
+        'section_id',
         'file_path',
         'caption',
         'drawing_data',
@@ -43,5 +43,13 @@ class ReportImage extends Model
     public function defect()
     {
         return $this->belongsTo(ReportDefect::class, 'defect_id');
+    }
+
+    /**
+     * Get the section that owns the image.
+     */
+    public function section()
+    {
+        return $this->belongsTo(ReportSection::class, 'section_id');
     }
 }

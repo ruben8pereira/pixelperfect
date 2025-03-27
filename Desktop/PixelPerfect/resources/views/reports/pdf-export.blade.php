@@ -443,97 +443,80 @@
 
     <!-- Pipe Sections Information -->
     @if (isset($report->reportSections) && $report->reportSections->count() > 0)
-        @foreach ($report->reportSections as $section)
-            <div class="header">
-                <h2 style="margin: 0;">{{ __('Tronçon') }} {{ $section->name }}</h2>
-            </div>
-            <div class="report-number">
-                <span>{{ __('Rapport TV n°') }}
-                    {{ $report->report_number ?? str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</span>
-            </div>
+    @foreach ($report->reportSections as $section)
+        <div class="header">
+            <h2 style="margin: 0;">{{ __('Tronçon') }} {{ $section->name }}</h2>
+        </div>
+        <div class="report-number">
+            <span>{{ __('Rapport TV n°') }}
+                {{ $report->report_number ?? str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</span>
+        </div>
 
-            <!-- Section Information -->
-            <table>
+        <!-- Section Information -->
+        <table>
+            <tr>
+                <td width="50%">
+                    <div class="info-section">
+                        <span class="label">{{ __('Diamètre') }}:</span>
+                        {{ $section->diameter }} mm
+                    </div>
+                    <div class="info-section">
+                        <span class="label">{{ __('Matériel') }}:</span>
+                        {{ ucfirst($section->material) }}
+                    </div>
+                    <div class="info-section">
+                        <span class="label">{{ __('Longueur') }}:</span>
+                        {{ $section->length }} m
+                    </div>
+                </td>
+                <td width="50%">
+                    <div class="info-section">
+                        <span class="label">{{ __('Chambre de départ') }}:</span>
+                        {{ $section->start_manhole }}
+                    </div>
+                    <div class="info-section">
+                        <span class="label">{{ __('Chambre d\'arrivée') }}:</span>
+                        {{ $section->end_manhole }}
+                    </div>
+                    <div class="info-section">
+                        <span class="label">{{ __('Localisation') }}:</span>
+                        {{ $section->location }}
+                    </div>
+                </td>
+            </tr>
+            @if ($section->comments)
                 <tr>
-                    <td width="50%">
+                    <td colspan="2">
                         <div class="info-section">
-                            <span class="label">{{ __('Diamètre') }}:</span>
-                            {{ $section->diameter }} mm
-                        </div>
-                        <div class="info-section">
-                            <span class="label">{{ __('Matériel') }}:</span>
-                            {{ ucfirst($section->material) }}
-                        </div>
-                        <div class="info-section">
-                            <span class="label">{{ __('Longueur') }}:</span>
-                            {{ $section->length }} m
-                        </div>
-                    </td>
-                    <td width="50%">
-                        <div class="info-section">
-                            <span class="label">{{ __('Chambre de départ') }}:</span>
-                            {{ $section->start_manhole }}
-                        </div>
-                        <div class="info-section">
-                            <span class="label">{{ __('Chambre d\'arrivée') }}:</span>
-                            {{ $section->end_manhole }}
-                        </div>
-                        <div class="info-section">
-                            <span class="label">{{ __('Localisation') }}:</span>
-                            {{ $section->location }}
+                            <span class="label">{{ __('Commentaires') }}:</span>
+                            {{ $section->comments }}
                         </div>
                     </td>
                 </tr>
-                @if ($section->comments)
+            @endif
+        </table>
+
+        <!-- Section Image -->
+        @php
+            $sectionImage = $report->reportImages->where('section_id', $section->id)->first();
+        @endphp
+
+        @if ($sectionImage)
+            <div style="margin-top: 15px; height: calc(100% - 220px); min-height: 400px;">
+                <table class="image-table" style="width: 100%; height: 100%;">
                     <tr>
-                        <td colspan="2">
-                            <div class="info-section">
-                                <span class="label">{{ __('Commentaires') }}:</span>
-                                {{ $section->comments }}
-                            </div>
+                        <td class="image-container" style="padding: 0; text-align: center; height: 100%; vertical-align: top; border: 1px solid #000;">
+                            <img src="{{ public_path('storage/' . $sectionImage->file_path) }}" alt="Section Image"
+                                style="width: 100%; height: auto; max-height: 100%; object-fit: contain;">
                         </td>
                     </tr>
-                @endif
-            </table>
+                </table>
+            </div>
+        @endif
 
-            <!-- Section Image -->
-            @php
-                // First approach: Check for image_path in section model
-                $sectionImagePath = $section->image_path ?? null;
-
-                // Alternative approach: Look for a ReportImage with section_id
-                if (!$sectionImagePath) {
-                    $sectionImage = $report->reportImages->where('section_id', $section->id)->first();
-                    $sectionImagePath = $sectionImage ? $sectionImage->file_path : null;
-                }
-            @endphp
-
-            @if ($sectionImagePath)
-                <div style="margin-top: 15px;">
-                    <table class="image-table">
-                        <tr>
-                            <td class="image-container"
-                                style="padding: 10px; text-align: center; background-color: #f5f5f5;">
-                                <h5 style="margin-top: 0; margin-bottom: 10px; font-weight: bold; text-align: center;">
-                                    {{ __('Section Image') }}
-                                </h5>
-                                <img src="{{ public_path('storage/' . $sectionImagePath) }}" alt="Section Image"
-                                    style="max-width: 100%; max-height: 350px; object-fit: contain;">
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            @endif
-
-            <!-- Section-specific Defects -->
-            @php
-                $sectionDefects = $report->reportDefects->where('section_id', $section->id);
-            @endphp
-
-            <div class="page-break"></div>
-        @endforeach
-    @endif
-
+        <div class="page-break"></div>
+    @endforeach
+@endif
 
     <!-- Report Title -->
     <div class="header">
