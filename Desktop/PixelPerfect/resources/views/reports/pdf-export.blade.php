@@ -681,9 +681,8 @@
                 </div>
             @endforeach
         </div>
+        <div class="page-break"></div>
     @endif
-
-    <div class="page-break"></div>
 
     <!-- Avertissements -->
     <div class="header">
@@ -742,7 +741,7 @@
     </ol>
 
     <div class="signature">
-        <p>{{ __('Signature du Technicien') }}: {{ $report->operator ?? $report->creator->name }}</p>
+        <p>{{ __('Signature du Technicien') }}:</p>
     </div>
 
     <div class="page-footer">
