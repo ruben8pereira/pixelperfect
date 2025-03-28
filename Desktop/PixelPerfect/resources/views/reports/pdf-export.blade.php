@@ -1,4 +1,3 @@
-<!-- resources/views/reports/pdf-export.blade.php -->
 <!DOCTYPE html>
 <html lang="{{ App::getLocale() }}">
 
@@ -356,7 +355,7 @@
         <h2 style="margin: 0;">{{ __('Légende de classification des observations et défauts des tronçons') }}</h2>
     </div>
     <div class="report-number">
-        <span>{{ __('Rapport TV n°') }} {{ str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</span>
+        <span>{{ __('Rapport TV n°') }} {{ $report->report_number ?? str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</span>
     </div>
 
     <table class="gravity-legend" style="background-color: #f5f5f5;">
@@ -434,7 +433,7 @@
             <h2 style="margin: 0;">{{ __('Plan du réseau inspecté') }}</h2>
         </div>
         <div class="report-number">
-            <span>{{ __('Rapport TV n°') }} {{ str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</span>
+            <span>{{ __('Rapport TV n°') }} {{ $report->report_number ?? str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</span>
         </div>
         <div class="image-container" style="margin-top: 10px;">
             <img src="{{ public_path('storage/' . $mapImage->file_path) }}" alt="Network Map">
@@ -453,8 +452,8 @@
                     {{ $report->report_number ?? str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</span>
             </div>
 
-            <!-- Section Information -->
-            <table>
+            <!-- Add pipe section details -->
+            <table class="section-details-table">
                 <tr>
                     <td width="50%">
                         <div class="info-section">
@@ -485,16 +484,6 @@
                         </div>
                     </td>
                 </tr>
-                @if ($section->comments)
-                    <tr>
-                        <td colspan="2">
-                            <div class="info-section">
-                                <span class="label">{{ __('Commentaires') }}:</span>
-                                {{ $section->comments }}
-                            </div>
-                        </td>
-                    </tr>
-                @endif
             </table>
 
             <!-- Section Image -->
@@ -503,28 +492,71 @@
             @endphp
 
             @if ($sectionImage)
-                <div style="margin-top: 15px;">
-                    <table class="image-table" style="width: 100%;">
-                        <tr>
-                            <td class="image-container" style="padding: 0; text-align: center; vertical-align: top; border: 1px solid #000;">
-                                <img src="{{ public_path('storage/' . $sectionImage->file_path) }}" alt="Section Image"
-                                    style="width: 100%; height: auto; max-height: 400px; object-fit: contain;">
-                            </td>
-                        </tr>
-                    </table>
+                <div class="image-container" style="margin-top: 10px;">
+                    <img src="{{ public_path('storage/' . $sectionImage->file_path) }}"
+                         alt="Section Image">
                 </div>
             @endif
 
             <!-- Get defects for this section -->
             @php
-                $sectionDefects = $report->reportDefects->filter(function($defect) use ($section) {
+                $sectionDefects = $report->reportDefects->filter(function ($defect) use ($section) {
                     return $defect->section_id == $section->id;
                 });
             @endphp
 
-            @if($sectionDefects->count() > 0)
-                <!-- Defect List for this section -->
-                <div style="margin-top: 20px;">
+<div class="page-break"></div>
+
+<div class="header">
+    <h2 style="margin: 0;">{{ __('Tronçon') }} {{ $section->name }}</h2>
+</div>
+<div class="report-number">
+    <span>{{ __('Rapport TV n°') }}
+        {{ $report->report_number ?? str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</span>
+</div>
+
+<!-- Section Information -  -->
+<table class="section-details-table">
+    <tr>
+        <td class="section-details-left">
+            <div>
+                <span class="label">{{ __('Date inspection') }}:</span>
+                {{ $report->inspection_date ? date('d.m.Y', strtotime($report->inspection_date)) : $report->created_at->format('d.m.Y') }}
+            </div>
+            <div>
+                <span class="label">{{ __('N° de commande') }}:</span>
+                {{ $report->report_number ?? str_pad($report->id, 4, '0', STR_PAD_LEFT) }}
+            </div>
+            <div>
+                <span class="label">{{ __('Personne présente') }}:</span>
+                {{ $report->creator->name }}
+            </div>
+        </td>
+        <td class="section-details-right">
+            <div>
+                <span class="label">{{ __('Opérateur') }}:</span>
+                {{ $report->operator ?? $report->creator->name }}
+            </div>
+            <div>
+                <span class="label">{{ __('Véhicule') }}:</span>
+                Véhicule {{ $report->organization->name }}
+            </div>
+            <div>
+                <span class="label">{{ __('Météo') }}:</span>
+                {{ $report->weather ?? '-' }}
+            </div>
+        </td>
+    </tr>
+    <tr class="section-full-row">
+        <td colspan="2">
+            <span class="label">{{ __('Remarque') }}:</span>
+            {{ $section->comments ?? '-' }}
+        </td>
+    </tr>
+</table>
+            @if ($sectionDefects->count() > 0)
+                <!-- Defect List for this section - similar to Image 1 -->
+                <div>
                     <table class="defect-list">
                         <thead>
                             <tr>
@@ -536,12 +568,13 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($sectionDefects as $index => $defect)
+                            @foreach ($sectionDefects as $index => $defect)
                                 <tr>
                                     <td style="text-align: center;">{{ $index + 1 }}</td>
                                     <td>{{ $defect->coordinates['distance'] ?? '0,00' }}</td>
                                     <td>{{ $defect->coordinates['counter'] ?? '-' }}</td>
-                                    <td class="{{ 'severity-' . ($defect->severity === 'critical' ? '1' : ($defect->severity === 'high' ? '2' : ($defect->severity === 'medium' ? '3' : '4'))) }}">
+                                    <td
+                                        class="{{ 'severity-' . ($defect->severity === 'critical' ? '1' : ($defect->severity === 'high' ? '2' : ($defect->severity === 'medium' ? '3' : '4'))) }}">
                                         {{ $defect->description }}
                                     </td>
                                     <td style="text-align: center;">
@@ -554,13 +587,13 @@
                 </div>
 
                 <!-- Individual Observations for this section -->
-                @foreach($sectionDefects as $index => $defect)
+                @foreach ($sectionDefects as $index => $defect)
                     <div class="page-break"></div>
                     <div class="header">
                         <h2 style="margin: 0;">{{ __('Tronçon') }} {{ $section->name }}</h2>
                     </div>
                     <div class="report-number">
-                        <span>{{ __('Rapport TV n°') }} {{ str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</span>
+                        <span>{{ __('Rapport TV n°') }} {{ $report->report_number ?? str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</span>
                     </div>
 
                     <table>
@@ -604,7 +637,8 @@
                         <tr>
                             <td colspan="3" class="image-container">
                                 @if ($defectImage = $report->reportImages->where('defect_id', $defect->id)->first())
-                                    <img src="{{ public_path('storage/' . $defectImage->file_path) }}" alt="Defect Image">
+                                    <img src="{{ public_path('storage/' . $defectImage->file_path) }}"
+                                        alt="Defect Image">
                                 @else
                                     <div
                                         style="height: 200px; display: flex; align-items: center; justify-content: center; background-color: #f5f5f5;">
@@ -615,131 +649,23 @@
                         </tr>
                     </table>
                 @endforeach
+                <div class="page-break"></div>
             @else
-                <div style="margin-top: 20px; text-align: center; padding: 20px; background-color: #f8f9fa; border: 1px solid #dee2e6;">
+                <div
+                    style="margin-top: 20px; text-align: center; padding: 20px; background-color: #f8f9fa; border: 1px solid #dee2e6;">
                     <p>{{ __('No defects recorded for this section') }}</p>
                 </div>
             @endif
-
-            <div class="page-break"></div>
-        @endforeach
-    @endif
-
-    <!-- Handle defects that don't have section_id -->
-    @php
-        $unassignedDefects = $report->reportDefects->filter(function($defect) {
-            return empty($defect->section_id);
-        });
-    @endphp
-
-    @if ($unassignedDefects->count() > 0)
-        <div class="header">
-            <h2 style="margin: 0;">{{ __('Défauts non assignés à une section') }}</h2>
-        </div>
-        <div class="report-number">
-            <span>{{ __('Rapport TV n°') }} {{ str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</span>
-        </div>
-
-        <!-- Defect List for unassigned defects -->
-        <table class="defect-list">
-            <thead>
-                <tr>
-                    <th>{{ __('Observation') }}</th>
-                    <th>{{ __('Distance (ml.)') }}</th>
-                    <th>{{ __('Compteur') }}</th>
-                    <th>{{ __('Anomalies / remarques') }}</th>
-                    <th>{{ __('Gravité') }}</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($unassignedDefects as $index => $defect)
-                    <tr>
-                        <td style="text-align: center;">{{ $index + 1 }}</td>
-                        <td>{{ $defect->coordinates['distance'] ?? '0,00' }}</td>
-                        <td>{{ $defect->coordinates['counter'] ?? '-' }}</td>
-                        <td class="{{ 'severity-' . ($defect->severity === 'critical' ? '1' : ($defect->severity === 'high' ? '2' : ($defect->severity === 'medium' ? '3' : '4'))) }}">
-                            {{ $defect->description }}
-                        </td>
-                        <td style="text-align: center;">
-                            {{ $defect->severity === 'critical' ? '1' : ($defect->severity === 'high' ? '2' : ($defect->severity === 'medium' ? '3' : '4')) }}
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-
-        <!-- Individual Observations for unassigned defects -->
-        @foreach($unassignedDefects as $index => $defect)
-            <div class="page-break"></div>
-            <div class="header">
-                <h2 style="margin: 0;">{{ __('Défaut non assigné') }} #{{ $index + 1 }}</h2>
-            </div>
-            <div class="report-number">
-                <span>{{ __('Rapport TV n°') }} {{ str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</span>
-            </div>
-
-            <table>
-                <tr>
-                    <td colspan="3" class="observation-header">
-                        {{ __('Observation') }} {{ $index + 1 }}
-                    </td>
-                </tr>
-                <tr>
-                    <td width="20%">
-                        <span class="label">{{ __('Distance') }}:</span>
-                        {{ $defect->coordinates['distance'] ?? '--' }} ml.
-                    </td>
-                    <td width="30%">
-                        <span class="label">{{ __('Compteur') }}:</span>
-                        {{ $defect->coordinates['counter'] ?? '--' }}
-                    </td>
-                    <td width="50%">
-                        <span class="label">{{ __('Niveau d\'eau') }}:</span>
-                        {{ $defect->coordinates['water_level'] ?? '--' }}
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2">
-                        <div class="info-section">
-                            <span class="label">{{ __('Constat') }}:</span>
-                            {{ $defect->description }}
-                        </div>
-                        <div class="info-section">
-                            <span class="label">{{ __('Remarque') }}:</span>
-                            {{ $defect->coordinates['comment'] ?? '' }}
-                        </div>
-                    </td>
-                    <td style="vertical-align: top;">
-                        <div class="gravity-value">
-                            <span class="label">{{ __('Gravité') }}:</span>
-                            {{ $defect->severity === 'critical' ? '1' : ($defect->severity === 'high' ? '2' : ($defect->severity === 'medium' ? '3' : '4')) }}
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="3" class="image-container">
-                        @if ($defectImage = $report->reportImages->where('defect_id', $defect->id)->first())
-                            <img src="{{ public_path('storage/' . $defectImage->file_path) }}" alt="Defect Image">
-                        @else
-                            <div
-                                style="height: 200px; display: flex; align-items: center; justify-content: center; background-color: #f5f5f5;">
-                                <p>{{ __('No image available') }}</p>
-                            </div>
-                        @endif
-                    </td>
-                </tr>
-            </table>
         @endforeach
     @endif
 
     <!-- Comments Section if included -->
     @if ($includeComments && count($report->reportComments) > 0)
-        <div class="page-break"></div>
         <div class="header">
             <h2 style="margin: 0;">{{ __('Commentaires') }}</h2>
         </div>
         <div class="report-number">
-            <span>{{ __('Rapport TV n°') }} {{ str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</span>
+            <span>{{ __('Rapport TV n°') }} {{ $report ->report_number ?? str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</span>
         </div>
 
         <div class="comment-section">
@@ -764,7 +690,7 @@
         <h2 style="margin: 0;">{{ __('Avertissements pour l\'analyse du rapport TV') }}</h2>
     </div>
     <div class="report-number">
-        <span>{{ __('Rapport TV n°') }} {{ str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</span>
+        <span>{{ __('Rapport TV n°') }} {{ $report ->report_number ?? str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</span>
     </div>
 
     <ol>
@@ -816,12 +742,12 @@
     </ol>
 
     <div class="signature">
-        <p>{{ __('Signature du Technicien') }}: {{ $report->inspector_name }}</p>
+        <p>{{ __('Signature du Technicien') }}: {{ $report->operator ?? $report->creator->name }}</p>
     </div>
 
     <div class="page-footer">
         {{ __('Pixel Perfect - Avenue de la Gare 1, 1880 Bex - Tél.: +41 (0)24 444 44 44') }} |
-        {{ __('Page') }} <span class="page-number">
+        {{ __('Page') }}<span class="page-number">
     </div>
 </body>
 
