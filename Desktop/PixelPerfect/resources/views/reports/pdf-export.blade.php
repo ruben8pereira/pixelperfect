@@ -160,7 +160,8 @@
         }
 
         .image-container img {
-            max-width: 100%;
+            max-width: 95%;
+            max-height: 95vh;
             height: auto;
         }
 
