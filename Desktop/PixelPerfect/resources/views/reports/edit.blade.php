@@ -203,26 +203,6 @@
                                     </div>
                                 </div>
                             @endif
-                            @if (isset($report) && ($mapImage = $report->reportImages->where('caption', 'Map')->first()))
-                                <div class="mt-3">
-                                    <div class="card">
-                                        <div
-                                            class="card-header d-flex justify-content-between align-items-center bg-light py-2">
-                                            <span>{{ __('Current Map') }}</span>
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input" type="checkbox" name="keep_map_image"
-                                                    id="keep_map_image" value="1" checked>
-                                                <label class="form-check-label"
-                                                    for="keep_map_image">{{ __('Keep this image') }}</label>
-                                            </div>
-                                        </div>
-                                        <div class="card-body p-0">
-                                            <img src="{{ asset('storage/' . $mapImage->file_path) }}" class="img-fluid"
-                                                alt="Network Map">
-                                        </div>
-                                    </div>
-                                </div>
-                            @endif
 
                             <div id="map-preview" class="mt-3 d-none">
                                 <div class="card">
@@ -233,319 +213,318 @@
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Middle Column -->
-                    <div class="col-lg-4">
-                        <!-- Defects Section -->
-                        <div class="card shadow-sm mb-4">
-                            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                                <h5 class="mb-0"><i
-                                        class="fas fa-exclamation-triangle me-2 text-primary"></i>{{ __('Defects') }}</h5>
-                                <button type="button" class="btn btn-sm btn-primary" id="addDefectBtn">
-                                    <i class="fas fa-plus me-1"></i> {{ __('Add Defect') }}
-                                </button>
-                            </div>
-                            <div class="card-body">
-                                <div id="defects-container">
-                                    <div class="defect-item mb-4 pb-3 border-bottom">
-                                        <div class="d-flex justify-content-between align-items-center mb-2">
-                                            <h6 class="fw-bold mb-0">
-                                                <span class="badge bg-secondary me-2">1</span>{{ __('Defect') }} #1
-                                            </h6>
-                                            <button type="button" class="btn btn-sm btn-outline-danger remove-defect-btn"
-                                                disabled>
-                                                <i class="fas fa-times"></i>
-                                            </button>
-                                        </div>
+                <!-- Middle Column -->
+                <div class="col-lg-4">
+                    <!-- Defects Section -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i
+                                    class="fas fa-exclamation-triangle me-2 text-primary"></i>{{ __('Defects') }}</h5>
+                            <button type="button" class="btn btn-sm btn-primary" id="addDefectBtn">
+                                <i class="fas fa-plus me-1"></i> {{ __('Add Defect') }}
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div id="defects-container">
+                                <div class="defect-item mb-4 pb-3 border-bottom">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h6 class="fw-bold mb-0">
+                                            <span class="badge bg-secondary me-2">1</span>{{ __('Defect') }} #1
+                                        </h6>
+                                        <button type="button" class="btn btn-sm btn-outline-danger remove-defect-btn"
+                                            disabled>
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
 
-                                        <div class="row g-3">
-                                            <div class="col-md-6">
-                                                <label class="form-label fw-bold required">{{ __('Defect Type') }}</label>
-                                                <select name="defects[0][defect_type_id]" class="form-select" required>
-                                                    <option value="">{{ __('Select Type') }}</option>
-                                                    @foreach (\App\Models\DefectType::all() as $defectType)
-                                                        <option value="{{ $defectType->id }}">
-                                                            {{ $defectType->name }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <label class="form-label fw-bold required">{{ __('Severity') }}</label>
-                                                <select name="defects[0][severity]" class="form-select defect-severity"
-                                                    required>
-                                                    <option value="low" data-value="4">{{ __('Low (4)') }}</option>
-                                                    <option value="medium" data-value="3">{{ __('Medium (3)') }}</option>
-                                                    <option value="high" data-value="2">{{ __('High (2)') }}</option>
-                                                    <option value="critical" data-value="1">{{ __('Critical (1)') }}
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-bold required">{{ __('Defect Type') }}</label>
+                                            <select name="defects[0][defect_type_id]" class="form-select" required>
+                                                <option value="">{{ __('Select Type') }}</option>
+                                                @foreach (\App\Models\DefectType::all() as $defectType)
+                                                    <option value="{{ $defectType->id }}">
+                                                        {{ $defectType->name }}
                                                     </option>
-                                                </select>
-                                            </div>
+                                                @endforeach
+                                            </select>
+                                        </div>
 
-                                            <div class="col-12">
-                                                <label class="form-label fw-bold required">{{ __('Description') }}</label>
-                                                <textarea name="defects[0][description]" rows="2" class="form-control" required></textarea>
-                                            </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-bold required">{{ __('Severity') }}</label>
+                                            <select name="defects[0][severity]" class="form-select defect-severity"
+                                                required>
+                                                <option value="low" data-value="4">{{ __('Low (4)') }}</option>
+                                                <option value="medium" data-value="3">{{ __('Medium (3)') }}</option>
+                                                <option value="high" data-value="2">{{ __('High (2)') }}</option>
+                                                <option value="critical" data-value="1">{{ __('Critical (1)') }}
+                                                </option>
+                                            </select>
+                                        </div>
 
-                                            <div class="col-md-6">
-                                                <label class="form-label">{{ __('Distance (m)') }}</label>
-                                                <input name="defects[0][coordinates][distance]" type="text"
-                                                    class="form-control" placeholder="e.g. 12.5">
-                                            </div>
+                                        <div class="col-12">
+                                            <label class="form-label fw-bold required">{{ __('Description') }}</label>
+                                            <textarea name="defects[0][description]" rows="2" class="form-control" required></textarea>
+                                        </div>
 
-                                            <div class="col-md-6">
-                                                <label class="form-label">{{ __('Counter') }}</label>
-                                                <input name="defects[0][coordinates][counter]" type="text"
-                                                    class="form-control" placeholder="e.g. 00:01:30">
-                                            </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">{{ __('Distance (m)') }}</label>
+                                            <input name="defects[0][coordinates][distance]" type="text"
+                                                class="form-control" placeholder="e.g. 12.5">
+                                        </div>
 
-                                            <div class="col-md-6">
-                                                <label class="form-label">{{ __('Water Level') }}</label>
-                                                <select name="defects[0][coordinates][water_level]" class="form-select">
-                                                    <option value="dry">{{ __('Dry') }}</option>
-                                                    <option value="<5%">{{ __('<5%') }}</option>
-                                                    <option value="5%">{{ __('5%') }}</option>
-                                                    <option value="10%">{{ __('10%') }}</option>
-                                                    <option value="25%">{{ __('25%') }}</option>
-                                                    <option value="50%">{{ __('50%') }}</option>
-                                                    <option value="75%">{{ __('75%') }}</option>
-                                                    <option value="100%">{{ __('100%') }}</option>
-                                                </select>
-                                            </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">{{ __('Counter') }}</label>
+                                            <input name="defects[0][coordinates][counter]" type="text"
+                                                class="form-control" placeholder="e.g. 00:01:30">
+                                        </div>
 
-                                            <div class="col-md-6">
-                                                <label class="form-label">{{ __('Reference Code') }}</label>
-                                                <input name="defects[0][coordinates][reference]" type="text"
-                                                    class="form-control" placeholder="e.g. GR3">
-                                            </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">{{ __('Water Level') }}</label>
+                                            <select name="defects[0][coordinates][water_level]" class="form-select">
+                                                <option value="dry">{{ __('Dry') }}</option>
+                                                <option value="<5%">{{ __('<5%') }}</option>
+                                                <option value="5%">{{ __('5%') }}</option>
+                                                <option value="10%">{{ __('10%') }}</option>
+                                                <option value="25%">{{ __('25%') }}</option>
+                                                <option value="50%">{{ __('50%') }}</option>
+                                                <option value="75%">{{ __('75%') }}</option>
+                                                <option value="100%">{{ __('100%') }}</option>
+                                            </select>
+                                        </div>
 
-                                            <div class="col-md-12">
-                                                <label class="form-label">{{ __('Additional Comments') }}</label>
-                                                <input name="defects[0][coordinates][comment]" type="text"
-                                                    class="form-control">
-                                            </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">{{ __('Reference Code') }}</label>
+                                            <input name="defects[0][coordinates][reference]" type="text"
+                                                class="form-control" placeholder="e.g. GR3">
+                                        </div>
 
-                                            <div class="col-md-6">
-                                                <label class="form-label">{{ __('Latitude') }}</label>
-                                                <input name="defects[0][coordinates][latitude]" type="text"
-                                                    class="form-control" placeholder="e.g. 45.123456">
-                                            </div>
+                                        <div class="col-md-12">
+                                            <label class="form-label">{{ __('Additional Comments') }}</label>
+                                            <input name="defects[0][coordinates][comment]" type="text"
+                                                class="form-control">
+                                        </div>
 
-                                            <div class="col-md-6">
-                                                <label class="form-label">{{ __('Longitude') }}</label>
-                                                <input name="defects[0][coordinates][longitude]" type="text"
-                                                    class="form-control" placeholder="e.g. -73.123456">
-                                            </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">{{ __('Latitude') }}</label>
+                                            <input name="defects[0][coordinates][latitude]" type="text"
+                                                class="form-control" placeholder="e.g. 45.123456">
+                                        </div>
 
-                                            <div class="col-12">
-                                                <label class="form-label">{{ __('Defect Image') }}</label>
-                                                <input type="file" class="form-control defect-image-input"
-                                                    name="defect_images[0]" accept="image/*"
-                                                    data-preview="defect-preview-0">
-                                                <div class="mt-2 d-none defect-image-preview" id="defect-preview-0">
-                                                    <img src="" class="img-fluid rounded"
-                                                        style="max-height: 150px">
-                                                </div>
-                                            </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">{{ __('Longitude') }}</label>
+                                            <input name="defects[0][coordinates][longitude]" type="text"
+                                                class="form-control" placeholder="e.g. -73.123456">
+                                        </div>
 
-                                            <div class="col-12">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox"
-                                                        name="defects[0][mark_on_map]" id="mark_on_map_0" value="1">
-                                                    <label class="form-check-label" for="mark_on_map_0">
-                                                        {{ __('Mark this defect on the network map') }}
-                                                    </label>
-                                                </div>
+                                        <div class="col-12">
+                                            <label class="form-label">{{ __('Defect Image') }}</label>
+                                            <input type="file" class="form-control defect-image-input"
+                                                name="defect_images[0]" accept="image/*"
+                                                data-preview="defect-preview-0">
+                                            <div class="mt-2 d-none defect-image-preview" id="defect-preview-0">
+                                                <img src="" class="img-fluid rounded"
+                                                    style="max-height: 150px">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox"
+                                                    name="defects[0][mark_on_map]" id="mark_on_map_0" value="1">
+                                                <label class="form-check-label" for="mark_on_map_0">
+                                                    {{ __('Mark this defect on the network map') }}
+                                                </label>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+                            </div>
 
-                                <div class="alert alert-info" id="no-defects-message" style="display: none;">
-                                    <i class="fas fa-info-circle"></i>
-                                    {{ __('No defects added yet. Click "Add Defect" to begin documenting pipe issues.') }}
-                                </div>
+                            <div class="alert alert-info" id="no-defects-message" style="display: none;">
+                                <i class="fas fa-info-circle"></i>
+                                {{ __('No defects added yet. Click "Add Defect" to begin documenting pipe issues.') }}
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Right Column -->
-                    <div class="col-lg-4">
-                        <!-- Pipe Section Details -->
-                        <div class="card shadow-sm mb-4">
-                            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                                <h5 class="mb-0"><i
-                                        class="fas fa-road me-2 text-primary"></i>{{ __('Pipe Section Details') }}</h5>
-                                <button type="button" class="btn btn-sm btn-primary" id="addSectionBtn">
-                                    <i class="fas fa-plus me-1"></i> {{ __('Add Section') }}
-                                </button>
-                            </div>
-                            <div class="card-body">
-                                <div id="sections-container">
-                                    <div class="section-item mb-4 pb-3 border-bottom">
-                                        <div class="d-flex justify-content-between align-items-center mb-2">
-                                            <h6 class="fw-bold mb-0">
-                                                <span class="badge bg-secondary me-2">1</span>{{ __('Section') }} #1
-                                            </h6>
-                                            <button type="button"
-                                                class="btn btn-sm btn-outline-danger remove-section-btn" disabled>
-                                                <i class="fas fa-times"></i>
-                                            </button>
-                                        </div>
-
-                                        <div class="row g-3">
-                                            <div class="col-md-6">
-                                                <label class="form-label fw-bold">{{ __('Section Name/Number') }}</label>
-                                                <input name="sections[0][name]" type="text" class="form-control"
-                                                    value="1">
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <label class="form-label fw-bold">{{ __('Pipe Diameter (mm)') }}</label>
-                                                <input name="sections[0][diameter]" type="number" class="form-control"
-                                                    value="250">
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <label class="form-label fw-bold">{{ __('Material') }}</label>
-                                                <select name="sections[0][material]" class="form-select">
-                                                    <option value="concrete">{{ __('Concrete') }}</option>
-                                                    <option value="pvc">{{ __('PVC') }}</option>
-                                                    <option value="hdpe">{{ __('HDPE') }}</option>
-                                                    <option value="cast_iron">{{ __('Cast Iron') }}</option>
-                                                    <option value="clay">{{ __('Clay') }}</option>
-                                                    <option value="steel">{{ __('Steel') }}</option>
-                                                    <option value="other">{{ __('Other') }}</option>
-                                                </select>
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <label class="form-label fw-bold">{{ __('Length (m)') }}</label>
-                                                <input name="sections[0][length]" type="text" class="form-control"
-                                                    placeholder="e.g. 45.8">
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <label class="form-label">{{ __('Starting Chamber/Manhole') }}</label>
-                                                <input name="sections[0][start_manhole]" type="text"
-                                                    class="form-control" placeholder="e.g. Manhole 1">
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <label class="form-label">{{ __('Ending Chamber/Manhole') }}</label>
-                                                <input name="sections[0][end_manhole]" type="text"
-                                                    class="form-control" placeholder="e.g. Manhole 2">
-                                            </div>
-
-                                            <div class="col-md-12">
-                                                <label class="form-label">{{ __('Location/Street') }}</label>
-                                                <input name="sections[0][location]" type="text" class="form-control">
-                                            </div>
-
-                                            <div class="col-md-12">
-                                                <label class="form-label">{{ __('Comments') }}</label>
-                                                <textarea name="sections[0][comments]" rows="2" class="form-control"></textarea>
-                                            </div>
-
-                                            <div class="col-md-12">
-                                                <label class="form-label">{{ __('Section Image') }}</label>
-                                                <input type="file" class="form-control section-image-input"
-                                                    name="section_images[0]" accept="image/*"
-                                                    data-preview="section-preview-0">
-                                                <small
-                                                    class="text-muted">{{ __('Upload an image of this pipe section for the PDF report') }}</small>
-
-                                                <div class="mt-2 d-none section-image-preview" id="section-preview-0">
-                                                    <img src="" class="img-fluid rounded"
-                                                        style="max-height: 150px">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                <!-- Right Column -->
+                <div class="col-lg-4">
+                    <!-- Pipe Section Details -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i
+                                    class="fas fa-road me-2 text-primary"></i>{{ __('Pipe Section Details') }}</h5>
+                            <button type="button" class="btn btn-sm btn-primary" id="addSectionBtn">
+                                <i class="fas fa-plus me-1"></i> {{ __('Add Section') }}
+                            </button>
                         </div>
+                        <div class="card-body">
+                            <div id="sections-container">
+                                <div class="section-item mb-4 pb-3 border-bottom">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h6 class="fw-bold mb-0">
+                                            <span class="badge bg-secondary me-2">1</span>{{ __('Section') }} #1
+                                        </h6>
+                                        <button type="button"
+                                            class="btn btn-sm btn-outline-danger remove-section-btn" disabled>
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
 
-                        <!-- PDF Generation Options -->
-                        <div class="card shadow-sm mb-4">
-                            <div class="card-header bg-white py-3">
-                                <h5 class="mb-0"><i
-                                        class="fas fa-file-pdf me-2 text-primary"></i>{{ __('PDF Generation Options') }}
-                                </h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="form-check mb-3">
-                                    <input class="form-check-input" type="checkbox" name="include_cover_page"
-                                        id="include_cover_page" value="1" checked>
-                                    <label class="form-check-label" for="include_cover_page">
-                                        {{ __('Include cover page') }}
-                                    </label>
-                                </div>
-                                <div class="form-check mb-3">
-                                    <input class="form-check-input" type="checkbox" name="include_summary"
-                                        id="include_summary" value="1" checked>
-                                    <label class="form-check-label" for="include_summary">
-                                        {{ __('Include summary section') }}
-                                    </label>
-                                </div>
-                                <div class="form-check mb-3">
-                                    <input class="form-check-input" type="checkbox" name="include_map" id="include_map"
-                                        value="1" checked>
-                                    <label class="form-check-label" for="include_map">
-                                        {{ __('Include network map') }}
-                                    </label>
-                                </div>
-                                <div class="form-check mb-3">
-                                    <input class="form-check-input" type="checkbox" name="include_images"
-                                        id="include_images" value="1" checked>
-                                    <label class="form-check-label" for="include_images">
-                                        {{ __('Include defect images') }}
-                                    </label>
-                                </div>
-                                <div class="form-check mb-3">
-                                    <input class="form-check-input" type="checkbox" name="include_comments"
-                                        id="include_comments" value="1" checked>
-                                    <label class="form-check-label" for="include_comments">
-                                        {{ __('Include comments in PDF') }}
-                                    </label>
-                                </div>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-bold">{{ __('Section Name/Number') }}</label>
+                                            <input name="sections[0][name]" type="text" class="form-control"
+                                                value="1">
+                                        </div>
 
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">{{ __('Available Languages for PDF') }}</label>
-                                    <div class="d-flex flex-wrap gap-2">
-                                        <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="checkbox" name="generate_languages[]"
-                                                id="lang_fr" value="fr" checked>
-                                            <label class="form-check-label" for="lang_fr">{{ __('French') }}</label>
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-bold">{{ __('Pipe Diameter (mm)') }}</label>
+                                            <input name="sections[0][diameter]" type="number" class="form-control"
+                                                value="250">
                                         </div>
-                                        <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="checkbox" name="generate_languages[]"
-                                                id="lang_en" value="en">
-                                            <label class="form-check-label" for="lang_en">{{ __('English') }}</label>
+
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-bold">{{ __('Material') }}</label>
+                                            <select name="sections[0][material]" class="form-select">
+                                                <option value="concrete">{{ __('Concrete') }}</option>
+                                                <option value="pvc">{{ __('PVC') }}</option>
+                                                <option value="hdpe">{{ __('HDPE') }}</option>
+                                                <option value="cast_iron">{{ __('Cast Iron') }}</option>
+                                                <option value="clay">{{ __('Clay') }}</option>
+                                                <option value="steel">{{ __('Steel') }}</option>
+                                                <option value="other">{{ __('Other') }}</option>
+                                            </select>
                                         </div>
-                                        <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="checkbox" name="generate_languages[]"
-                                                id="lang_de" value="de">
-                                            <label class="form-check-label" for="lang_de">{{ __('German') }}</label>
+
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-bold">{{ __('Length (m)') }}</label>
+                                            <input name="sections[0][length]" type="text" class="form-control"
+                                                placeholder="e.g. 45.8">
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label class="form-label">{{ __('Starting Chamber/Manhole') }}</label>
+                                            <input name="sections[0][start_manhole]" type="text"
+                                                class="form-control" placeholder="e.g. Manhole 1">
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label class="form-label">{{ __('Ending Chamber/Manhole') }}</label>
+                                            <input name="sections[0][end_manhole]" type="text"
+                                                class="form-control" placeholder="e.g. Manhole 2">
+                                        </div>
+
+                                        <div class="col-md-12">
+                                            <label class="form-label">{{ __('Location/Street') }}</label>
+                                            <input name="sections[0][location]" type="text" class="form-control">
+                                        </div>
+
+                                        <div class="col-md-12">
+                                            <label class="form-label">{{ __('Comments') }}</label>
+                                            <textarea name="sections[0][comments]" rows="2" class="form-control"></textarea>
+                                        </div>
+
+                                        <div class="col-md-12">
+                                            <label class="form-label">{{ __('Section Image') }}</label>
+                                            <input type="file" class="form-control section-image-input"
+                                                name="section_images[0]" accept="image/*"
+                                                data-preview="section-preview-0">
+                                            <small
+                                                class="text-muted">{{ __('Upload an image of this pipe section for the PDF report') }}</small>
+
+                                            <div class="mt-2 d-none section-image-preview" id="section-preview-0">
+                                                <img src="" class="img-fluid rounded"
+                                                    style="max-height: 150px">
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="d-flex justify-content-end mb-5">
-                    <a href="{{ route('reports.index') }}" class="btn btn-outline-secondary me-2">
-                        <i class="fas fa-times me-1"></i> {{ __('Cancel') }}
-                    </a>
-                    <button type="submit" class="btn btn-primary" id="submit-report">
-                        <i class="fas fa-save me-1"></i> {{ __('Update Report') }}
-                    </button>
+                    <!-- PDF Generation Options -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-white py-3">
+                            <h5 class="mb-0"><i
+                                    class="fas fa-file-pdf me-2 text-primary"></i>{{ __('PDF Generation Options') }}
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" name="include_cover_page"
+                                    id="include_cover_page" value="1" checked>
+                                <label class="form-check-label" for="include_cover_page">
+                                    {{ __('Include cover page') }}
+                                </label>
+                            </div>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" name="include_summary"
+                                    id="include_summary" value="1" checked>
+                                <label class="form-check-label" for="include_summary">
+                                    {{ __('Include summary section') }}
+                                </label>
+                            </div>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" name="include_map" id="include_map"
+                                    value="1" checked>
+                                <label class="form-check-label" for="include_map">
+                                    {{ __('Include network map') }}
+                                </label>
+                            </div>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" name="include_images"
+                                    id="include_images" value="1" checked>
+                                <label class="form-check-label" for="include_images">
+                                    {{ __('Include defect images') }}
+                                </label>
+                            </div>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" name="include_comments"
+                                    id="include_comments" value="1" checked>
+                                <label class="form-check-label" for="include_comments">
+                                    {{ __('Include comments in PDF') }}
+                                </label>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">{{ __('Available Languages for PDF') }}</label>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" name="generate_languages[]"
+                                            id="lang_fr" value="fr" checked>
+                                        <label class="form-check-label" for="lang_fr">{{ __('French') }}</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" name="generate_languages[]"
+                                            id="lang_en" value="en">
+                                        <label class="form-check-label" for="lang_en">{{ __('English') }}</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" name="generate_languages[]"
+                                            id="lang_de" value="de">
+                                        <label class="form-check-label" for="lang_de">{{ __('German') }}</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-        </form>
-    </div>
+            </div>
+
+            <div class="d-flex justify-content-end mb-5">
+                <a href="{{ route('reports.index') }}" class="btn btn-outline-secondary me-2">
+                    <i class="fas fa-times me-1"></i> {{ __('Cancel') }}
+                </a>
+                <button type="submit" class="btn btn-primary" id="submit-report">
+                    <i class="fas fa-save me-1"></i> {{ __('Update Report') }}
+                </button>
+            </div>
 
     <!-- Templates -->
     <template id="defect-template">
