@@ -40,8 +40,9 @@ class PdfExportService
 
             Log::info("Generating PDF with language: {$language}, App locale: " . App::getLocale());
 
-            /// Load necessary relationships with eager loading
+            // Load necessary relationships with eager loading
             $report->load([
+                'reportSections',
                 'reportDefects.defectType',
                 'reportImages',
                 'reportComments' => function ($query) use ($includeComments) {
@@ -80,11 +81,17 @@ class PdfExportService
             $pdf->setOption('isHtml5ParserEnabled', true);
             $pdf->setOption('isRemoteEnabled', true);
 
-            // Set margins
+            // Set margins - reduzir as margens para aproveitar mais a página
             $pdf->setOption('margin-top', '10mm');
             $pdf->setOption('margin-right', '10mm');
             $pdf->setOption('margin-bottom', '15mm'); // Increased for footer
             $pdf->setOption('margin-left', '10mm');
+
+            $pdf->setOption('dpi', 150);
+            $pdf->setOption('enable-javascript', true);
+            $pdf->setOption('javascript-delay', 1000);
+            $pdf->setOption('enable-smart-shrinking', true);
+            $pdf->setOption('no-stop-slow-scripts', true);
 
             // Enable footer
             $footerHtml = View::make('reports.pdf-footer', [

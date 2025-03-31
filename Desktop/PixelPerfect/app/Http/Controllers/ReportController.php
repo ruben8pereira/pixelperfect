@@ -125,8 +125,31 @@ class ReportController extends Controller
         // Check permission to create reports
         $this->authorize('create', Report::class);
 
-        // Validate the request
-        $this->validateReport($request);
+        // Validate the request (with modified validation for section_id)
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'report_number' => 'nullable|string|max:50',
+            'description' => 'nullable|string',
+            'language' => 'required|string|size:2|in:en,fr,de',
+            'map_image' => 'nullable|image|max:10240', // Max 10MB
+            'weather' => 'nullable|string|max:255',
+            'location' => 'nullable|string|max:255',
+
+            // Defects validation
+            'defects' => 'required|array|min:1',
+            'defects.*.defect_type_id' => 'required|exists:defect_types,id',
+            'defects.*.description' => 'required|string|max:1000',
+            'defects.*.severity' => 'required|string|in:low,medium,high,critical',
+            'defects.*.coordinates' => 'nullable|array',
+            'defects.*.section_id' => 'nullable', // Changed to nullable
+
+            // Defect images
+            'defect_images.*' => 'nullable|image|max:10240', // Max 10MB
+
+            // Report images
+            'report_images.*' => 'nullable|image|max:10240', // Max 10MB
+            'report_image_captions.*' => 'nullable|string|max:255',
+        ]);
 
         try {
             DB::beginTransaction();
@@ -143,15 +166,8 @@ class ReportController extends Controller
             $report->client = $request->client;
             $report->operator = $request->operator;
             $report->intervention_reason = $request->intervention_reason;
-
-            // Add custom fields if present
-            if ($request->has('weather')) {
-                $report->weather = $request->weather;
-            }
-
-            if ($request->has('location')) {
-                $report->location = $request->location;
-            }
+            $report->weather = $request->weather;
+            $report->location = $request->location;
 
             // If user is admin and can select organization
             if (Auth::user()->role && Auth::user()->role->name === 'Administrator' && $request->has('organization_id')) {
@@ -174,22 +190,52 @@ class ReportController extends Controller
                 ]);
             }
 
-            // Process other report images if provided
+            // Process report images if provided
             if ($request->hasFile('report_images')) {
                 foreach ($request->file('report_images') as $index => $image) {
                     $imagePath = $image->store('report-images', 'public');
-
-                    // Get caption if provided
-                    $caption = null;
-                    if ($request->has('report_image_captions') && isset($request->report_image_captions[$index])) {
-                        $caption = $request->report_image_captions[$index];
-                    }
+                    $caption = $request->input('report_image_captions.' . $index, null);
 
                     ReportImage::create([
                         'report_id' => $report->id,
                         'file_path' => $imagePath,
                         'caption' => $caption,
                     ]);
+                }
+            }
+
+            // Store newly created section IDs
+            $sectionIds = [];
+
+            // Process pipe sections if provided
+            if ($request->has('sections')) {
+                foreach ($request->sections as $index => $sectionData) {
+                    $section = new \App\Models\ReportSection();
+                    $section->report_id = $report->id;
+                    $section->name = $sectionData['name'] ?? 'Section ' . ($index + 1);
+                    $section->diameter = $sectionData['diameter'] ?? null;
+                    $section->material = $sectionData['material'] ?? null;
+                    $section->length = $sectionData['length'] ?? null;
+                    $section->start_manhole = $sectionData['start_manhole'] ?? null;
+                    $section->end_manhole = $sectionData['end_manhole'] ?? null;
+                    $section->location = $sectionData['location'] ?? null;
+                    $section->comments = $sectionData['comments'] ?? null;
+                    $section->save();
+
+                    // Store the section ID with its index for later use
+                    $sectionIds[$index] = $section->id;
+
+                    // Process section image if provided
+                    if ($request->hasFile("section_images.{$index}")) {
+                        $imagePath = $request->file("section_images.{$index}")->store('report-images', 'public');
+
+                        ReportImage::create([
+                            'report_id' => $report->id,
+                            'section_id' => $section->id,
+                            'file_path' => $imagePath,
+                            'caption' => "Section {$section->name} Image",
+                        ]);
+                    }
                 }
             }
 
@@ -201,6 +247,13 @@ class ReportController extends Controller
                     $defect->defect_type_id = $defectData['defect_type_id'];
                     $defect->description = $defectData['description'];
                     $defect->severity = $defectData['severity'];
+
+                    // Handle section_id with the newly created section IDs
+                    if (isset($defectData['section_id']) && isset($sectionIds[$defectData['section_id']])) {
+                        $defect->section_id = $sectionIds[$defectData['section_id']];
+                    } else {
+                        $defect->section_id = null;
+                    }
 
                     // Handle coordinates/metadata
                     $coordinates = [];
@@ -226,11 +279,6 @@ class ReportController extends Controller
                         ]);
                     }
                 }
-            }
-
-            // Process pipe sections if provided
-            if ($request->has('sections')) {
-                // Implementation for pipe sections here
             }
 
             DB::commit();
@@ -289,7 +337,7 @@ class ReportController extends Controller
         return view('reports.edit', compact('report', 'defectTypes'));
     }
 
-    /**
+   /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -374,6 +422,60 @@ class ReportController extends Controller
                 }
             }
 
+            // Store section IDs for updating existing sections and creating new ones
+            $sectionIds = [];
+
+            // Process pipe sections if provided
+            if ($request->has('sections')) {
+                // Get existing section IDs
+                $existingSectionIds = $report->reportSections()->pluck('id')->toArray();
+
+                // Process each section
+                foreach ($request->sections as $index => $sectionData) {
+                    // Check if this is an existing section or a new one
+                    if (isset($sectionData['id']) && in_array($sectionData['id'], $existingSectionIds)) {
+                        $section = \App\Models\ReportSection::find($sectionData['id']);
+                    } else {
+                        $section = new \App\Models\ReportSection();
+                        $section->report_id = $report->id;
+                    }
+
+                    // Update section data
+                    $section->name = $sectionData['name'] ?? null;
+                    $section->diameter = $sectionData['diameter'] ?? null;
+                    $section->material = $sectionData['material'] ?? null;
+                    $section->length = $sectionData['length'] ?? null;
+                    $section->start_manhole = $sectionData['start_manhole'] ?? null;
+                    $section->end_manhole = $sectionData['end_manhole'] ?? null;
+                    $section->location = $sectionData['location'] ?? null;
+                    $section->comments = $sectionData['comments'] ?? null;
+                    $section->save();
+
+                    // Store the section ID for defects
+                    $sectionIds[$index] = $section->id;
+
+                    // Process section image if provided
+                    if ($request->hasFile("section_images.{$index}")) {
+                        // Remove old image if it exists
+                        $oldSectionImage = $report->reportImages->where('section_id', $section->id)->first();
+                        if ($oldSectionImage) {
+                            Storage::disk('public')->delete($oldSectionImage->file_path);
+                            $oldSectionImage->delete();
+                        }
+
+                        // Store new section image
+                        $imagePath = $request->file("section_images.{$index}")->store('report-images', 'public');
+
+                        ReportImage::create([
+                            'report_id' => $report->id,
+                            'section_id' => $section->id,
+                            'file_path' => $imagePath,
+                            'caption' => "Section {$section->name} Image",
+                        ]);
+                    }
+                }
+            }
+
             // Process defects
             $existingDefectIds = [];
 
@@ -398,6 +500,13 @@ class ReportController extends Controller
                     $defect->defect_type_id = $defectData['defect_type_id'];
                     $defect->description = $defectData['description'];
                     $defect->severity = $defectData['severity'];
+
+                    // Handle section_id with the newly created or updated section IDs
+                    if (isset($defectData['section_id']) && isset($sectionIds[$defectData['section_id']])) {
+                        $defect->section_id = $sectionIds[$defectData['section_id']];
+                    } else {
+                        $defect->section_id = null;
+                    }
 
                     // Handle coordinates/metadata
                     $coordinates = [];
@@ -451,11 +560,6 @@ class ReportController extends Controller
                 // Delete the defect
                 $defect->delete();
             });
-
-            // Process pipe sections if provided
-            if ($request->has('sections')) {
-                // Your implementation for pipe sections here
-            }
 
             DB::commit();
 
@@ -602,6 +706,7 @@ class ReportController extends Controller
             'defects.*.description' => 'required|string|max:1000',
             'defects.*.severity' => 'required|string|in:low,medium,high,critical',
             'defects.*.coordinates' => 'nullable|array',
+            'defects.*.section_id' => 'nullable', // Changed to nullable
 
             // Defect images
             'defect_images.*' => 'nullable|image|max:10240', // Max 10MB

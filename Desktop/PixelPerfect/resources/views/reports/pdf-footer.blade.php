@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{{-- <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
@@ -29,4 +29,4 @@
         {{ __('Page') }} <span class="page-number"></span>
     </div>
 </body>
-</html>
+</html> --}}
