@@ -47,6 +47,12 @@ return [
     'Commentaires' => 'Kommentare',
     'No image available' => 'Kein Bild verfügbar',
     'Plan du réseau inspecté' => 'Karte des inspizierten Netzes',
+    'Diamètre' => 'Durchmesser',
+    'Matériel' => 'Material',
+    'Longueur' => 'Länge',
+    'Chambre de départ' => 'Ausgangskammer',
+    'Chambre d\'arrivée' => 'Ankunftskammer',
+    'Localisation' => 'Lokalisierung',
 
     // Gravity Legend
     'Légende de classification des observations et défauts des tronçons' => 'Klassifizierungslegende für Beobachtungen und Mängel von Abschnitten',
@@ -68,9 +74,44 @@ return [
     'Les éventuels croquis inclus dans ce dossier sont des plans schématiques établis sur la base des constatations faites lors du passage de la caméra. Bien que ces informations aient été relevées avec soin, des divergences peuvent apparaître avec la réalité.' => 'Alle in dieser Datei enthaltenen Skizzen sind schematische Pläne, die auf der Grundlage von Beobachtungen während der Kamerainspektion erstellt wurden. Obwohl diese Informationen sorgfältig aufgezeichnet wurden, können Abweichungen von der Realität auftreten.',
     'Seul un nettoyage préalable des canalisations à inspecter par curage à eau sous pression permet de vérifier l\'état des canalisations de façon optimale. Notre responsabilité ne saurait être engagée pour tous défauts ou éléments qui n\'auraient été decelés faute d\'un tel nettoyage. Les éventuelles micro-fissures ne peuvent pas toujours être décelées.' => 'Nur eine vorherige Reinigung der zu inspizierenden Rohrleitungen durch Hochdruckwasserstrahlen ermöglicht eine optimale Überprüfung des Zustands der Rohrleitungen. Wir können nicht für Mängel oder Elemente verantwortlich gemacht werden, die aufgrund einer fehlenden Reinigung nicht erkannt wurden. Eventuelle Mikrorisse können nicht immer erkannt werden.',
 
+    'L\'inspection télévisée ne permet pas d\'identifier tous les types de défauts, notamment ceux situés hors du champ visuel de la caméra. Une inspection complémentaire peut s\'avérer nécessaire dans certains cas pour obtenir un diagnostic complet du réseau.' => 'Die Fernsehinspektion ermöglicht nicht die Identifizierung aller Arten von Mängeln, insbesondere solcher, die sich außerhalb des Sichtfelds der Kamera befinden. In einigen Fällen kann eine zusätzliche Inspektion erforderlich sein, um eine vollständige Diagnose des Netzwerks zu erhalten.',
+
+    'Les mesures et distances indiquées dans ce rapport sont données à titre indicatif et peuvent présenter une marge d\'erreur inhérente aux équipements utilisés. Une vérification sur site est recommandée avant d\'entreprendre des travaux.' => 'Die in diesem Bericht angegebenen Maße und Entfernungen dienen nur zu Informationszwecken und können aufgrund der verwendeten Geräte einen Fehlerspielraum aufweisen. Vor Beginn der Arbeiten wird eine Überprüfung vor Ort empfohlen.',
+
+    'L\'interprétation des défauts observés doit être effectuée par un professionnel qualifié, capable d\'évaluer l\'impact de chaque anomalie sur le fonctionnement global du réseau et sa durabilité à long terme.' => 'Die Interpretation der beobachteten Mängel sollte von einem qualifizierten Fachmann durchgeführt werden, der in der Lage ist, die Auswirkungen jeder Anomalie auf die Gesamtfunktion des Netzes und seine langfristige Haltbarkeit zu beurteilen.',
+
+    'Les conditions d\'accès et l\'état général du réseau au moment de l\'inspection peuvent limiter la qualité des observations. Les segments inaccessibles ou partiellement observables sont clairement identifiés dans le rapport.' => 'Die Zugangsbedingungen und der allgemeine Zustand des Netzes zum Zeitpunkt der Inspektion können die Qualität der Beobachtungen einschränken. Unzugängliche oder teilweise beobachtbare Segmente sind im Bericht klar gekennzeichnet.',
+
+    'Ce rapport est valable à la date de l\'inspection. L\'évolution naturelle des réseaux, les interventions ultérieures ou les conditions climatiques exceptionnelles peuvent modifier l\'état des canalisations après la réalisation de ce diagnostic.' => 'Dieser Bericht ist zum Zeitpunkt der Inspektion gültig. Die natürliche Entwicklung der Netze, spätere Eingriffe oder außergewöhnliche Witterungsbedingungen können den Zustand der Leitungen nach der Durchführung dieser Diagnose verändern.',
+
+    'Les recommandations formulées dans ce rapport sont basées sur l\'état constaté lors de l\'inspection et les normes en vigueur. Elles ne prennent pas en compte d\'éventuelles modifications réglementaires postérieures à la date d\'émission du rapport.' => 'Die in diesem Bericht enthaltenen Empfehlungen basieren auf dem bei der Inspektion festgestellten Zustand und den geltenden Normen. Sie berücksichtigen keine möglichen regulatorischen Änderungen nach dem Ausstellungsdatum des Berichts.',
+
+    'La classification des défauts suit une méthodologie standardisée, mais peut varier selon les pratiques locales et les exigences spécifiques du client. Une concertation avec le gestionnaire du réseau est recommandée pour définir les priorités d\'intervention.' => 'Die Klassifizierung der Mängel folgt einer standardisierten Methodik, kann aber je nach lokalen Praktiken und spezifischen Kundenanforderungen variieren. Eine Absprache mit dem Netzwerkmanager wird empfohlen, um die Interventionsprioritäten festzulegen.',
+
+    'Les images et vidéos fournies dans ce rapport sont destinées à illustrer les observations mentionnées. Leur qualité peut être affectée par les conditions d\'éclairage, de visibilité et les contraintes techniques rencontrées lors de l\'inspection.' => 'Die in diesem Bericht bereitgestellten Bilder und Videos sollen die erwähnten Beobachtungen veranschaulichen. Ihre Qualität kann durch die Beleuchtungsbedingungen, die Sichtbarkeit und die technischen Einschränkungen während der Inspektion beeinflusst werden.',
+
+    'Le présent rapport ne constitue pas une étude de dimensionnement ou de capacité hydraulique du réseau. Des études complémentaires peuvent être nécessaires pour évaluer ces aspects spécifiques.' => 'Dieser Bericht stellt keine Dimensionierungs- oder hydraulische Kapazitätsstudie des Netzwerks dar. Für die Bewertung dieser spezifischen Aspekte können zusätzliche Studien erforderlich sein.',
+
+    'La durée de vie résiduelle des canalisations ne peut être déterminée avec précision sur la seule base d\'une inspection visuelle. Des analyses complémentaires de matériaux peuvent être recommandées dans certains cas.' => 'Die Restlebensdauer der Rohrleitungen kann nicht allein auf der Grundlage einer visuellen Inspektion genau bestimmt werden. In einigen Fällen können zusätzliche Materialanalysen empfohlen werden.',
+
+    'Certains défauts peuvent évoluer rapidement après l\'inspection, notamment en présence d\'infiltrations, de mouvements de terrain ou de charges importantes en surface. Une surveillance régulière est recommandée pour les défauts critiques identifiés.' => 'Einige Mängel können sich nach der Inspektion schnell entwickeln, insbesondere bei Infiltrationen, Bodenbewegungen oder großen Oberflächenlasten. Für identifizierte kritische Mängel wird eine regelmäßige Überwachung empfohlen.',
+
+    'Ce rapport doit être conservé par le propriétaire ou gestionnaire du réseau et transmis à tout intervenant futur pour assurer la traçabilité des inspections et interventions sur le réseau concerné.' => 'Dieser Bericht sollte vom Eigentümer oder Manager des Netzwerks aufbewahrt und an jeden zukünftigen Teilnehmer weitergegeben werden, um die Rückverfolgbarkeit von Inspektionen und Eingriffen im betroffenen Netzwerk sicherzustellen.',
+
     // Address and company info
     'Avenue de la gare 1, CH-1880 Bex' => 'Avenue de la gare 1, CH-1880 Bex',
     'Tél.: +41 (0)24 444 44 44 | E-mail: info@pixelperfect.com | Web: www.pixelperfect.com' => 'Tel.: +41 (0)24 444 44 44 | E-mail: info@pixelperfect.com | Web: www.pixelperfect.com',
     'Bureau: Rue Caroline 4, 1003 Lausanne' => 'Büro: Rue Caroline 4, 1003 Lausanne',
     'Avenue de la gare 1, 1880 Bex - Tél.: +41 (0)24 444 44 44' => 'Avenue de la gare 1, 1880 Bex - Tel.: +41 (0)24 444 44 44',
+
+    // PDF specific strings
+    'Solutions d\'inspection professionnelles' => 'Professionelle Inspektionslösungen',
+    'Pas de dégât constaté.' => 'Keine Schäden festgestellt.',
+    'Les mesures de réfection ou d\'entretien peuvent être planifiées à long terme.' => 'Sanierungsmaßnahmen oder Wartungsarbeiten können langfristig geplant werden.',
+    'Les mesures de réfection / assainissement ou d\'entretien sont nécessaires à moyen terme (en règle générale dans les 3 à 5 ans).' => 'Reparatur-/Sanierungsmaßnahmen oder Wartungsarbeiten sind mittelfristig erforderlich (in der Regel innerhalb von 3 bis 5 Jahren).',
+    'Des mesures de réfection / assainissement ou d\'entretien sont urgentes et à exécuter à court terme (en règle générale dans les 1 à 2 ans). Des investigations sont à envisager.' => 'Reparatur-/Sanierungsmaßnahmen oder Wartungsarbeiten sind dringend und kurzfristig durchzuführen (in der Regel innerhalb von 1 bis 2 Jahren). Untersuchungen sollten in Betracht gezogen werden.',
+    'Des mesures de réfection / assainissement ou d\'entretien doivent être réalisées d\'urgence. Des réparations provisoires sont à envisager afin d\'éviter des dégâts plus importants.' => 'Reparatur-/Sanierungsmaßnahmen oder Wartungsarbeiten müssen dringend durchgeführt werden. Vorläufige Reparaturen sollten in Betracht gezogen werden, um größere Schäden zu vermeiden.',
+    'Signature du Technicien' => 'Unterschrift des Technikers',
+    'No defects recorded for this section' => 'Keine Mängel für diesen Abschnitt aufgezeichnet',
+    'Pixel Perfect - Solutions d\'inspection professionnelles' => 'Pixel Perfect - Professionelle Inspektionslösungen',
 ];

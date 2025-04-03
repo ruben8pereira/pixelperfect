@@ -1,6 +1,11 @@
 @extends('layouts.master')
 
 @section('content')
+<style>
+.bg-orange {
+    background-color: #ff8500 !important;
+}
+</style>
 <div class="container-fluid px-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
@@ -8,7 +13,7 @@
             <p class="text-muted">Report details and defect analysis</p>
         </div>
         <div class="d-flex gap-2">
-            <a href="{{ route('reports.edit', $report) }}" class="btn btn-warning">
+            <a href="{{ route('reports.edit', $report) }}" class="btn btn-warning text-white">
                 <i class="fas fa-edit me-1"></i> Edit Report
             </a>
             <div class="dropdown">
@@ -352,7 +357,7 @@
                                         <h5 class="mb-1">{{ $defect->defectType->name }}</h5>
                                         <span class="badge
                                             {{ $defect->severity == 'low' ? 'bg-success' :
-                                            ($defect->severity == 'medium' ? 'bg-warning text-dark' :
+                                            ($defect->severity == 'medium' ? 'bg-warning text-white' :
                                             ($defect->severity == 'high' ? 'bg-orange text-white' : 'bg-danger')) }}">
                                             {{ ucfirst($defect->severity) }}
                                         </span>
