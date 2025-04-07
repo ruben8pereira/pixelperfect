@@ -110,3 +110,4 @@ return [
     'Signature du Technicien' => 'Technician\'s Signature',
     'No defects recorded for this section' => 'No defects recorded for this section',
     'Pixel Perfect - Solutions d\'inspection professionnelles' => 'Pixel Perfect - Professional inspection solutions',
+];
