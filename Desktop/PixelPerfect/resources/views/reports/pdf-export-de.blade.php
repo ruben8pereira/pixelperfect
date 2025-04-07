@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="{{ App::getLocale() }}">
+<html lang="de">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $report->title }} - {{ __('Rapport TV n.°') }}
+    <title>{{ $report->title }} - TV-Bericht Nr.
         {{ $report->report_number ?? str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</title>
     <style>
         body {
@@ -15,7 +15,7 @@
             color: #000;
         }
 
-        .cover-page {
+        Copiar .cover-page {
             position: relative;
             height: 100%;
             padding: 0;
@@ -313,15 +313,15 @@
     <div class="cover-page">
         <div class="cover-header">
             <h1 class="company-logo">Pixel Perfect</h1>
-            <p class="company-tagline">{{ __('Solutions d\'inspection professionnelles') }}</p>
+            <p class="company-tagline">Professionelle Inspektionslösungen</p>
         </div>
 
         <div class="report-title-box">
-            <h1 class="report-title">{{ __('Inspection télévisée de réseaux de canalisations') }}</h1>
-            <h2 class="report-title">{{ __($report->title) }}</h2>
-            <h3 class="report-subtitle">{{ __('Rapport TV n.°') }}
+            <h1 class="report-title">TV-Inspektion von Kanalisationsnetzen</h1>
+            <h2 class="report-title">{{ $report->title }}</h2>
+            <h3 class="report-subtitle">TV-Bericht Nr.
                 {{ $report->report_number ?? str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</h3>
-            <p class="report-date">{{ __('Date') }}: {{ $report->created_at->format('d.m.Y') }}</p>
+            <p class="report-date">Datum: {{ $report->created_at->format('d.m.Y') }}</p>
         </div>
 
         <div class="decorative-line"></div>
@@ -329,99 +329,113 @@
         <div class="client-info-container">
             <table>
                 <tr>
-                    <td class="client-label">{{ __('Client') }}:</td>
+                    <td class="client-label">Kunde:</td>
                     <td>{{ $report->client ?? $report->organization->name }}</td>
                 </tr>
                 <tr>
-                    <td class="client-label">{{ __('Chantier / Lieu des travaux') }}:</td>
+                    <td class="client-label">Baustelle / Arbeitsort:</td>
                     <td>{{ $report->location ?? $report->title }}</td>
                 </tr>
                 <tr>
-                    <td class="client-label">{{ __('Motif de l\'intervention') }}:</td>
+                    <td class="client-label">Grund des Einsatzes:</td>
                     <td>{{ $report->description }}</td>
                 </tr>
             </table>
         </div>
 
         <div class="company-info" style="position: absolute; bottom: 40px; left: 0; right: 0;">
-            <p>{{ __('Avenue de La Gare 1, CH-1880 Bex') }}</p>
-            <p>{{ __('Tél.: +41 (0)24 444 44 44 | E-mail: info@pixelperfect.com | Web: www.pixelperfect.com') }}</p>
-            <p>{{ __('Bureau: Rue Caroline 4, 1003 Lausanne') }}</p>
+            <p>Avenue de La Gare 1, CH-1880 Bex</p>
+            <p>Tel.: +41 (0)24 444 44 44 | E-mail: info@pixelperfect.com | Web: www.pixelperfect.com</p>
+            <p>Büro: Rue Caroline 4, 1003 Lausanne</p>
         </div>
     </div>
 
     <!-- Gravity Legend -->
     <div class="page-break"></div>
     <div class="header">
-        <h2 style="margin: 0;">{{ __('Légende de classification des observations et défauts des tronçons') }}</h2>
+        <h2 style="margin: 0;">Klassifizierungslegende für Beobachtungen und Mängel von Abschnitten</h2>
     </div>
     <div class="report-number">
-        <span>{{ __('Rapport TV n°') }} {{ $report->report_number ?? str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</span>
+        <span>TV-Bericht Nr. {{ $report->report_number ?? str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</span>
     </div>
 
     <table class="gravity-legend" style="background-color: #f5f5f5;">
         <tr>
             <td>
                 <div class="gravity-level-4">
-                    <strong>4 :</strong> {{ __('Constats sans dommage / La canalisation est en bon état.') }}
+                    <strong>4:</strong> Keine Schäden beobachtet / Die Leitung ist in gutem Zustand.
 
-                    <p>{{ __('Par exemple coude, raccordement (embranchement), changement de matériaux, regard de visite intermédiaire, etc., et toutes informations utiles.') }}
+                    <p>Zum Beispiel Krümmung, Anschluss (Abzweigung), Materialwechsel, Zwischenkontrollschacht usw. und
+                        alle nützlichen Informationen.
                     </p>
 
-                    <span class="action-text">{{ __('Pas de dégât constaté.') }}</span>
+                    <span class="action-text">Keine Schäden festgestellt.</span>
                 </div>
             </td>
         </tr>
         <tr>
             <td>
                 <div class="gravity-level-3">
-                    <strong>3 :</strong>
-                    {{ __('Défauts de construction ou structurels ayant une influence insignifiante sur l\'étanchéité, l\'hydraulique ou la statique de la canalisation.') }}
+                    <strong>3:</strong>
+                    Bau- oder Strukturmängel mit unwesentlichem Einfluss auf die Dichtheit, Hydraulik oder Statik der
+                    Leitung.
 
-                    <p>{{ __('Par exemple légères déformations des tuyaux en matières synthétiques, paroi du tuyau légèrement attaquée, manchons avec joints larges, embranchement mal rhabillé, petits dépôts de matériaux sur le radier, etc.') }}
+                    <p>Zum Beispiel leichte Verformungen von Rohren aus synthetischen Materialien, leicht beschädigte
+                        Rohrwand, Muffen mit breiten Fugen, schlecht verarbeiteter Anschluss, kleine
+                        Materialablagerungen auf der Sohle usw.
                     </p>
 
-                    <span
-                        class="action-text">{{ __('Les mesures de réfection ou d\'entretien peuvent être planifiées à long terme.') }}</span>
+                    <span class="action-text">Sanierungsmaßnahmen oder Wartungsarbeiten können langfristig geplant
+                        werden.</span>
                 </div>
             </td>
         </tr>
         <tr>
             <td>
                 <div class="gravity-level-2">
-                    <strong>2 :</strong>
-                    {{ __('Défauts de constructions ou structurels affectant l\'étanchéité, l\'hydraulique, ou la statique.') }}
+                    <strong>2:</strong>
+                    Bau- oder Strukturmängel, die die Dichtheit, Hydraulik oder Statik beeinträchtigen.
 
-                    <p>{{ __('Par exemple déformations marquées des tuyaux en matières synthétiques, paroi du tuyau attaquée, décalages aux joints, embranchements saillants ou non rhabillés, fissures de faible ampleur, entartrage, dépôts de matériaux, etc. Ouvrages tels que regards cachés ou recouverts.') }}
+                    <p>Zum Beispiel deutliche Verformungen von Rohren aus synthetischen Materialien, beschädigte
+                        Rohrwand, Versatz an den Fugen, vorstehende oder nicht verarbeitete Anschlüsse, geringfügige
+                        Risse, Verkalkungen, Materialablagerungen usw. Bauwerke wie versteckte oder abgedeckte Schächte.
                     </p>
 
-                    <span
-                        class="action-text">{{ __('Les mesures de réfection / assainissement ou d\'entretien sont nécessaires à moyen terme (en règle générale dans les 3 à 5 ans).') }}</span>
+                    <span class="action-text">Reparatur-/Sanierungsmaßnahmen oder Wartungsarbeiten sind mittelfristig
+                        erforderlich (in der Regel innerhalb von 3 bis 5 Jahren).</span>
                 </div>
             </td>
         </tr>
         <tr>
             <td>
                 <div class="gravity-level-1">
-                    <strong>1 :</strong>
-                    {{ __('Dommages structurels ne garantissant plus l\'étanchéité, l\'hydraulique ou la sécurité statique.') }}
+                    <strong>1:</strong>
+                    Strukturschäden, die die Dichtheit, Hydraulik oder statische Sicherheit nicht mehr gewährleisten.
 
-                    <p>{{ __('Par exemple graves déformations et écrasements des tuyaux, paroi du tuyau perforée ou poreuse, déboîtements aux joints laissant entrevoir le terrain ainsi que des exfiltrations ou infiltrations d\'eau et / ou de racines, embranchements fortement saillants, ruptures et fissures importantes et ouvertes, entartrage, dépôts de matériaux, etc.') }}
+                    <p>Zum Beispiel schwere Verformungen und Quetschungen von Rohren, perforierte oder poröse Rohrwand,
+                        Verbindungsstücke an Fugen, die den Boden freilegen sowie Wasseraustritt oder -infiltration
+                        und/oder Wurzeln, stark vorstehende Abzweigungen, große und offene Brüche und Risse, Verkalkung,
+                        Materialablagerungen usw.
                     </p>
 
-                    <span
-                        class="action-text">{{ __('Des mesures de réfection / assainissement ou d\'entretien sont urgentes et à exécuter à court terme (en règle générale dans les 1 à 2 ans). Des investigations sont à envisager.') }}</span>
+                    <span class="action-text">Reparatur-/Sanierungsmaßnahmen oder Wartungsarbeiten sind dringend und
+                        kurzfristig durchzuführen (in der Regel innerhalb von 1 bis 2 Jahren). Untersuchungen sollten in
+                        Betracht gezogen werden.</span>
                 </div>
             </td>
         </tr>
         <tr>
             <td>
                 <div class="gravity-level-0">
-                    <strong>0 :</strong>
-                    {{ __('La canalisation est déjà ou sera prochainement obstruée ; la canalisation est effondrée, totalement obstruée de racines ou autres obstacles empêchant l\'écoulement et l\'inspection et risque de conduire à un refoulement ou inondation dans les bâtiments. La canalisation fuit, avec risque de pollution des eaux souterraines pour les réseaux d\'eaux usées et industriels.') }}
+                    <strong>0:</strong>
+                    Die Leitung ist bereits oder wird bald verstopft sein; die Leitung ist eingestürzt, vollständig
+                    durch Wurzeln oder andere Hindernisse verstopft, die den Durchfluss und die Inspektion verhindern
+                    und zu einem Rückstau oder einer Überschwemmung in Gebäuden führen können. Die Leitung undicht ist,
+                    mit dem Risiko einer Grundwasserverschmutzung bei Abwasser- und Industrienetzen.
 
-                    <span
-                        class="action-text">{{ __('Des mesures de réfection / assainissement ou d\'entretien doivent être réalisées d\'urgence. Des réparations provisoires sont à envisager afin d\'éviter des dégâts plus importants.') }}</span>
+                    <span class="action-text">Reparatur-/Sanierungsmaßnahmen oder Wartungsarbeiten müssen dringend
+                        durchgeführt werden. Vorläufige Reparaturen sollten in Betracht gezogen werden, um größere
+                        Schäden zu vermeiden.</span>
                 </div>
             </td>
         </tr>
@@ -431,10 +445,10 @@
 
     @if ($mapImage = $report->reportImages->where('caption', 'Map')->first())
         <div class="header">
-            <h2 style="margin: 0;">{{ __('Plan du réseau inspecté') }}</h2>
+            <h2 style="margin: 0;">Karte des inspizierten Netzes</h2>
         </div>
         <div class="report-number">
-            <span>{{ __('Rapport TV n°') }} {{ $report->report_number ?? str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</span>
+            <span>TV-Bericht Nr. {{ $report->report_number ?? str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</span>
         </div>
         <div class="image-container" style="margin-top: 10px;">
             <img src="{{ public_path('storage/' . $mapImage->file_path) }}" alt="Network Map">
@@ -446,10 +460,10 @@
     @if (isset($report->reportSections) && $report->reportSections->count() > 0)
         @foreach ($report->reportSections as $section)
             <div class="header">
-                <h2 style="margin: 0;">{{ __('Tronçon') }} {{ $section->name }}</h2>
+                <h2 style="margin: 0;">Abschnitt {{ $section->name }}</h2>
             </div>
             <div class="report-number">
-                <span>{{ __('Rapport TV n°') }}
+                <span>TV-Bericht Nr.
                     {{ $report->report_number ?? str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</span>
             </div>
 
@@ -458,29 +472,29 @@
                 <tr>
                     <td width="50%">
                         <div class="info-section">
-                            <span class="label">{{ __('Diamètre') }}:</span>
+                            <span class="label">Durchmesser:</span>
                             {{ $section->diameter }} mm
                         </div>
                         <div class="info-section">
-                            <span class="label">{{ __('Matériel') }}:</span>
+                            <span class="label">Material:</span>
                             {{ ucfirst($section->material) }}
                         </div>
                         <div class="info-section">
-                            <span class="label">{{ __('Longueur') }}:</span>
+                            <span class="label">Länge:</span>
                             {{ $section->length }} m
                         </div>
                     </td>
                     <td width="50%">
                         <div class="info-section">
-                            <span class="label">{{ __('Chambre de départ') }}:</span>
+                            <span class="label">Ausgangskammer:</span>
                             {{ $section->start_manhole }}
                         </div>
                         <div class="info-section">
-                            <span class="label">{{ __('Chambre d\'arrivée') }}:</span>
+                            <span class="label">Ankunftskammer:</span>
                             {{ $section->end_manhole }}
                         </div>
                         <div class="info-section">
-                            <span class="label">{{ __('Localisation') }}:</span>
+                            <span class="label">Lokalisierung:</span>
                             {{ $section->location }}
                         </div>
                     </td>
@@ -494,8 +508,7 @@
 
             @if ($sectionImage)
                 <div class="image-container" style="margin-top: 10px;">
-                    <img src="{{ public_path('storage/' . $sectionImage->file_path) }}"
-                         alt="Section Image">
+                    <img src="{{ public_path('storage/' . $sectionImage->file_path) }}" alt="Section Image">
                 </div>
             @endif
 
@@ -506,66 +519,66 @@
                 });
             @endphp
 
-<div class="page-break"></div>
+            <div class="page-break"></div>
 
-<div class="header">
-    <h2 style="margin: 0;">{{ __('Tronçon') }} {{ $section->name }}</h2>
-</div>
-<div class="report-number">
-    <span>{{ __('Rapport TV n°') }}
-        {{ $report->report_number ?? str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</span>
-</div>
+            <div class="header">
+                <h2 style="margin: 0;">Abschnitt {{ $section->name }}</h2>
+            </div>
+            <div class="report-number">
+                <span>TV-Bericht Nr.
+                    {{ $report->report_number ?? str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</span>
+            </div>
 
-<!-- Section Information -  -->
-<table class="section-details-table">
-    <tr>
-        <td class="section-details-left">
-            <div>
-                <span class="label">{{ __('Date inspection') }}:</span>
-                {{ $report->inspection_date ? date('d.m.Y', strtotime($report->inspection_date)) : $report->created_at->format('d.m.Y') }}
-            </div>
-            <div>
-                <span class="label">{{ __('N° de commande') }}:</span>
-                {{ $report->report_number ?? str_pad($report->id, 4, '0', STR_PAD_LEFT) }}
-            </div>
-            <div>
-                <span class="label">{{ __('Personne présente') }}:</span>
-                {{ $report->creator->name }}
-            </div>
-        </td>
-        <td class="section-details-right">
-            <div>
-                <span class="label">{{ __('Opérateur') }}:</span>
-                {{ $report->operator ?? $report->creator->name }}
-            </div>
-            <div>
-                <span class="label">{{ __('Véhicule') }}:</span>
-                Véhicule {{ $report->organization->name }}
-            </div>
-            <div>
-                <span class="label">{{ __('Météo') }}:</span>
-                {{ $report->weather ?? '-' }}
-            </div>
-        </td>
-    </tr>
-    <tr class="section-full-row">
-        <td colspan="2">
-            <span class="label">{{ __('Remarque') }}:</span>
-            {{ $section->comments ?? '-' }}
-        </td>
-    </tr>
-</table>
+            <!-- Section Information -  -->
+            <table class="section-details-table">
+                <tr>
+                    <td class="section-details-left">
+                        <div>
+                            <span class="label">Inspektionsdatum:</span>
+                            {{ $report->inspection_date ? date('d.m.Y', strtotime($report->inspection_date)) : $report->created_at->format('d.m.Y') }}
+                        </div>
+                        <div>
+                            <span class="label">Auftragsnummer:</span>
+                            {{ $report->report_number ?? str_pad($report->id, 4, '0', STR_PAD_LEFT) }}
+                        </div>
+                        <div>
+                            <span class="label">Anwesende Person:</span>
+                            {{ $report->creator->name }}
+                        </div>
+                    </td>
+                    <td class="section-details-right">
+                        <div>
+                            <span class="label">Bediener:</span>
+                            {{ $report->operator ?? $report->creator->name }}
+                        </div>
+                        <div>
+                            <span class="label">Fahrzeug:</span>
+                            Fahrzeug {{ $report->organization->name }}
+                        </div>
+                        <div>
+                            <span class="label">Wetter:</span>
+                            {{ $report->weather ?? '-' }}
+                        </div>
+                    </td>
+                </tr>
+                <tr class="section-full-row">
+                    <td colspan="2">
+                        <span class="label">Bemerkung:</span>
+                        {{ $section->comments ?? '-' }}
+                    </td>
+                </tr>
+            </table>
             @if ($sectionDefects->count() > 0)
                 <!-- Defect List for this section - similar to Image 1 -->
                 <div>
                     <table class="defect-list">
                         <thead>
                             <tr>
-                                <th>{{ __('Observation') }}</th>
-                                <th>{{ __('Distance (ml.)') }}</th>
-                                <th>{{ __('Compteur') }}</th>
-                                <th>{{ __('Anomalies / remarques') }}</th>
-                                <th>{{ __('Gravité') }}</th>
+                                <th>Beobachtung</th>
+                                <th>Entfernung (lm.)</th>
+                                <th>Zähler</th>
+                                <th>Anomalien / Bemerkungen</th>
+                                <th>Schweregrad</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -591,46 +604,47 @@
                 @foreach ($sectionDefects as $index => $defect)
                     <div class="page-break"></div>
                     <div class="header">
-                        <h2 style="margin: 0;">{{ __('Tronçon') }} {{ $section->name }}</h2>
+                        <h2 style="margin: 0;">Abschnitt {{ $section->name }}</h2>
                     </div>
                     <div class="report-number">
-                        <span>{{ __('Rapport TV n°') }} {{ $report->report_number ?? str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</span>
+                        <span>TV-Bericht Nr.
+                            {{ $report->report_number ?? str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</span>
                     </div>
 
                     <table>
                         <tr>
                             <td colspan="3" class="observation-header">
-                                {{ __('Observation') }} {{ $index + 1 }}
+                                Beobachtung {{ $index + 1 }}
                             </td>
                         </tr>
                         <tr>
                             <td width="20%">
-                                <span class="label">{{ __('Distance') }}:</span>
-                                {{ $defect->coordinates['distance'] ?? '--' }} ml.
+                                <span class="label">Entfernung:</span>
+                                {{ $defect->coordinates['distance'] ?? '--' }} lm.
                             </td>
                             <td width="30%">
-                                <span class="label">{{ __('Compteur') }}:</span>
+                                <span class="label">Zähler:</span>
                                 {{ $defect->coordinates['counter'] ?? '--' }}
                             </td>
                             <td width="50%">
-                                <span class="label">{{ __('Niveau d\'eau') }}:</span>
+                                <span class="label">Wasserstand:</span>
                                 {{ $defect->coordinates['water_level'] ?? '--' }}
                             </td>
                         </tr>
                         <tr>
                             <td colspan="2">
                                 <div class="info-section">
-                                    <span class="label">{{ __('Constat') }}:</span>
+                                    <span class="label">Befund:</span>
                                     {{ $defect->description }}
                                 </div>
                                 <div class="info-section">
-                                    <span class="label">{{ __('Remarque') }}:</span>
+                                    <span class="label">Bemerkung:</span>
                                     {{ $defect->coordinates['comment'] ?? '' }}
                                 </div>
                             </td>
                             <td style="vertical-align: top;">
                                 <div class="gravity-value">
-                                    <span class="label">{{ __('Gravité') }}:</span>
+                                    <span class="label">Schweregrad:</span>
                                     {{ $defect->severity === 'critical' ? '1' : ($defect->severity === 'high' ? '2' : ($defect->severity === 'medium' ? '3' : '4')) }}
                                 </div>
                             </td>
@@ -643,7 +657,7 @@
                                 @else
                                     <div
                                         style="height: 200px; display: flex; align-items: center; justify-content: center; background-color: #f5f5f5;">
-                                        <p>{{ __('No image available') }}</p>
+                                        <p>Kein Bild verfügbar</p>
                                     </div>
                                 @endif
                             </td>
@@ -654,7 +668,7 @@
             @else
                 <div
                     style="margin-top: 20px; text-align: center; padding: 20px; background-color: #f8f9fa; border: 1px solid #dee2e6;">
-                    <p>{{ __('No defects recorded for this section') }}</p>
+                    <p>Keine Mängel für diesen Abschnitt aufgezeichnet</p>
                 </div>
             @endif
         @endforeach
@@ -663,10 +677,10 @@
     <!-- Comments Section if included -->
     @if ($includeComments && count($report->reportComments) > 0)
         <div class="header">
-            <h2 style="margin: 0;">{{ __('Commentaires') }}</h2>
+            <h2 style="margin: 0;">Kommentare</h2>
         </div>
         <div class="report-number">
-            <span>{{ __('Rapport TV n°') }} {{ $report ->report_number ?? str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</span>
+            <span>TV-Bericht Nr. {{ $report->report_number ?? str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</span>
         </div>
 
         <div class="comment-section">
@@ -685,69 +699,99 @@
         <div class="page-break"></div>
     @endif
 
-    <!-- Avertissements -->
+    <!-- Warnings -->
     <div class="header">
-        <h2 style="margin: 0;">{{ __('Avertissements pour l\'analyse du rapport TV') }}</h2>
+        <h2 style="margin: 0;">Warnhinweise zur Analyse des TV-Berichts</h2>
     </div>
     <div class="report-number">
-        <span>{{ __('Rapport TV n°') }} {{ $report ->report_number ?? str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</span>
+        <span>TV-Bericht Nr. {{ $report->report_number ?? str_pad($report->id, 4, '0', STR_PAD_LEFT) }}</span>
     </div>
 
     <ol>
         <li>
-            {{ __('Les degrés de gravités de chaque observation sont une appréciation personnelle de l\'opérateur, indiqués à titre d\'aide pour l\'analyse de l\'état de la canalisation. Il convient de considérer l\'ensemble du tronçon et, selon les cas, l\'ensemble du réseau d\'assainissement alentour avant toute prise de mesure, ainsi que tous facteurs externes (contexte, situation géographique, utilisation et débit dans le réseau, météo, etc.).') }}
+            Die Schweregrade jeder Beobachtung sind eine persönliche Einschätzung des Bedieners, die als Hilfe bei der
+            Analyse des Zustands der Kanalisation angegeben werden. Es ist ratsam, den gesamten Abschnitt und
+            gegebenenfalls das gesamte umliegende Abwassernetz zu berücksichtigen, bevor Maßnahmen ergriffen werden,
+            sowie alle externen Faktoren (Kontext, geografische Lage, Verwendung und Durchfluss im Netz, Wetter usw.).
         </li>
         <li>
-            {{ __('Les éventuels croquis inclus dans ce dossier sont des plans schématiques établis sur la base des constatations faites lors du passage de la caméra. Bien que ces informations aient été relevées avec soin, des divergences peuvent apparaître avec la réalité.') }}
+            Alle in dieser Datei enthaltenen Skizzen sind schematische Pläne, die auf der Grundlage von Beobachtungen
+            während der Kamerainspektion erstellt wurden. Obwohl diese Informationen sorgfältig aufgezeichnet wurden,
+            können Abweichungen von der Realität auftreten.
         </li>
         <li>
-            {{ __('Seul un nettoyage préalable des canalisations à inspecter par curage à eau sous pression permet de vérifier l\'état des canalisations de façon optimale. Notre responsabilité ne saurait être engagée pour tous défauts ou éléments qui n\'auraient été decelés faute d\'un tel nettoyage. Les éventuelles micro-fissures ne peuvent pas toujours être décelées.') }}
+            Nur eine vorherige Reinigung der zu inspizierenden Rohrleitungen durch Hochdruckwasserstrahlen ermöglicht
+            eine optimale Überprüfung des Zustands der Rohrleitungen. Wir können nicht für Mängel oder Elemente
+            verantwortlich gemacht werden, die aufgrund einer fehlenden Reinigung nicht erkannt wurden. Eventuelle
+            Mikrorisse können nicht immer erkannt werden.
         </li>
         <li>
-            {{ __('L\'inspection télévisée ne permet pas d\'identifier tous les types de défauts, notamment ceux situés hors du champ visuel de la caméra. Une inspection complémentaire peut s\'avérer nécessaire dans certains cas pour obtenir un diagnostic complet du réseau.') }}
+            Die Fernsehinspektion ermöglicht nicht die Identifizierung aller Arten von Mängeln, insbesondere solcher,
+            die sich außerhalb des Sichtfelds der Kamera befinden. In einigen Fällen kann eine zusätzliche Inspektion
+            erforderlich sein, um eine vollständige Diagnose des Netzwerks zu erhalten.
         </li>
         <li>
-            {{ __('Les mesures et distances indiquées dans ce rapport sont données à titre indicatif et peuvent présenter une marge d\'erreur inhérente aux équipements utilisés. Une vérification sur site est recommandée avant d\'entreprendre des travaux.') }}
+            Die in diesem Bericht angegebenen Maße und Entfernungen dienen nur zu Informationszwecken und können
+            aufgrund der verwendeten Geräte einen Fehlerspielraum aufweisen. Vor Beginn der Arbeiten wird eine
+            Überprüfung vor Ort empfohlen.
         </li>
         <li>
-            {{ __('L\'interprétation des défauts observés doit être effectuée par un professionnel qualifié, capable d\'évaluer l\'impact de chaque anomalie sur le fonctionnement global du réseau et sa durabilité à long terme.') }}
+            Die Interpretation der beobachteten Mängel sollte von einem qualifizierten Fachmann durchgeführt werden, der
+            in der Lage ist, die Auswirkungen jeder Anomalie auf die Gesamtfunktion des Netzes und seine langfristige
+            Haltbarkeit zu beurteilen.
         </li>
         <li>
-            {{ __('Les conditions d\'accès et l\'état général du réseau au moment de l\'inspection peuvent limiter la qualité des observations. Les segments inaccessibles ou partiellement observables sont clairement identifiés dans le rapport.') }}
+            Die Zugangsbedingungen und der allgemeine Zustand des Netzes zum Zeitpunkt der Inspektion können die
+            Qualität der Beobachtungen einschränken. Unzugängliche oder teilweise beobachtbare Segmente sind im Bericht
+            klar gekennzeichnet.
         </li>
         <li>
-            {{ __('Ce rapport est valable à la date de l\'inspection. L\'évolution naturelle des réseaux, les interventions ultérieures ou les conditions climatiques exceptionnelles peuvent modifier l\'état des canalisations après la réalisation de ce diagnostic.') }}
+            Dieser Bericht ist zum Zeitpunkt der Inspektion gültig. Die natürliche Entwicklung der Netze, spätere
+            Eingriffe oder außergewöhnliche Witterungsbedingungen können den Zustand der Leitungen nach der Durchführung
+            dieser Diagnose verändern.
         </li>
         <li>
-            {{ __('Les recommandations formulées dans ce rapport sont basées sur l\'état constaté lors de l\'inspection et les normes en vigueur. Elles ne prennent pas en compte d\'éventuelles modifications réglementaires postérieures à la date d\'émission du rapport.') }}
+            Die in diesem Bericht enthaltenen Empfehlungen basieren auf dem bei der Inspektion festgestellten Zustand
+            und den geltenden Normen. Sie berücksichtigen keine möglichen regulatorischen Änderungen nach dem
+            Ausstellungsdatum des Berichts.
         </li>
         <li>
-            {{ __('La classification des défauts suit une méthodologie standardisée, mais peut varier selon les pratiques locales et les exigences spécifiques du client. Une concertation avec le gestionnaire du réseau est recommandée pour définir les priorités d\'intervention.') }}
+            Die Klassifizierung der Mängel folgt einer standardisierten Methodik, kann aber je nach lokalen Praktiken
+            und spezifischen Kundenanforderungen variieren. Eine Absprache mit dem Netzwerkmanager wird empfohlen, um
+            die Interventionsprioritäten festzulegen.
         </li>
         <li>
-            {{ __('Les images et vidéos fournies dans ce rapport sont destinées à illustrer les observations mentionnées. Leur qualité peut être affectée par les conditions d\'éclairage, de visibilité et les contraintes techniques rencontrées lors de l\'inspection.') }}
+            Die in diesem Bericht bereitgestellten Bilder und Videos sollen die erwähnten Beobachtungen
+            veranschaulichen. Ihre Qualität kann durch die Beleuchtungsbedingungen, die Sichtbarkeit und die technischen
+            Einschränkungen während der Inspektion beeinflusst werden.
         </li>
         <li>
-            {{ __('Le présent rapport ne constitue pas une étude de dimensionnement ou de capacité hydraulique du réseau. Des études complémentaires peuvent être nécessaires pour évaluer ces aspects spécifiques.') }}
+            Dieser Bericht stellt keine Dimensionierungs- oder hydraulische Kapazitätsstudie des Netzwerks dar. Für die
+            Bewertung dieser spezifischen Aspekte können zusätzliche Studien erforderlich sein.
         </li>
         <li>
-            {{ __('La durée de vie résiduelle des canalisations ne peut être déterminée avec précision sur la seule base d\'une inspection visuelle. Des analyses complémentaires de matériaux peuvent être recommandées dans certains cas.') }}
+            Die Restlebensdauer der Rohrleitungen kann nicht allein auf der Grundlage einer visuellen Inspektion genau
+            bestimmt werden. In einigen Fällen können zusätzliche Materialanalysen empfohlen werden.
         </li>
         <li>
-            {{ __('Certains défauts peuvent évoluer rapidement après l\'inspection, notamment en présence d\'infiltrations, de mouvements de terrain ou de charges importantes en surface. Une surveillance régulière est recommandée pour les défauts critiques identifiés.') }}
+            Einige Mängel können sich nach der Inspektion schnell entwickeln, insbesondere bei Infiltrationen,
+            Bodenbewegungen oder großen Oberflächenlasten. Für identifizierte kritische Mängel wird eine regelmäßige
+            Überwachung empfohlen.
         </li>
         <li>
-            {{ __('Ce rapport doit être conservé par le propriétaire ou gestionnaire du réseau et transmis à tout intervenant futur pour assurer la traçabilité des inspections et interventions sur le réseau concerné.') }}
+            Dieser Bericht sollte vom Eigentümer oder Manager des Netzwerks aufbewahrt und an jeden zukünftigen
+            Teilnehmer weitergegeben werden, um die Rückverfolgbarkeit von Inspektionen und Eingriffen im betroffenen
+            Netzwerk sicherzustellen.
         </li>
     </ol>
 
     <div class="signature">
-        <p>{{ __('Signature du Technicien') }}:</p>
+        <p>Unterschrift des Technikers:</p>
     </div>
 
     <div class="page-footer">
-        {{ __('Pixel Perfect - Avenue de la Gare 1, 1880 Bex - Tél.: +41 (0)24 444 44 44') }} |
-        {{ __('Page') }}<span class="page-number">
+        Pixel Perfect - Avenue de la Gare 1, 1880 Bex - Tel.: +41 (0)24 444 44 44 |
+        Seite<span class="page-number">
     </div>
 </body>
 

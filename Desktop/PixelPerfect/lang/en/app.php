@@ -19,10 +19,10 @@ return [
     'Dashboard' => 'Dashboard',
 
     // Report PDF
-    'Rapport TV n°' => 'TV Report No.',
+    'Rapport TV n.°' => 'TV Report No.',
     'Date' => 'Date',
     'Client' => 'Client',
-    'Chantier / lieu des travaux' => 'Work site / location',
+    'Chantier / Lieu des travaux' => 'Work site / Location',
     'Motif de l\'intervention' => 'Reason for intervention',
     'Inspection télévisée de réseaux de canalisations' => 'CCTV Inspection of Pipeline Networks',
     'Tronçon' => 'Section',

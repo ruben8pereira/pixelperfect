@@ -19,10 +19,10 @@ return [
     'Dashboard' => 'Tableau de Bord',
 
     // Report PDF
-    'Rapport TV n°' => 'Rapport TV n°',
+    'Rapport TV n.°' => 'Rapport TV n.°',
     'Date' => 'Date',
     'Client' => 'Client',
-    'Chantier / lieu des travaux' => 'Chantier / lieu des travaux',
+    'Chantier / Lieu des travaux' => 'Chantier / Lieu des travaux',
     'Motif de l\'intervention' => 'Motif de l\'intervention',
     'Inspection télévisée de réseaux de canalisations' => 'Inspection télévisée de réseaux de canalisations',
     'Tronçon' => 'Tronçon',

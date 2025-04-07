@@ -19,10 +19,10 @@ return [
     'Dashboard' => 'Übersicht',
 
     // Report PDF
-    'Rapport TV n°' => 'TV-Bericht Nr.',
+    'Rapport TV n.°' => 'TV-Bericht Nr.',
     'Date' => 'Datum',
     'Client' => 'Kunde',
-    'Chantier / lieu des travaux' => 'Baustelle / Arbeitsort',
+    'Chantier / Lieu des travaux' => 'Baustelle / Arbeitsort',
     'Motif de l\'intervention' => 'Grund des Einsatzes',
     'Inspection télévisée de réseaux de canalisations' => 'TV-Inspektion von Kanalisationsnetzen',
     'Tronçon' => 'Abschnitt',

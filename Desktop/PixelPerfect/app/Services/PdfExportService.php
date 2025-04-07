@@ -69,8 +69,15 @@ class PdfExportService
             // Reindex defects to start from 0 (will display as 1, 2, 3, etc)
             $reportClone->reportDefects = $reportClone->reportDefects->values();
 
-            // Generate PDF with the modified clone
-            $pdf = PDF::loadView('reports.pdf-export', [
+            // Determine which view to use based on language
+            $viewName = 'reports.pdf-export-' . $language;
+            if (!view()->exists($viewName)) {
+                $viewName = 'reports.pdf-export';
+                Log::warning("Template for language {$language} not found, using default");
+            }
+
+            // Generate PDF with the specific language template
+            $pdf = PDF::loadView($viewName, [
                 'report' => $reportClone,
                 'includeComments' => $includeComments,
             ]);

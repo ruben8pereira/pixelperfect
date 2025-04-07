@@ -618,30 +618,34 @@ class ReportController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function previewPdf(Request $request, Report $report, PdfExportService $pdfService)
-    {
-        // Check permission to view report
-        $this->authorize('view', $report);
+{
+    // Check permission to view report
+    $this->authorize('view', $report);
 
-        try {
-            $includeComments = $request->has('include_comments') ? (bool)$request->include_comments : true;
-            $language = $request->input('language', $report->language);
+    try {
+        $includeComments = $request->has('include_comments') ? (bool)$request->include_comments : true;
+        $language = $request->input('language', $report->language);
 
-            Log::info("Generating PDF preview with language: {$language}, includeComments: " . ($includeComments ? 'true' : 'false'));
+        Log::info("Generating PDF preview with language: {$language}, includeComments: " . ($includeComments ? 'true' : 'false'));
 
-            $pdf = $pdfService->generateReportPdf(
-                $report,
-                $includeComments,
-                $language
-            );
+        // Ensure the language is loaded
+        App::setLocale($language);
+        app('translator')->setLocale($language);
 
-            return $pdf->stream("report-{$report->id}-preview.pdf");
-        } catch (\Exception $e) {
-            Log::error('Error generating PDF preview: ' . $e->getMessage());
+        $pdf = $pdfService->generateReportPdf(
+            $report,
+            $includeComments,
+            $language
+        );
 
-            return redirect()->back()
-                ->with('error', 'An error occurred while generating the PDF preview: ' . $e->getMessage());
-        }
+        return $pdf->stream("report-{$report->id}-preview.pdf");
+    } catch (\Exception $e) {
+        Log::error('Error generating PDF preview: ' . $e->getMessage());
+
+        return redirect()->back()
+            ->with('error', 'An error occurred while generating the PDF preview: ' . $e->getMessage());
     }
+}
 
     /**
      * Export the report as PDF.
@@ -663,6 +667,7 @@ class ReportController extends Controller
 
             // Ensure the language is loaded
             App::setLocale($language);
+            app('translator')->setLocale($language);
 
             $pdf = $pdfService->generateReportPdf(
                 $report,
