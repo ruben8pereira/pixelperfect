@@ -338,242 +338,247 @@ class ReportController extends Controller
     }
 
    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Report  $report
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Report $report)
-    {
-        // Check permission to update report
-        $this->authorize('update', $report);
+ * Update the specified resource in storage.
+ *
+ * @param  \Illuminate\Http\Request  $request
+ * @param  \App\Models\Report  $report
+ * @return \Illuminate\Http\Response
+ */
+public function update(Request $request, Report $report)
+{
+    // Check permission to update report
+    $this->authorize('update', $report);
 
-        // Validate the request
-        $this->validateReport($request, $report);
+    // Validate the request
+    $this->validateReport($request, $report);
 
-        try {
-            DB::beginTransaction();
+    try {
+        DB::beginTransaction();
 
-            // Update report data
-            $report->title = $request->title;
-            $report->report_number = $request->report_number;
-            $report->description = $request->description;
-            $report->language = $request->language ?? 'en';
+        // Update report data
+        $report->title = $request->title;
+        $report->report_number = $request->report_number;
+        $report->description = $request->description;
+        $report->language = $request->language ?? 'en';
 
-            // Update custom fields if present
-            if ($request->has('weather')) {
-                $report->weather = $request->weather;
+        // Update custom fields if present
+        if ($request->has('weather')) {
+            $report->weather = $request->weather;
+        }
+
+        if ($request->has('location')) {
+            $report->location = $request->location;
+        }
+
+        // If user is admin and can select organization
+        if (Auth::user()->role && Auth::user()->role->name === 'Administrator' && $request->has('organization_id')) {
+            $report->organization_id = $request->organization_id;
+        }
+
+        $report->save();
+
+        // Process network map if provided
+        if ($request->hasFile('map_image')) {
+            // Remove old map image if exists
+            $oldMapImage = $report->reportImages->where('caption', 'Map')->first();
+            if ($oldMapImage) {
+                Storage::disk('public')->delete($oldMapImage->file_path);
+                $oldMapImage->delete();
             }
 
-            if ($request->has('location')) {
-                $report->location = $request->location;
+            // Store new map image
+            $mapPath = $request->file('map_image')->store('report-images', 'public');
+
+            ReportImage::create([
+                'report_id' => $report->id,
+                'file_path' => $mapPath,
+                'caption' => 'Map',
+            ]);
+        } elseif ($request->has('keep_map_image') && $request->keep_map_image == 0) {
+            // Remove map image if the user unchecked "keep this image"
+            $oldMapImage = $report->reportImages->where('caption', 'Map')->first();
+            if ($oldMapImage) {
+                Storage::disk('public')->delete($oldMapImage->file_path);
+                $oldMapImage->delete();
             }
+        }
 
-            // If user is admin and can select organization
-            if (Auth::user()->role && Auth::user()->role->name === 'Administrator' && $request->has('organization_id')) {
-                $report->organization_id = $request->organization_id;
-            }
+        // Process other report images if provided
+        if ($request->hasFile('report_images')) {
+            foreach ($request->file('report_images') as $index => $image) {
+                $imagePath = $image->store('report-images', 'public');
 
-            $report->save();
-
-            // Process network map if provided
-            if ($request->hasFile('map_image')) {
-                // Remove old map image if exists
-                $oldMapImage = $report->reportImages->where('caption', 'Map')->first();
-                if ($oldMapImage) {
-                    Storage::disk('public')->delete($oldMapImage->file_path);
-                    $oldMapImage->delete();
+                // Get caption if provided
+                $caption = null;
+                if ($request->has('report_image_captions') && isset($request->report_image_captions[$index])) {
+                    $caption = $request->report_image_captions[$index];
                 }
-
-                // Store new map image
-                $mapPath = $request->file('map_image')->store('report-images', 'public');
 
                 ReportImage::create([
                     'report_id' => $report->id,
-                    'file_path' => $mapPath,
-                    'caption' => 'Map',
+                    'file_path' => $imagePath,
+                    'caption' => $caption,
                 ]);
-            } elseif ($request->has('keep_map_image') && $request->keep_map_image == 0) {
-                // Remove map image if the user unchecked "keep this image"
-                $oldMapImage = $report->reportImages->where('caption', 'Map')->first();
-                if ($oldMapImage) {
-                    Storage::disk('public')->delete($oldMapImage->file_path);
-                    $oldMapImage->delete();
-                }
             }
+        }
 
-            // Process other report images if provided
-            if ($request->hasFile('report_images')) {
-                foreach ($request->file('report_images') as $index => $image) {
-                    $imagePath = $image->store('report-images', 'public');
+        // Store section IDs for updating existing sections and creating new ones
+        $sectionIds = [];
 
-                    // Get caption if provided
-                    $caption = null;
-                    if ($request->has('report_image_captions') && isset($request->report_image_captions[$index])) {
-                        $caption = $request->report_image_captions[$index];
+        // Process pipe sections if provided
+        if ($request->has('sections')) {
+            // Get existing section IDs
+            $existingSectionIds = $report->reportSections()->pluck('id')->toArray();
+
+            // Process each section
+            foreach ($request->sections as $index => $sectionData) {
+                // Check if this is an existing section or a new one
+                if (isset($sectionData['id']) && in_array($sectionData['id'], $existingSectionIds)) {
+                    $section = \App\Models\ReportSection::find($sectionData['id']);
+                } else {
+                    $section = new \App\Models\ReportSection();
+                    $section->report_id = $report->id;
+                }
+
+                // Update section data
+                $section->name = $sectionData['name'] ?? null;
+                $section->diameter = $sectionData['diameter'] ?? null;
+                $section->material = $sectionData['material'] ?? null;
+                $section->length = $sectionData['length'] ?? null;
+                $section->start_manhole = $sectionData['start_manhole'] ?? null;
+                $section->end_manhole = $sectionData['end_manhole'] ?? null;
+                $section->location = $sectionData['location'] ?? null;
+                $section->comments = $sectionData['comments'] ?? null;
+                $section->save();
+
+                // Store the section ID for defects
+                $sectionIds[$index] = $section->id;
+
+                // Process section image if provided
+                if ($request->hasFile("section_images.{$index}")) {
+                    // Remove old image if it exists
+                    $oldSectionImage = $report->reportImages->where('section_id', $section->id)->first();
+                    if ($oldSectionImage) {
+                        Storage::disk('public')->delete($oldSectionImage->file_path);
+                        $oldSectionImage->delete();
                     }
+
+                    // Store new section image
+                    $imagePath = $request->file("section_images.{$index}")->store('report-images', 'public');
 
                     ReportImage::create([
                         'report_id' => $report->id,
+                        'section_id' => $section->id,
                         'file_path' => $imagePath,
-                        'caption' => $caption,
+                        'caption' => "Section {$section->name} Image",
                     ]);
                 }
             }
+        }
 
-            // Store section IDs for updating existing sections and creating new ones
-            $sectionIds = [];
+        // Process defects
+        $existingDefectIds = [];
 
-            // Process pipe sections if provided
-            if ($request->has('sections')) {
-                // Get existing section IDs
-                $existingSectionIds = $report->reportSections()->pluck('id')->toArray();
+        if ($request->has('defects')) {
+            foreach ($request->defects as $index => $defectData) {
+                // Check if this is an existing defect or a new one
+                if (isset($defectData['id'])) {
+                    $defect = ReportDefect::findOrFail($defectData['id']);
 
-                // Process each section
-                foreach ($request->sections as $index => $sectionData) {
-                    // Check if this is an existing section or a new one
-                    if (isset($sectionData['id']) && in_array($sectionData['id'], $existingSectionIds)) {
-                        $section = \App\Models\ReportSection::find($sectionData['id']);
-                    } else {
-                        $section = new \App\Models\ReportSection();
-                        $section->report_id = $report->id;
+                    // Verify this defect belongs to this report
+                    if ($defect->report_id != $report->id) {
+                        continue; // Skip if defect doesn't belong to this report
                     }
 
-                    // Update section data
-                    $section->name = $sectionData['name'] ?? null;
-                    $section->diameter = $sectionData['diameter'] ?? null;
-                    $section->material = $sectionData['material'] ?? null;
-                    $section->length = $sectionData['length'] ?? null;
-                    $section->start_manhole = $sectionData['start_manhole'] ?? null;
-                    $section->end_manhole = $sectionData['end_manhole'] ?? null;
-                    $section->location = $sectionData['location'] ?? null;
-                    $section->comments = $sectionData['comments'] ?? null;
-                    $section->save();
-
-                    // Store the section ID for defects
-                    $sectionIds[$index] = $section->id;
-
-                    // Process section image if provided
-                    if ($request->hasFile("section_images.{$index}")) {
-                        // Remove old image if it exists
-                        $oldSectionImage = $report->reportImages->where('section_id', $section->id)->first();
-                        if ($oldSectionImage) {
-                            Storage::disk('public')->delete($oldSectionImage->file_path);
-                            $oldSectionImage->delete();
-                        }
-
-                        // Store new section image
-                        $imagePath = $request->file("section_images.{$index}")->store('report-images', 'public');
-
-                        ReportImage::create([
-                            'report_id' => $report->id,
-                            'section_id' => $section->id,
-                            'file_path' => $imagePath,
-                            'caption' => "Section {$section->name} Image",
-                        ]);
-                    }
+                    $existingDefectIds[] = $defect->id;
+                } else {
+                    $defect = new ReportDefect();
+                    $defect->report_id = $report->id;
                 }
-            }
 
-            // Process defects
-            $existingDefectIds = [];
+                // Update defect data
+                $defect->defect_type_id = $defectData['defect_type_id'];
+                $defect->description = $defectData['description'];
+                $defect->severity = $defectData['severity'];
 
-            if ($request->has('defects')) {
-                foreach ($request->defects as $index => $defectData) {
-                    // Check if this is an existing defect or a new one
-                    if (isset($defectData['id'])) {
-                        $defect = ReportDefect::findOrFail($defectData['id']);
+                // Handle section_id with the newly created or updated section IDs
+                if (isset($defectData['section_id']) && isset($sectionIds[$defectData['section_id']])) {
+                    $defect->section_id = $sectionIds[$defectData['section_id']];
+                } else {
+                    $defect->section_id = null;
+                }
 
-                        // Verify this defect belongs to this report
-                        if ($defect->report_id != $report->id) {
-                            continue; // Skip if defect doesn't belong to this report
-                        }
-
-                        $existingDefectIds[] = $defect->id;
-                    } else {
-                        $defect = new ReportDefect();
-                        $defect->report_id = $report->id;
-                    }
-
-                    // Update defect data
-                    $defect->defect_type_id = $defectData['defect_type_id'];
-                    $defect->description = $defectData['description'];
-                    $defect->severity = $defectData['severity'];
-
-                    // Handle section_id with the newly created or updated section IDs
-                    if (isset($defectData['section_id']) && isset($sectionIds[$defectData['section_id']])) {
-                        $defect->section_id = $sectionIds[$defectData['section_id']];
-                    } else {
-                        $defect->section_id = null;
-                    }
-
-                    // Handle coordinates/metadata
-                    $coordinates = [];
-                    if (isset($defectData['coordinates'])) {
-                        foreach ($defectData['coordinates'] as $key => $value) {
-                            if (!empty($value)) {
-                                $coordinates[$key] = $value;
-                            }
-                        }
-                    }
-                    $defect->coordinates = $coordinates;
-                    $defect->save();
-
-                    // Process defect image if provided
-                    if ($request->hasFile("defect_images.{$index}")) {
-                        // Remove old image if it exists
-                        $oldDefectImage = $report->reportImages->where('defect_id', $defect->id)->first();
-                        if ($oldDefectImage) {
-                            Storage::disk('public')->delete($oldDefectImage->file_path);
-                            $oldDefectImage->delete();
-                        }
-
-                        // Store new defect image
-                        $imagePath = $request->file("defect_images.{$index}")->store('report-images', 'public');
-
-                        ReportImage::create([
-                            'report_id' => $report->id,
-                            'defect_id' => $defect->id,
-                            'file_path' => $imagePath,
-                            'caption' => substr($defect->description, 0, 30),
-                        ]);
-                    } elseif ($request->has("keep_defect_images.{$index}") && $request->{"keep_defect_images." . $index} == 0) {
-                        // Remove defect image if the user unchecked "keep this image"
-                        $oldDefectImage = $report->reportImages->where('defect_id', $defect->id)->first();
-                        if ($oldDefectImage) {
-                            Storage::disk('public')->delete($oldDefectImage->file_path);
-                            $oldDefectImage->delete();
+                // Handle coordinates/metadata
+                $coordinates = [];
+                if (isset($defectData['coordinates'])) {
+                    foreach ($defectData['coordinates'] as $key => $value) {
+                        if (!empty($value)) {
+                            $coordinates[$key] = $value;
                         }
                     }
                 }
+                $defect->coordinates = $coordinates;
+                $defect->save();
+
+                // Add the newly created defect's ID to the existingDefectIds array
+                if (!isset($defectData['id'])) {
+                    $existingDefectIds[] = $defect->id;
+                }
+
+                // Process defect image if provided
+                if ($request->hasFile("defect_images.{$index}")) {
+                    // Remove old image if it exists
+                    $oldDefectImage = $report->reportImages->where('defect_id', $defect->id)->first();
+                    if ($oldDefectImage) {
+                        Storage::disk('public')->delete($oldDefectImage->file_path);
+                        $oldDefectImage->delete();
+                    }
+
+                    // Store new defect image
+                    $imagePath = $request->file("defect_images.{$index}")->store('report-images', 'public');
+
+                    ReportImage::create([
+                        'report_id' => $report->id,
+                        'defect_id' => $defect->id,
+                        'file_path' => $imagePath,
+                        'caption' => substr($defect->description, 0, 30),
+                    ]);
+                } elseif ($request->has("keep_defect_images.{$index}") && $request->{"keep_defect_images." . $index} == 0) {
+                    // Remove defect image if the user unchecked "keep this image"
+                    $oldDefectImage = $report->reportImages->where('defect_id', $defect->id)->first();
+                    if ($oldDefectImage) {
+                        Storage::disk('public')->delete($oldDefectImage->file_path);
+                        $oldDefectImage->delete();
+                    }
+                }
             }
+        }
 
-            // Delete defects that were removed
-            $report->reportDefects()->whereNotIn('id', $existingDefectIds)->get()->each(function ($defect) {
-                // Delete associated images first
-                $defect->images()->get()->each(function ($image) {
-                    Storage::disk('public')->delete($image->file_path);
-                    $image->delete();
-                });
-
-                // Delete the defect
-                $defect->delete();
+        // Delete defects that were removed
+        $report->reportDefects()->whereNotIn('id', $existingDefectIds)->get()->each(function ($defect) {
+            // Delete associated images first
+            $defect->images()->get()->each(function ($image) {
+                Storage::disk('public')->delete($image->file_path);
+                $image->delete();
             });
 
-            DB::commit();
+            // Delete the defect
+            $defect->delete();
+        });
 
-            return redirect()->route('reports.show', $report)
-                ->with('success', 'Report updated successfully.');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Error updating report: ' . $e->getMessage());
+        DB::commit();
 
-            return redirect()->back()
-                ->with('error', 'An error occurred: ' . $e->getMessage())
-                ->withInput();
-        }
+        return redirect()->route('reports.show', $report)
+            ->with('success', 'Report updated successfully.');
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Error updating report: ' . $e->getMessage());
+
+        return redirect()->back()
+            ->with('error', 'An error occurred: ' . $e->getMessage())
+            ->withInput();
     }
+}
 
     /**
      * Remove the specified resource from storage.
