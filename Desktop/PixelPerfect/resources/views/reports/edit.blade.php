@@ -877,6 +877,12 @@
                     <label class="form-label fw-bold required">{{ __('Pipe Section') }}</label>
                     <select name="defects[INDEX][section_id]" class="form-select section-selector" required>
                         <option value="">{{ __('Select Section') }}</option>
+                        @foreach ($report->reportSections as $section)
+                            <option value="{{ $section->id }}"
+                                {{ $defect->section_id == $section->id ? 'selected' : '' }}>
+                                {{ $section->name }}
+                            </option>
+                        @endforeach
                     </select>
                     <small class="text-muted">{{ __('Associate this defect with a pipe section') }}</small>
                 </div>
@@ -1130,31 +1136,60 @@
             }
 
             function updateSectionSelectors() {
+                // Obter todos os itens de seção
                 const sectionItems = document.querySelectorAll('.section-item');
                 const sectionOptions = [];
+
+                // Construir opções a partir das seções
                 sectionItems.forEach((item, index) => {
                     const nameInput = item.querySelector('[name*="name"]');
+                    const idField = item.querySelector('[name*="sections"][name*="id"]');
+
+                    // Obter ID para a seção
+                    let sectionId;
+                    if (idField) {
+                        sectionId = idField.value; // Usar ID existente
+                    } else {
+                        sectionId = index; // Usar índice temporário para novas seções
+                    }
+
                     const sectionName = nameInput ? nameInput.value || `Section ${index + 1}` :
                         `Section ${index + 1}`;
-                    const idField = item.querySelector('[name*="sections"][name*="id"]');
+
+                    // Adicionar no array de opções
                     sectionOptions.push({
-                        id: idField ? idField.value : index,
+                        id: sectionId,
                         name: sectionName
                     });
+
+                    // Para debug
+                    console.log(`Section option: id=${sectionId}, name=${sectionName}`);
                 });
+
+                // Atualizar todos os seletores de seção nos defeitos
                 const sectionSelectors = document.querySelectorAll('.section-selector');
                 sectionSelectors.forEach(selector => {
+                    // Salvar seleção atual
                     const currentValue = selector.value;
+                    console.log(`Selector current value: ${currentValue}`);
+
+                    // Limpar opções exceto a primeira
                     while (selector.options.length > 1) {
                         selector.remove(1);
                     }
+
+                    // Adicionar novas opções
                     sectionOptions.forEach(section => {
                         const option = document.createElement('option');
                         option.value = section.id;
                         option.textContent = section.name;
+
+                        // Restaurar seleção se ainda existir
                         if (section.id.toString() === currentValue) {
                             option.selected = true;
+                            console.log(`Restoring selection: ${section.id}`);
                         }
+
                         selector.appendChild(option);
                     });
                 });
@@ -1428,6 +1463,10 @@
             addSectionNameListeners();
             updateSectionSelectors();
             updateDefectHeaders();
+
+            document.querySelectorAll('.section-selector').forEach(select => {
+                select.addEventListener('change', updateDefectHeaders);
+            });
 
             const reportForm = document.getElementById('reportForm');
             if (reportForm) {
