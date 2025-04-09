@@ -1136,27 +1136,23 @@
             }
 
             function updateSectionSelectors() {
-                // Obter todos os itens de seção
                 const sectionItems = document.querySelectorAll('.section-item');
                 const sectionOptions = [];
 
-                // Construir opções a partir das seções
                 sectionItems.forEach((item, index) => {
                     const nameInput = item.querySelector('[name*="name"]');
                     const idField = item.querySelector('[name*="sections"][name*="id"]');
 
-                    // Obter ID para a seção
                     let sectionId;
                     if (idField) {
-                        sectionId = idField.value; // Usar ID existente
+                        sectionId = idField.value;
                     } else {
-                        sectionId = index; // Usar índice temporário para novas seções
+                        sectionId = index;
                     }
 
                     const sectionName = nameInput ? nameInput.value || `Section ${index + 1}` :
                         `Section ${index + 1}`;
 
-                    // Adicionar no array de opções
                     sectionOptions.push({
                         id: sectionId,
                         name: sectionName
@@ -1166,25 +1162,20 @@
                     console.log(`Section option: id=${sectionId}, name=${sectionName}`);
                 });
 
-                // Atualizar todos os seletores de seção nos defeitos
                 const sectionSelectors = document.querySelectorAll('.section-selector');
                 sectionSelectors.forEach(selector => {
-                    // Salvar seleção atual
                     const currentValue = selector.value;
                     console.log(`Selector current value: ${currentValue}`);
 
-                    // Limpar opções exceto a primeira
                     while (selector.options.length > 1) {
                         selector.remove(1);
                     }
 
-                    // Adicionar novas opções
                     sectionOptions.forEach(section => {
                         const option = document.createElement('option');
                         option.value = section.id;
                         option.textContent = section.name;
 
-                        // Restaurar seleção se ainda existir
                         if (section.id.toString() === currentValue) {
                             option.selected = true;
                             console.log(`Restoring selection: ${section.id}`);
