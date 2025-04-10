@@ -337,7 +337,7 @@ class ReportController extends Controller
         return view('reports.edit', compact('report', 'defectTypes'));
     }
 
-   /**
+    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -501,14 +501,21 @@ class ReportController extends Controller
                     $defect->description = $defectData['description'];
                     $defect->severity = $defectData['severity'];
 
-                    // Handle section_id with the newly created or updated section IDs
-                    if (isset($defectData['section_id']) && isset($sectionIds[$defectData['section_id']])) {
-                        $defect->section_id = $sectionIds[$defectData['section_id']];
+                    // Handle section_id - modificação aqui para lidar melhor com o section_id
+                    if (isset($defectData['section_id']) && !empty($defectData['section_id'])) {
+
+                        if (is_numeric($defectData['section_id']) && \App\Models\ReportSection::where('id', $defectData['section_id'])->exists()) {
+                            $defect->section_id = $defectData['section_id'];
+                        } elseif (isset($sectionIds[$defectData['section_id']])) {
+                            $defect->section_id = $sectionIds[$defectData['section_id']];
+                        }
+
+                        Log::info("Defect {$index}: section_id={$defectData['section_id']}, mapped to " . ($defect->section_id ?? 'null'));
                     } else {
                         $defect->section_id = null;
+                        Log::info("Defect {$index}: No section_id provided");
                     }
 
-                    // Handle coordinates/metadata
                     $coordinates = [];
                     if (isset($defectData['coordinates'])) {
                         foreach ($defectData['coordinates'] as $key => $value) {
@@ -519,6 +526,11 @@ class ReportController extends Controller
                     }
                     $defect->coordinates = $coordinates;
                     $defect->save();
+
+                    // Add the newly created defect's ID to the existingDefectIds array
+                    if (!isset($defectData['id'])) {
+                        $existingDefectIds[] = $defect->id;
+                    }
 
                     // Process defect image if provided
                     if ($request->hasFile("defect_images.{$index}")) {
@@ -628,6 +640,10 @@ class ReportController extends Controller
 
             Log::info("Generating PDF preview with language: {$language}, includeComments: " . ($includeComments ? 'true' : 'false'));
 
+            // Ensure the language is loaded
+            App::setLocale($language);
+            app('translator')->setLocale($language);
+
             $pdf = $pdfService->generateReportPdf(
                 $report,
                 $includeComments,
@@ -663,6 +679,7 @@ class ReportController extends Controller
 
             // Ensure the language is loaded
             App::setLocale($language);
+            app('translator')->setLocale($language);
 
             $pdf = $pdfService->generateReportPdf(
                 $report,
